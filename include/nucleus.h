@@ -14,7 +14,27 @@
 /* borrowed from Linux */
 #define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
-#define BUG()		do { } while(0)
+static inline void die()
+{
+	/* 
+	 * halt the cpu
+	 * 
+	 * NOTE: we don't care about not clobbering registers as when this
+	 * code executes, the CPU will be stopped.
+	 */
+	asm volatile(
+		"SR	%r1, %r1	# not used, but should be zero\n"
+		"SR	%r3, %r3 	# CPU Address\n"
+		"SIGP	%r1, %r3, 0x05	# Signal, order 0x05\n"
+	);
+
+	/*
+	 * If SIGP failed, loop forever
+	 */
+	for(;;);
+}
+
+#define BUG()		die() /* FIXME: something should be outputed to console */
 #define BUG_ON(cond)	do { \
 				if (unlikely(cond)) \
 					BUG(); \
