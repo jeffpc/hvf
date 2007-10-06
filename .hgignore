@@ -1,0 +1,8 @@
+\.o$
+\.rto$
+^ipl/ipl\.S$
+^hvf$
+^ipl/\.
+^loader\.bin$
+^cscope\.out$
+\.swp$

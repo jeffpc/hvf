@@ -1,0 +1,62 @@
+Physical locations:
+
+-------------------  (2^64)-1  --
+|                 |              \
+|                 |               |
+         .                        |
+         .                        \
+         .                         >    Generic pages
+         .                        /
+         .                        |
+|                 |               |
+|                 |              /
+|-----------------|  f(memsize)--
+|                 |              \
+|                 |               |
+         .                        \
+         .                         >    struct page array (see below)
+         .                        /
+|                 |               |
+|                 |              /
+|-----------------|  4M        --
+|                 |              \
+|                 |               |
+         .                        \
+         .                         >    OS .text, .data, .rodata, .bss
+         .                        /
+|                 |               |
+|                 |              /
+|-----------------|  1M        --
+|                 |              \
+|                 |               |
+         .                        |
+         .                        |
+         .                        \
+|                 |                >    PSA for each CPU
+|                 |               /
+|-----------------|  8k           |
+|                 |               |
+|       PSA       |               |
+|                 |              /
+-------------------  0         --
+
+
+0 - 1MB:
+	Divided into up to 128 8KB chunks; nth chunk is nth CPU's PSA
+	(mapping done via the prefix register).
+
+1MB - 4MB:
+	OS .text
+	OS .data
+	OS .rodata
+	OS .bss
+
+4MB - (4MB + roundup((memsize >> PAGE_SIZE) * sizeof(struct page))):
+	This is an array of struct page entries for each page in the system.
+	The size varies based on the amount of memory installed.
+
+?? - (2^64)-1:
+	Generic pages; used for nucleus & process data
+
+	These pages are managed by the buddy allocator.
+

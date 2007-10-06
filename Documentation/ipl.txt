@@ -1,0 +1,80 @@
+This file attempts to describe what happens during IPL.
+
+NOTE: At the time, only IPL from tape is supported.
+
+1) system reads 24 bytes from the device
+
+   a) bytes   0-7: new PSW, no interrupts, start address 0x800000 (8MB)
+
+   b) bytes  8-15: CCW to rewind the tape to previous TM
+
+   c) bytes 16-23: CCW to read the entire loader to 0x800000 (8 MB)
+
+2) arch mode is changed to z/Arch (see ipl/setmode.S)
+
+3) temporary stack is set up (R15 being the pointer) (see ipl/setmode.S)
+
+4) loader begins to execute: function load_nucleus (see ipl/loader.c)
+
+   NOTE: loader.c use static inlines extensively, and thefore stack usage is
+   minimal
+
+   a) nucleus is read from tape to 0x400000 (4 MB)
+
+      NOTE: the data at 4MB just read is an 64-bit s390 ELF binary with
+      Linux ABI bits
+
+      i)   addition CCW address is set in the ORB
+
+      ii)  __readnucleus() is called; this function is implemented in
+           assembly (see ipl/loader_asm.S)
+
+      iii) IO interrupt handler is set up (implemented in asm, see
+           ipl/loader_asm.S)
+
+      iv)  ORB is sent to the subchannel
+
+      v)   interrupts are enabled
+
+      vi)  a new PSW with wait state bit set is loaded
+
+      vii) on IO interrupt
+
+           1) TSCH is issued to fill in a IRB
+
+           2) magic value (ORB int param) is checked
+
+	   3) Device End flag is checked in the IRB
+
+	      NOTE: more checks should be performed here
+
+	   4) If the device end flag is set, return to code that set up the
+              interrupt handler
+
+	   5) otherwise, load up the old IO PSW (the one with the wait
+              state)
+
+      viii)return to caller (back to ipl/loader.c)
+
+   b) verify ELF header magic number, machine, type, etc. values
+
+   c) traverse the section headers & copy data to final destination
+
+      i)   if the section type is PROGBITS (data stored in the ELF), copy
+           the data from it's temporary location to the desired location
+	   (destination, offset within file, and length are all stored in
+	   the section header) - this takes care of .text, .data, and
+	   .rodata sections
+
+      ii)  if the section type is NOBITS (uninitialized storage, e.g.,
+           .bss), do nothing, just assume that the location is a valid
+	   location in memory
+
+      iii) skip any other section types
+
+      NOTE: SYMTAB and STRTAB section types should be copied to a useful
+      location to allow for symbols to be looked up during nucleus execution
+
+   d) jump to the entry point as indicated by the ELF header
+
+At this point, the nucleus is executing.

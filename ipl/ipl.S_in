@@ -1,0 +1,133 @@
+# During the system IPL, 24 bytes are read from the device.
+#
+# NOTE: zArch IPLs in ESA/390 mode.
+#
+
+#
+# Bytes 0-7 contain PSW to be loaded after IO operation completes
+#
+	.byte	0x00
+		#   bits  value   name                        desc
+		#      0      0   <zero>
+		#      1      0   PER Mask (R)                disabled
+		#    2-4      0   <zero>
+		#      5      0   DAT Mode (T)                disabled
+		#      6      0   I/O Mask (IO)               disabled
+		#      7      0   External Mask (EX)          disabled
+
+	.byte	0x0c
+		#   bits  value   name                        desc
+		#   8-11      0   Key
+		#     12      1   <one>
+		#     13      1   Machine-Check Mask (M)      enabled
+		#     14      0   Wait State (W)              executing
+		#     15      0   Problem State (P)           supervisor state
+		
+	.byte	0x00
+		#   bits  value   name                        desc
+		#  16-17      0   Address-Space Control (AS)  disabled
+		#  18-19      0   Condition Code (CC)
+		#  20-23      0   Program Mask                exceptions disabled
+
+	.byte	0x00
+		#   bits  value   name                        desc
+		#  24-30      0   <zero>
+		#     31      1   Extended Addressing (EA)    EA + BA = 64 mode
+
+	.byte	0x80	# bits 32-39
+	.byte	0x80	# bits 40-47
+	.byte	0x00	# bits 48-55
+	.byte	0x00	# bits 56-63
+		#   bits  value   name                        desc
+		#     32      1   Basic Addressing (BA)       BA = 31, !BA = 24
+		#  33-63   addr   Instruction Address         Address to exec
+
+#
+# The remaining 16 bytes should contain CCW to read data from device
+#
+
+#
+# The following is a little bit subtle...
+#
+#    CCW 1     loads (( CCW1H << 16 ) + CCW1L ) bytes to 0x800000 (command chain)
+#    CCW 2     loads (( CCW2H << 16 ) + CCW2L ) bytes to
+#    		   0x800000 + (( CCW1H << 16 ) + CCW1L ) (no command chain)
+#
+
+#
+# CCW 1 (bytes 8-15): format-0
+#
+	.byte	0x27
+		#   bits  value   name                        desc
+		#    0-7      2   Cmd Code                    ?, modifiers
+
+	.byte	0x00
+	.byte	0x00
+	.byte	0x00
+		#   bits  value   name                        desc
+		#   8-31   addr   Data Address                dest of the read
+
+	.byte	0x60
+		#   bits  value   name                        desc
+		#     32      0   Chain-Data (CD)             don't chain
+		#     33      1   Chain-Command (CC)          read more
+		#     34      1   Sup.-Len.-Inditcation (SLI) suppress
+		#     35      0   Skip (SKP)                  issue read
+		#     36      0   Prog.-Contr.-Inter. (PCI)   don't interrupt
+		#     37      0   Indir.-Data-Addr. (IDA)     real addr
+		#     38      0   Suspend (S)                 don't suspend
+		#     39      0   Modified I.D.A. (MIDA)      real addr
+
+	.byte	0x00
+		#   bits  value   name                        desc
+		#  40-47      0   <ignored>
+
+	.byte	0x00
+	.byte	0x01
+		#   bits  value   name                        desc
+		#  48-63    len   number of bytes to read
+
+#
+# CCW 2 (bytes 16-23): format-0
+#
+	.byte	0x02
+		#   bits  value   name                        desc
+		#    0-7      2   Cmd Code                    read, no modifiers
+
+	.byte	0x7f
+	.byte	0xff	
+	.byte	0xb0
+		#   bits  value   name                        desc
+		#   8-31   addr   Data Address                dest of the read
+
+	.byte	0x20
+		#   bits  value   name                        desc
+		#     32      0   Chain-Data (CD)             don't chain
+		#     33      0   Chain-Command (CC)          don't chain
+		#     34      1   Sup.-Len.-Inditcation (SLI) suppress
+		#     35      0   Skip (SKP)                  issue read
+		#     36      0   Prog.-Contr.-Inter. (PCI)   don't interrupt
+		#     37      0   Indir.-Data-Addr. (IDA)     real addr
+		#     38      0   Suspend (S)                 don't suspend
+		#     39      0   Modified I.D.A. (MIDA)      real addr
+
+	.byte	0x00
+		#   bits  value   name                        desc
+		#  40-47      0   <ignored>
+
+	.byte	CCW2H
+	.byte	CCW2L
+		#   bits  value   name                        desc
+		#  48-63    len   number of bytes to read
+
+#
+# For whatever reason, it would seem that we need to pad until byte 0x50 = 80
+#
+	.byte	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 # bytes 24-31
+	.byte	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 # bytes 32-39
+	.byte	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 # bytes 40-47
+	.byte	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 # bytes 48-55
+	.byte	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 # bytes 56-63
+	.byte	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 # bytes 64-71
+	.byte	0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40 # bytes 72-79
+
