@@ -10,13 +10,13 @@ LD=ld
 OBJCOPY=objcopy
 
 MAKEFLAGS += -rR --no-print-directory
-CFLAGS=-g -fno-builtin -nostdinc -nostdlib -Wall -m64 -I include/ -O2
+CFLAGS=-g -fno-strict-aliasing -fno-builtin -nostdinc -nostdlib -Wall -m64 -I include/ -O2
 NUCLEUSCFLAGS=-include include/nucleus.h
 LDFLAGS=-m elf64_s390
 
 .PRECIOUS: %.o
 
-.PHONY: all build clean cleanup hvfclean iplclean
+.PHONY: all build clean mrproper cleanup hvfclean iplclean
 
 ifneq ($(DIR),)
 .PHONY: $(DIR)
@@ -41,6 +41,8 @@ clean:
 	@$(MAKE) DIR=lib/ cleanup
 	rm -f hvf
 	rm -f loader.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl.S
+
+mrproper: clean
 	rm -f cscope.out ctags
 
 cleanup:
