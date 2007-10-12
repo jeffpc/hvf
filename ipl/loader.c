@@ -46,7 +46,7 @@ static unsigned char seek_ccw[8] __attribute__ ((aligned (8))) = {
 	0x20,
 	/*   bits  value   name                        desc             */
 	/*     32      0   Chain-Data (CD)             don't chain      */
-	/*     33      1   Chain-Command (CC)          don't chain      */
+	/*     33      0   Chain-Command (CC)          don't chain      */
 	/*     34      1   Sup.-Len.-Inditcation (SLI) suppress         */
 	/*     35      0   Skip (SKP)                  issue read       */
 	/*     36      0   Prog.-Contr.-Inter. (PCI)   don't interrupt  */
