@@ -6,16 +6,14 @@
  */
 struct ccw {
 	u8 cmd;			/* command code */
-	struct {
-		u8 cd:1,	/* Chain-Data */
-		   cc:1,	/* Chain-Command */
-		   sli:1,	/* Suppress-Length-Indication */
-		   skp:1,	/* Skip */
-		   pci:1,	/* Program-Controlled-Interruption */
-		   ida:1,	/* Indirect-Data-Address */
-		   s:1,		/* Suspend */
-		   mida:1;	/* Modified-Indirect-Data-Address */
-	} flags;
+	u8 cd:1,		/* Chain-Data */
+	   cc:1,		/* Chain-Command */
+	   sli:1,		/* Suppress-Length-Indication */
+	   skp:1,		/* Skip */
+	   pci:1,		/* Program-Controlled-Interruption */
+	   ida:1,		/* Indirect-Data-Address */
+	   s:1,			/* Suspend */
+	   mida:1;		/* Modified-Indirect-Data-Address */
 	u16 count;		/* Count */
 	u32 addr;		/* Data Address */
 } __attribute__((packed,aligned(8)));
@@ -28,24 +26,24 @@ struct orb {
 	u32 param;		/* Interruption Parameter */
 
 	/* word 1 */
-	u16 key:8,		/* Subchannel Key */
-	    s:1,		/* Suspend */
-	    c:1,		/* Streaming-Mode Control */
-	    m:1,		/* Modification Control */
-	    y:1,		/* Synchronization Control */
-	    f:1,		/* Format Control */
-	    p:1,		/* Prefetch Control */
-	    i:1,		/* Initial-Status-Interruption Control */
-	    a:1,		/* Address-Limit-Checking control */
-	    u:1,		/* Suppress-Suspend-Interruption Control */
-	    __zero1:1,
-	    h:1,		/* Format-2-IDAW Control */
-	    t:1;		/* 2K-IDAW Control */ 
-	u16 lpm:8,		/* Logical-Path Mask */
-	    l:1,		/* Incorrect-Length-Suppression Mode */
-	    d:1,		/* Modified-CCW-Indirect-Data-Addressing Control */
-	    __zero2:5,
-	    x:1;		/* ORB-Extension Control */
+	u8 key:4,		/* Subchannel Key */
+	   s:1,			/* Suspend */
+	   c:1,			/* Streaming-Mode Control */
+	   m:1,			/* Modification Control */
+	   y:1;			/* Synchronization Control */
+	u8 f:1,			/* Format Control */
+	   p:1,			/* Prefetch Control */
+	   i:1,			/* Initial-Status-Interruption Control */
+	   a:1,			/* Address-Limit-Checking control */
+	   u:1,			/* Suppress-Suspend-Interruption Control */
+	   __zero1:1,
+	   h:1,			/* Format-2-IDAW Control */
+	   t:1;			/* 2K-IDAW Control */ 
+	u8 lpm;			/* Logical-Path Mask */
+	u8 l:1,			/* Incorrect-Length-Suppression Mode */
+	   d:1,			/* Modified-CCW-Indirect-Data-Addressing Control */
+	   __zero2:5,
+	   x:1;			/* ORB-Extension Control */
 
 	/* word 2 */
 	u32 addr;		/* Channel-Program Address */

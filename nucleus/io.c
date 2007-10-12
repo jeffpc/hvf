@@ -20,6 +20,19 @@ static int __verify_io_op(struct io_op *ioop)
 	return 0;
 }
 
+static void __reset_reserved_fields(struct io_op *ioop)
+{
+	ioop->orb.__zero1 = 0;
+	ioop->orb.__zero2 = 0;
+
+	ioop->orb.__reserved1 = 0;
+	ioop->orb.__reserved2 = 0;
+	ioop->orb.__reserved3 = 0;
+	ioop->orb.__reserved4 = 0;
+	ioop->orb.__reserved5 = 0;
+	ioop->orb.__reserved6 = 0;
+}
+
 /*
  * Submit an I/O request to a subchannel, and set up everything needed to
  * handle the operation
@@ -29,20 +42,21 @@ int submit_io(struct io_op *ioop, int flags)
 	int i;
 	int err = -EBUSY;
 
-	/* FIXME: is this condition right, or should it be negated? */
-	if (atomic_add_unless(&ops_used, 1, MAX_IOS))
+	if (!atomic_add_unless(&ops_used, 1, MAX_IOS))
 		goto out;
 
 	err = __verify_io_op(ioop);
 	if (err)
 		goto out;
 
+	/* make sure all reserved fields have the right values */
+	__reset_reserved_fields(ioop);
+
 	ioop->err = 0;
 	ioop->done = 0;
 
 	/* find an unused slot */
 	for(i=0; i<MAX_IOS; i++) {
-		/* FIXME: is this condition right? negate? */
 		if (atomic_add_unless(&ops[i].used, 1, 1))
 			break;
 	}
@@ -57,12 +71,14 @@ int submit_io(struct io_op *ioop, int flags)
 	 * Set the subsystem ID & issue SSCH on the ORB
 	 */
 	asm volatile(
-		"	l	%%r1,%0\n"
-		"	ssch	%1\n"
+		"	sr	%%r1,%%r1\n"
+		"	a	%%r1,0(%%r1,%0)\n"
+		"	ssch	0(%2)\n"
 		: /* output */
 		: /* input */
-		  "d" (ioop->ssid),
-		  "d" (&ioop->orb)
+		  "a" (&ioop->ssid),
+		  "m" (ioop->orb),
+		  "a" (&ioop->orb)
 		: /* clobbered */
 		  "cc", "r1"
 	);
