@@ -16,7 +16,7 @@ LDFLAGS=-m elf64_s390
 
 .PRECIOUS: %.o
 
-.PHONY: all build clean mrproper cleanup hvfclean iplclean
+.PHONY: all build clean mrproper cleanup hvfclean iplclean tags
 
 ifneq ($(DIR),)
 .PHONY: $(DIR)
@@ -49,6 +49,9 @@ cleanup:
 	rm -f $(DIR)/*.o
 
 build: $(DIR)/built-in.o
+
+tags:
+	cscope -R -b
 
 #
 # Include Makefiles from all the top level directories
