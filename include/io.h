@@ -36,5 +36,8 @@ struct io_op_inflight_entry {
 
 extern void init_io();
 extern int submit_io(struct io_op *oop, int flags);
+extern void init_oper_console(u16 target_ccuu);
+
+extern u32 oper_console_ssid;
 
 #endif

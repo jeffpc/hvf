@@ -61,8 +61,7 @@ struct orb {
 	u32 __reserved6;
 } __attribute__((packed,aligned(4)));
 
-/* part of IRB */
-struct irb_subch_status {
+struct subch_status {
 	/* word 0 */
 	u16 key:4,		/* Subchannel key */
 	    s:1,		/* Suspend control */
@@ -109,10 +108,64 @@ struct irb_ext_measurement {
 } __attribute__((packed));
 
 struct irb {
-	struct irb_subch_status status;		/* Subchannel-Status */
+	struct subch_status status;		/* Subchannel-Status */
 	struct irb_ext_status ext_status;	/* Extended-Status */
 	struct irb_ext_control ext_control;	/* Extended-Control */
 	struct irb_ext_measurement ext_measure;	/* Extended-Measurement */
+} __attribute__((packed,aligned(4)));
+
+/* needed by schib */
+struct schib_pmcw {
+	/* word 0 */
+	u32 interrupt_param;	/* Interruption Parameter */
+
+	/* word 1*/
+	u8 __zero1:2,
+	   isc:3,		/* I/O-Interruption-Subclass Code */
+	   __zero2:3;
+	u8 e:1,			/* Enabled */
+	   lm:2,		/* Limit Mode */
+	   mm:2,		/* Measurement-Mode Enable */
+	   d:1,			/* Multipath Mode */
+	   t:1,			/* Timing Facility */
+	   v:1;			/* Device Number Valid */
+	u16 dev_num;		/* Device Number */
+
+	/* word 2 */
+	u8 lpm;			/* Logical-Path Mask */
+	u8 pnom;		/* Path-Not-Operational Mask */
+	u8 lpum;		/* Last-Path-Used Mask */
+	u8 pim;			/* Path-Installed Mask */
+
+	/* word 3 */
+	u16 mbi;		/* Measurement-Block Index */
+	u8 pom;			/* Path-Operational Mask */
+	u8 pam;			/* Path-Available Mask */
+
+	/* word 4 & 5 */
+	u8 chpid[8];		/* Channel-Path Identifiers */
+
+	/* word 6 */
+	u16 __zero3;
+	u16 __zero4:13,
+	    f:1,		/* Measurement Block Format Control */
+	    x:1,		/* Extended Measurement Word Mode Enable */
+	    s:1;		/* Concurrent Sense */
+};
+
+/* needed by schib */
+struct schib_measurement_block {
+	/* TODO: not implemented */
+	u32 w0, w1;
+};
+
+struct schib {
+	struct schib_pmcw path_ctl;
+	struct subch_status status;		/* Subchannel-Status */
+	union {
+		struct schib_measurement_block measure_block;
+	};
+	u32 model_dep_area;
 } __attribute__((packed,aligned(4)));
 
 #endif

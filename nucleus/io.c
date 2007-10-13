@@ -89,6 +89,103 @@ out:
 }
 
 /*
+ * Find & initialize the operator console
+ *
+ * This function figures out the operator console subchannel ID, and then
+ * then stores it in `oper_console_ssid' for printf's use in the future.
+ */
+void init_oper_console(u16 target_ccuu)
+{
+	struct schib schib;
+	u32 sch;
+	int cc;
+
+	memset(&schib, 0, sizeof(struct schib));
+
+	/*
+	 * For each possible subchannel id...
+	 */
+	for(sch = 0x10000; sch <= 0x1ffff; sch++) {
+		/*
+		 * ...call store subchannel, to find out whether or not
+		 * there is a device
+		 */
+		asm volatile(
+			"sr	%%r1,%%r1\n"
+			"a	%%r1,0(%%r1,%3)\n"
+			"stsch	%1\n"
+			"ipm	%0\n"
+			"srl	%0,28\n"
+			: /* output */
+			  "=d" (cc),
+			  "=m" (schib)
+			: /* input */
+			  "m" (sch),
+			  "a" (&sch)
+			: /* clobbered */
+			  "cc", "r1"
+		);
+
+		/* if not, repeat */
+		if (cc)
+			continue;
+
+		/* 
+		 * Found a device @ sch, check that it is the one we are
+		 * looking for
+		 */
+		if (!schib.path_ctl.v ||
+		    schib.path_ctl.dev_num != target_ccuu)
+			continue;
+
+		/* the device is the one we are looking for... */
+
+		/* if not already enabled, enable it */
+		if (schib.path_ctl.e)
+			goto save_sch;
+
+		schib.path_ctl.e = 1;
+
+		/*
+		 * Use Modify Subchannel to update the enabled bit
+		 */
+		asm volatile(
+			"sr	%%r1,%%r1\n"
+			"a	%%r1,0(%%r1,%3)\n"
+			"msch	%1\n"
+			"ipm	%0\n"
+			"srl	%0,28\n"
+			: /* output */
+			  "=d" (cc)
+			: /* input */
+			  "m" (schib),
+			  "m" (sch),
+			  "a" (&sch)
+			: /* clobbered */
+			  "cc", "r1"
+		);
+
+		/*
+		 * if there were no errors, save the subchannel id, and
+		 * bail
+		 */
+		if (!cc)
+			goto save_sch;
+
+		/* otherwise, try the next id */
+	}
+
+	/*
+	 * If we didn't find the device we were looking for, die a horrible
+	 * death :)
+	 */
+	BUG();
+
+save_sch:
+	oper_console_ssid = sch;
+}
+
+/*
  * Initialize the channel I/O subsystem
  */
 void init_io()

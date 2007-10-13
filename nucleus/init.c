@@ -52,6 +52,13 @@ void start()
 	init_io();
 
 	/*
+	 * Find & init operator console
+	 */
+	init_oper_console(OPER_CONSOLE_CCUU);
+
+	printf("\xc8\xe5\xc6\x40\xc8\xe5\xc6\x40\xc8\xe5\xc6\x40\xc8\xe5\xc6\x40");
+
+	/*
 	 * To be or not to be
 	 */
 	die();
