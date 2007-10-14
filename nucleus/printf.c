@@ -18,14 +18,14 @@ static void __start_console_io(char *buf, int len)
 
 	memset(&ioop.orb, 0, sizeof(struct orb));
 	ioop.orb.lpm = 0xff;
-	ioop.orb.addr = (u32) &ccw;
+	ioop.orb.addr = (u32) (u64) &ccw;
 	ioop.orb.f = 1;
 
 	memset(&ccw, 0, sizeof(struct ccw));
 	ccw.cmd = 0x01; //FIXME
 	ccw.sli = 1;
 	ccw.count = len;
-	ccw.addr = (u32) buf;
+	ccw.addr = (u32) (u64) buf;
 
 	submit_io(&ioop, 0);
 }
