@@ -6,3 +6,5 @@
 ^loader\.bin$
 ^cscope\.out$
 \.swp$
+\.orig$
+\.rej$
