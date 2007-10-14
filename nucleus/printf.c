@@ -4,6 +4,7 @@
 
 #include <channel.h>
 #include <io.h>
+#include <ebcdic.h>
 
 u32 oper_console_ssid;
 
@@ -35,8 +36,10 @@ int vprintf(const char *fmt, va_list args)
 	int ret;
 
 	ret = vsnprintf(buf, 80, fmt, args);
-	if (ret)
+	if (ret) {
+		ascii2ebcdic((u8 *) buf, ret);
 		__start_console_io(buf, ret);
+	}
 
 	return ret;
 }

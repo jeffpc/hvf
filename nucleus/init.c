@@ -56,7 +56,7 @@ void start()
 	 */
 	init_oper_console(OPER_CONSOLE_CCUU);
 
-	printf("\xc8\xe5\xc6\x40\xc8\xe5\xc6\x40\xc8\xe5\xc6\x40\xc8\xe5\xc6\x40");
+	printf("HVF HVF HVF HVF");
 
 	/*
 	 * To be or not to be
