@@ -6,15 +6,24 @@ extern u8 ebcdic2ascii_table[256];
 
 /*
  * Generic translate buffer function.
- *
- * TODO: Use the TR instruction
  */
 static inline void __translate(u8 *buf, int len, const u8 *table)
 {
-	int i;
-
-	for(i=0;i<len;i++)
-		buf[i] = table[buf[i]];
+	asm volatile(
+		"	sr	%%r0,%%r0\n"		/* test byte = 0 */
+		"	la	%%r2,0(%0)\n"		/* buffer */
+		"	sr	%%r3,%%r3\n"
+		"	ar	%%r3,%2\n"		/* length */
+		"	la	%%r4,0(%1)\n"		/* table */
+		"	tre	%%r2,%%r4\n"
+		: /* output */
+		: /* input */
+		  "a" (buf),
+		  "a" (table),
+		  "d" (len)
+		: /* clobbered */
+		  "cc", "r0", "r2", "r3", "r4"
+	);
 }
 
 #define ascii2ebcdic(buf, len)	\
