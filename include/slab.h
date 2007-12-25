@@ -14,4 +14,7 @@ extern int init_slab();
 extern struct slab *create_slab(u16 objsize);
 extern void free_slab(struct slab *slab);
 
+extern void *malloc(int size);
+extern void free(void *ptr);
+
 #endif
