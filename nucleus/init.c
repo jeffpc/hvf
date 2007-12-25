@@ -7,11 +7,7 @@
 #include <page.h>
 #include <buddy.h>
 #include <io.h>
-
-struct psw {
-	u8 bits[8];
-	u64 ptr;
-};
+#include <sched.h>
 
 extern void IO_INT(void);
 
@@ -109,6 +105,20 @@ void start()
 	printf("    generic pages        %llu..%llu kB",
 			(unsigned long long) first_free_page >> 10,
 			(unsigned long long) memsize >> 10);
+
+	/*
+	 * TODO:
+	 *   - init scheduler
+	 *   - set up idle process
+	 *   - set up init thread
+	 *   - go!
+	 */
+
+	/* Initialize the process scheduler */
+	init_sched();
+
+	printf(" Scheduler:");
+	printf("    %d tasks max", MAX_PROCESSES);
 
 	/*
 	 * To be or not to be
