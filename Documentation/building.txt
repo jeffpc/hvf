@@ -1,0 +1,29 @@
+Required software:
+==================
+
+	gcc
+	binutils
+
+I (Josef 'Jeff' Sipek) develop on Linux running under Hercules, if you have
+such a setup, running "make" in the top level directory should be enough to
+have the entire system compiled and linked. This will create 2 files:
+
+	hvf		- the nucleus
+	loader.bin	- the IPLable code which properly starts up the
+			  nucleus
+
+If you do not have a zLinux environment setup, it is possible to cross
+compile HVF, however the current build system does not support that.
+Patches welcomed :)
+
+
+Testing:
+========
+
+The `hercules' directory contains sample .cnf and .tdf files to IPL HVF in
+Hercules.
+
+(1) change into the `hercules' directory
+(2) start hercules with the config file (hercules -f hvf.cnf)
+(3) telnet to port 3271 (this is the 3215 console)
+(4) IPL from device 580
