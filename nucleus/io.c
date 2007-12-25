@@ -6,6 +6,9 @@
 #include <interrupt.h>
 #include <sched.h>
 #include <atomic.h>
+#include <buddy.h>
+
+u8 *io_stack_ptr;
 
 static atomic_t ops_used;		/* # of used slots in ops[] */
 static struct io_op_inflight_entry ops[MAX_IOS];
@@ -53,7 +56,7 @@ int submit_io(struct io_op *ioop, int flags)
 	__reset_reserved_fields(ioop);
 
 	ioop->err = 0;
-	ioop->done = 0;
+	atomic_set(&ioop->done, 0);
 
 	/* find an unused slot */
 	for(i=0; i<MAX_IOS; i++) {
@@ -65,7 +68,7 @@ int submit_io(struct io_op *ioop, int flags)
 
 	/* save I/O op pointer */
 	ops[i].op = ioop;
-	ioop->orb.param = i;
+	ioop->orb.param = i + IO_PARAM_BASE;
 
 	/*
 	 * Set the subsystem ID & issue SSCH on the ORB
@@ -89,108 +92,18 @@ out:
 }
 
 /*
- * Find & initialize the operator console
- *
- * This function figures out the operator console subchannel ID, and then
- * then stores it in `oper_console_ssid' for printf's use in the future.
- */
-void init_oper_console(u16 target_ccuu)
-{
-	struct schib schib;
-	u32 sch;
-	int cc;
-
-	memset(&schib, 0, sizeof(struct schib));
-
-	/*
-	 * For each possible subchannel id...
-	 */
-	for(sch = 0x10000; sch <= 0x1ffff; sch++) {
-		/*
-		 * ...call store subchannel, to find out whether or not
-		 * there is a device
-		 */
-		asm volatile(
-			"sr	%%r1,%%r1\n"
-			"a	%%r1,0(%%r1,%3)\n"
-			"stsch	%1\n"
-			"ipm	%0\n"
-			"srl	%0,28\n"
-			: /* output */
-			  "=d" (cc),
-			  "=m" (schib)
-			: /* input */
-			  "m" (sch),
-			  "a" (&sch)
-			: /* clobbered */
-			  "cc", "r1"
-		);
-
-		/* if not, repeat */
-		if (cc)
-			continue;
-
-		/* 
-		 * Found a device @ sch, check that it is the one we are
-		 * looking for
-		 */
-		if (!schib.path_ctl.v ||
-		    schib.path_ctl.dev_num != target_ccuu)
-			continue;
-
-		/* the device is the one we are looking for... */
-
-		/* if not already enabled, enable it */
-		if (schib.path_ctl.e)
-			goto save_sch;
-
-		schib.path_ctl.e = 1;
-
-		/*
-		 * Use Modify Subchannel to update the enabled bit
-		 */
-		asm volatile(
-			"sr	%%r1,%%r1\n"
-			"a	%%r1,0(%%r1,%3)\n"
-			"msch	%1\n"
-			"ipm	%0\n"
-			"srl	%0,28\n"
-			: /* output */
-			  "=d" (cc)
-			: /* input */
-			  "m" (schib),
-			  "m" (sch),
-			  "a" (&sch)
-			: /* clobbered */
-			  "cc", "r1"
-		);
-
-		/*
-		 * if there were no errors, save the subchannel id, and
-		 * bail
-		 */
-		if (!cc)
-			goto save_sch;
-
-		/* otherwise, try the next id */
-	}
-
-	/*
-	 * If we didn't find the device we were looking for, die a horrible
-	 * death :)
-	 */
-	BUG();
-
-save_sch:
-	oper_console_ssid = sch;
-}
-
-/*
  * Initialize the channel I/O subsystem
  */
 void init_io()
 {
 	int i;
+	struct page *page;
+	u64 cr6;
+
+	page = alloc_pages(0);
+	BUG_ON(!page);
+
+	io_stack_ptr = PAGE_SIZE + (u8*)page_to_addr(page);
 
 	for(i=0; i<MAX_IOS; i++) {
 		ops[i].op = NULL;
@@ -199,7 +112,16 @@ void init_io()
 
 	atomic_set(&ops_used, 0);
 
-	// FIXME: enable I/O interrupts
+	/* enable all I/O interrupt classes */
+	asm volatile(
+		"stctg	6,6,%0\n"	/* get cr6 */
+		"oi	%1,0xff\n"	/* enable all */
+		"lctlg	6,6,%0\n"	/* reload cr6 */
+	: /* output */
+	: /* input */
+	  "m" (cr6),
+	  "m" (*(u64*) (((u8*)&cr6) + 4))
+	);
 }
 
 /*
@@ -209,6 +131,7 @@ void __io_int_handler()
 {
 	struct irb irb;
 	struct io_op *cur_op;
+	int op_idx;
 
 	/*
 	 * make sure we don't overrun the ops array; if the parameter is
@@ -220,12 +143,24 @@ void __io_int_handler()
 	 * have to change to handle the cases where I/O is generated without
 	 * us starting it.
 	 */
-	if (IO_INT_CODE->param >= MAX_IOS)
+	op_idx = IO_INT_CODE->param - IO_PARAM_BASE;
+	if (op_idx >= MAX_IOS || op_idx < 0)
 		return;
 
-	cur_op = ops[IO_INT_CODE->param].op;
+	cur_op = ops[op_idx].op;
 	if (!cur_op)
 		return;
+
+	asm volatile(
+		"L	%%r1, %0\n"
+		"TSCH	%1\n"
+	: /* output */
+	: /* input */
+	  "m" (cur_op->ssid),
+	  "m" (irb)
+	: /* clobbered */
+	  "r1"
+	);
 
 	if (cur_op->handler)
 		cur_op->handler(cur_op, &irb);
@@ -239,10 +174,14 @@ void __io_int_handler()
 		return; /* leave handler registered */
 
 	/* flag io_op as done... */
-	cur_op->done = 1;
+	atomic_set(&cur_op->done, 1);
 
 	/* ...and remove it form the list */
-	ops[IO_INT_CODE->param].op = NULL;
-	atomic_dec(&ops[IO_INT_CODE->param].used);
+	ops[op_idx].op = NULL;
+	atomic_dec(&ops[op_idx].used);
 	atomic_dec(&ops_used);
+
+	/* call the destructor if there is one */
+	if (cur_op->dtor)
+		cur_op->dtor(cur_op);
 }

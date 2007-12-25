@@ -15,11 +15,13 @@ struct io_op {
 
 	int (*handler)(struct io_op *ioop, struct irb *irb);
 				/* I/O specific callback */
+	void (*dtor)(struct io_op *ioop);
+				/* I/O specific destructor */
 
 	int ssid;		/* subsystem ID */
 
 	int err;		/* return code */
-	int done;		/* has the operation completed */
+	atomic_t done;		/* has the operation completed */
 };
 
 /*
@@ -33,11 +35,13 @@ struct io_op_inflight_entry {
 };
 
 #define MAX_IOS		128	/* max number of in-flight IO ops */
+#define IO_PARAM_BASE	0x10000000
 
 extern void init_io();
 extern int submit_io(struct io_op *oop, int flags);
+
 extern void init_oper_console(u16 target_ccuu);
 
-extern u32 oper_console_ssid;
+extern u8 *io_stack_ptr;
 
 #endif

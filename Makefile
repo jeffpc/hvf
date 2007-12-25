@@ -10,7 +10,7 @@ LD=ld
 OBJCOPY=objcopy
 
 MAKEFLAGS += -rR --no-print-directory
-CFLAGS=-g -fno-strict-aliasing -fno-builtin -nostdinc -nostdlib -Wall -m64 -I include/ -O2
+CFLAGS=-DVERSION=\"$(VERSION)\" -g -fno-strict-aliasing -fno-builtin -nostdinc -nostdlib -Wall -m64 -I include/ -O2
 NUCLEUSCFLAGS=-include include/nucleus.h
 LDFLAGS=-m elf64_s390
 
@@ -60,6 +60,9 @@ include $(patsubst %/,%/Makefile,$(TOP_DIRS))
 
 %/built-in.o: $(patsubst %,$(DIR)/%,$(objs-$(DIR)))
 	$(LD) $(LDFLAGS) -r -o $@ $(patsubst %,$(DIR)/%,$(objs-$(DIR)))
+
+%.o: %.S
+	$(AS) -m64 -o $@ $<
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -c -o $@ $<
