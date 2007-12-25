@@ -1,0 +1,7 @@
+Aside from the architecture defined storage locations in the PSA, HVF uses
+the following addresses for special reasons:
+
+hex	dec	length	reason
+
+ 200	 512	128	interrupt handler GPR storage
+
