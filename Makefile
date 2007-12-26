@@ -64,6 +64,9 @@ include $(patsubst %/,%/Makefile,$(TOP_DIRS))
 %.o: %.S
 	$(AS) -m64 -o $@ $<
 
+%.s: %.c
+	$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -S -o $@ $<
+
 %.o: %.c
 	$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -c -o $@ $<
 
