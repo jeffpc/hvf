@@ -1,0 +1,100 @@
+The following information has been taken from Dr. Ulrich Weigand's SHARE 100
+presentation: "The GNU Compiler Collection on zSeries". Some modifications
+have been made to follow the HVF coding conventions.
+
+Syntax of "asm" construct
+=========================
+
+	asm volatile(
+		<assembler template>
+	: <output operands>
+	: <input operands>
+	: <clobber statements>
+	);
+
+
+Assembler template
+------------------
+- string passed to the assembler
+- may contain operand placeholders %0, %1, ...
+- registers specified as %%r0, %%r1, ...
+
+
+Clobber statements
+------------------
+- specify registers changed by template: "r0", "r1", ...
+- special clobbers: "cc" (condition code), "memory"
+
+
+Operand specification
+---------------------
+
+List of:
+
+	"<constraints>" (<expression>)
+
+- constraint letters:
+  "d"	general purpose register
+  "f"	floating point register
+  "a"	address register (i.e., gpr except %r0)
+  "m"	general memory operand (base + index + displacement)
+  "Q"	S-operand (base + displacement) - gcc 3.3 only
+  "i"	immediate constant
+
+- constraint modifier characters:
+  "="	write-only output operand
+  "+"	read-write output operand
+  "&"	operand modified before all inputs are processed
+
+
+Examples
+--------
+
+- simple register constraint
+
+	asm volatile(
+		"	ear	%0,%%a0"
+	: /* output */
+	  "=d" (ar0_value)
+	);
+
+- simple memory constraint
+
+	asm volatile(
+		"	cvb	%0, %1"
+	: /* output */
+	  "=d" (bin)
+	: /* input */
+	  "m (dec)
+	);
+
+- handling S-operands
+
+	asm volatile(
+		"	stck	%0"
+	: /* output */
+	  "=Q" (time)
+	: /* input */
+	: /* clobber */
+	  "cc"
+	);
+
+	asm volatile(
+		"	stck	0(%0)"
+	: /* output */
+	: /* input */
+	  "a" (&time)
+	: /* clobber */
+	  "memory", "cc"
+	);
+
+	asm volatile(
+		"	stck	0(%1)"
+	: /* output */
+	  "=m" (time)
+	: /* input */
+	  "a" (&time)
+	: /* clobber */
+	  "cc"
+	);
+
