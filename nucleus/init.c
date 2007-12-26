@@ -80,13 +80,13 @@ void start()
 	psw.bits[7] = 0x00;
 	asm volatile(
 		"	larl	%%r1,L\n"
-		"	stg	%%r1,%1\n"
-		"	lpswe	%0\n"
+		"	stg	%%r1,%0\n"
+		"	lpswe	%1\n"
 		"L:\n"
 	: /* output */
+	  "=m" (*(((u8*)&psw) + 8))
 	: /* input */
-	  "m" (psw),
-	  "m" (*(((u8*)&psw) + 8))
+	  "m" (psw)
 	: /* clobbered */
 	  "r1"
 	);

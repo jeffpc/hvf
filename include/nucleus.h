@@ -22,7 +22,7 @@ static inline void lpswe(void *psw)
 	: /* input */
 	  "m" (psw)
 	: /* clobbered */
-	  "memory", "cc"
+	  "cc"
 	);
 }
 
