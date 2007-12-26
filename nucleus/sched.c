@@ -1,6 +1,7 @@
 #include <sched.h>
 #include <page.h>
 #include <buddy.h>
+#include <magic.h>
 
 /* list of all runnable processes */
 static struct list_head runnable;
@@ -34,8 +35,7 @@ static void idle_task_body()
 	psw.ea = 1;
 	psw.ba = 1;
 
-	/* FIXME: use a magic number that doesn't change */
-	psw.ptr = (u64) &idle_task_body;
+	psw.ptr = MAGIC_PSW_IDLE_CODE;
 
 	/* load a wait psw */
 	lpswe(&psw);
