@@ -26,14 +26,15 @@ static void idle_task_body()
 {
 	struct psw psw;
 	
-	psw.bits[0] = 0x02; // I/O mask
-	psw.bits[1] = 0x06; // machine check & wait mask
-	psw.bits[2] = 0x00;
-	psw.bits[3] = 0x01; // EA
-	psw.bits[4] = 0x80; // BA
-	psw.bits[5] = 0x00;
-	psw.bits[6] = 0x00;
-	psw.bits[7] = 0x00;
+	memset(&psw, 0, sizeof(struct psw));
+
+	psw.io = 1;
+	psw.m  = 1;
+	psw.w  = 1;
+	psw.ea = 1;
+	psw.ba = 1;
+
+	/* FIXME: use a magic number that doesn't change */
 	psw.ptr = (u64) &idle_task_body;
 
 	/* load a wait psw */

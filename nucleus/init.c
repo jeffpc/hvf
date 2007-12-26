@@ -12,7 +12,10 @@
 extern void IO_INT(void);
 
 static struct psw new_io_psw = {
-	.bits = { 0x00, 0x04, 0x00, 0x01, 0x80, 0x00, 0x00, 0x00},
+	.m	= 1,
+	.ea	= 1,
+	.ba	= 1,
+
 	.ptr  = (u64) &IO_INT,
 };
 
@@ -70,21 +73,19 @@ void start()
 	 */
 	memcpy((void*) 0x1f0, &new_io_psw, sizeof(struct psw));
 
-	psw.bits[0] = 0x02; // I/O mask
-	psw.bits[1] = 0x04; // machine check mask
-	psw.bits[2] = 0x00;
-	psw.bits[3] = 0x01; // EA
-	psw.bits[4] = 0x80; // BA
-	psw.bits[5] = 0x00;
-	psw.bits[6] = 0x00;
-	psw.bits[7] = 0x00;
+	memset(&psw, 0, sizeof(struct psw));
+	psw.io	= 1;
+	psw.m	= 1;
+	psw.ea	= 1;
+	psw.ba	= 1;
+
 	asm volatile(
 		"	larl	%%r1,0f\n"
 		"	stg	%%r1,%0\n"
 		"	lpswe	%1\n"
 		"0:\n"
 	: /* output */
-	  "=m" (*(((u8*)&psw) + 8))
+	  "=m" (psw.ptr)
 	: /* input */
 	  "m" (psw)
 	: /* clobbered */
