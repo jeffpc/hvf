@@ -79,10 +79,10 @@ void start()
 	psw.bits[6] = 0x00;
 	psw.bits[7] = 0x00;
 	asm volatile(
-		"	larl	%%r1,L\n"
+		"	larl	%%r1,0f\n"
 		"	stg	%%r1,%0\n"
 		"	lpswe	%1\n"
-		"L:\n"
+		"0:\n"
 	: /* output */
 	  "=m" (*(((u8*)&psw) + 8))
 	: /* input */
