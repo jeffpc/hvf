@@ -4,6 +4,7 @@
 #define ENOMEM		1
 #define EBUSY		2
 #define EAGAIN		3
+#define EINVAL		4
 
 #define PTR_ERR(ptr)	((s64) ptr)
 #define ERR_PTR(err)	((void*) err)

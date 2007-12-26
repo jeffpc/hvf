@@ -168,4 +168,78 @@ struct schib {
 	u32 model_dep_area;
 } __attribute__((packed,aligned(4)));
 
+static inline int store_sch(u32 sch, struct schib *schib)
+{
+	int cc;
+
+	asm volatile(
+		"lr	%%r1,%2\n"
+		"stsch	0(%1)\n"
+		"ipm	%0\n"
+		"srl	%0,28\n"
+		: /* output */
+		  "=d" (cc),
+		  "=a" (schib)
+		: /* input */
+		  "d" (sch)
+		: /* clobbered */
+		  "cc", "r1", "memory"
+	);
+
+	if (cc == 3)
+		return -EINVAL;
+	return 0;
+}
+
+static inline int modify_sch(u32 sch, struct schib *schib)
+{
+	int cc;
+
+	asm volatile(
+		"lr	%%r1,%1\n"
+		"msch	0(%2)\n"
+		"ipm	%0\n"
+		"srl	%0,28\n"
+		: /* output */
+		  "=d" (cc)
+		: /* input */
+		  "d" (sch),
+		  "a" (schib)
+		: /* clobbered */
+		  "cc", "r1"
+	);
+
+	if (cc == 1 || cc == 2)
+		return -EBUSY;
+	if (cc == 3)
+		return -EINVAL;
+	return 0;
+}
+
+static inline int start_sch(u32 sch, struct orb *orb)
+{
+	int cc;
+
+	asm volatile(
+		"	lr	%%r1,%1\n"
+		"	ssch	0(%2)\n"
+		"	ipm	%0\n"
+		"	srl	%0,28\n"
+		: /* output */
+		  "=d" (cc)
+		: /* input */
+		  "d" (sch),
+		  "a" (orb)
+		: /* clobbered */
+		  "cc", "r1"
+	);
+
+	if (cc == 1 || cc == 2)
+		return -EBUSY;
+	if (cc == 3)
+		return -EINVAL;
+
+	return 0;
+}
+
 #endif
