@@ -50,7 +50,7 @@ int submit_io(struct io_op *ioop, int flags)
 
 	err = __verify_io_op(ioop);
 	if (err)
-		goto out;
+		goto out_dec;
 
 	/* make sure all reserved fields have the right values */
 	__reset_reserved_fields(ioop);
@@ -70,23 +70,17 @@ int submit_io(struct io_op *ioop, int flags)
 	ops[i].op = ioop;
 	ioop->orb.param = i + IO_PARAM_BASE;
 
-	/*
-	 * Set the subsystem ID & issue SSCH on the ORB
-	 */
-	asm volatile(
-		"	sr	%%r1,%%r1\n"
-		"	a	%%r1,0(%%r1,%0)\n"
-		"	ssch	0(%2)\n"
-		: /* output */
-		: /* input */
-		  "a" (&ioop->ssid),
-		  "m" (ioop->orb),
-		  "a" (&ioop->orb)
-		: /* clobbered */
-		  "cc", "r1"
-	);
-	
-	err = 0;
+	/* Start the I/O */
+	err = start_sch(ioop->ssid, &ioop->orb);
+	if (!err)
+		goto out;
+
+	/* error while submitting I/O, let's unregister */
+	ops[i].op = NULL;
+	atomic_dec(&ops[i].used);
+
+out_dec:
+	atomic_dec(&ops_used);
 out:
 	return err;
 }
