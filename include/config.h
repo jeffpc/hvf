@@ -5,6 +5,4 @@
 
 #define OPER_CONSOLE_CCUU	0x001F
 
-#define MAX_PROCESSES		16
-
 #endif

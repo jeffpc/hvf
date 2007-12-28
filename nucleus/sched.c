@@ -1,6 +1,7 @@
 #include <sched.h>
 #include <page.h>
 #include <buddy.h>
+#include <slab.h>
 #include <magic.h>
 
 /* list of all runnable processes */
@@ -9,21 +10,13 @@ static struct list_head runnable;
 /* list of all processes in the system */
 static struct list_head processes;
 
-/* user & nucleus tasks */
-static struct task tasks[MAX_PROCESSES];
-
 /* idle task */
 static struct task idle_task;
 
-/*
- * Clear a struct task
+/**
+ * idle_task_body - body of the idle task (a wait psw)
  */
-static void __reset_task(struct task *task)
-{
-	memset(task, 0, sizeof(struct task));
-}
-
-static void idle_task_body()
+static int idle_task_body()
 {
 	struct psw psw;
 	
@@ -43,33 +36,110 @@ static void idle_task_body()
 	/* control should never reach here */
 
 	BUG();
+
+	return 1;
 }
 
-/*
- * Initialize the idle task
+/**
+ * start_task - helper used to start the task's code
+ * @f:	function to execute
+ */
+static void start_task(int (*f)())
+{
+	/*
+	 * Start executing the code
+	 */
+	(*f)();
+
+	/*
+	 * Done, now, it's time to cleanup
+	 *
+	 * FIXME:
+	 *  - delete from processes list
+	 *  - free stack page
+	 *  - free struct
+	 *  - schedule
+	 */
+}
+
+/**
+ * __init_task - helper to initialize the task structure
+ * @task:	task struct to initialize
+ * @f:		pointer to function to execute
+ * @stack:	pointer to the page for stack
+ */
+static void __init_task(struct task *task, void *f, void *stack)
+{
+	memset(task, 0, sizeof(struct task));
+
+	task->regs.psw.io	= 1;
+	task->regs.psw.m	= 1;
+	task->regs.psw.ea	= 1;
+	task->regs.psw.ba	= 1;
+
+	/* code to execute */
+	task->regs.psw.ptr = (u64) start_task;
+
+	task->regs.gpr[2]  = (u64) f;
+	task->regs.gpr[15] = ((u64) stack) + PAGE_SIZE - STACK_FRAME_SIZE;
+
+	task->state = TASK_SLEEPING;
+}
+
+/**
+ * init_idle_task - initialize the idle task
  */
 static void init_idle_task()
 {
 	struct page *page;
 
-	__reset_task(&idle_task);
-	
-	/* allocate stack */
 	page = alloc_pages(0);
 	BUG_ON(!page);
 
-	/* stack */
-	idle_task.regs.gpr[15] = (u64) (PAGE_SIZE + (u8*)page_to_addr(page));
+	__init_task(&idle_task, idle_task_body, page_to_addr(page));
 
-	/* 
-	 * FIXME:
-	 *
-	 * keep track of the allocated page, and make sure that we don't
-	 * theoretically leak it
-	 *
-	 * We should add it into an address space structure of some sort,
-	 * and then have page table entries work their magic
+	/*
+	 * NOTE: The idle task is _not_ supposed to be on either of the
+	 * two process lists.
 	 */
+}
+
+/**
+ * create_task - create a new task
+ * @f:	function pointer to where thread of execution should begin
+ */
+int create_task(int (*f)())
+{
+	struct page *page;
+	struct task *task;
+	int err = -ENOMEM;
+
+	/*
+	 * Allocate a page for stack, and struct task itself
+	 */
+	page = alloc_pages(0);
+	task = malloc(sizeof(struct task));
+	if (!page || !task)
+		goto out;
+
+	/*
+	 * Set up task's state
+	 */
+	__init_task(task, f, page_to_addr(page));
+
+	/*
+	 * Add the task to the scheduler lists
+	 */
+	list_add_tail(&task->proc_list, &processes);
+	list_add_tail(&task->run_queue, &runnable);
+
+	return 0;
+
+out:
+	free(task);
+	free_pages(page_to_addr(page), 0);
+
+	return err;
 }
 
 /*
@@ -77,13 +147,8 @@ static void init_idle_task()
  */
 void init_sched()
 {
-	int i;
-
 	INIT_LIST_HEAD(&runnable);
 	INIT_LIST_HEAD(&processes);
-
-	for(i=0; i<MAX_PROCESSES; i++)
-		__reset_task(&tasks[i]);
 
 	init_idle_task();
 }

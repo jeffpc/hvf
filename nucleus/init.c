@@ -120,19 +120,15 @@ void start()
 	 */
 	scan_devices();
 
-	/*
-	 * TODO:
-	 *   - init scheduler
-	 *   - set up idle process
-	 *   - set up init thread
-	 *   - go!
-	 */
-
 	/* Initialize the process scheduler */
 	init_sched();
 
 	printf(" Scheduler:");
-	printf("    %d tasks max", MAX_PROCESSES);
+	printf("    no task max");
+
+	/*
+	 * FIXME: enable the clock!
+	 */
 
 	/*
 	 * To be or not to be

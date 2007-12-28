@@ -5,12 +5,10 @@
 
 #define SCHED_CANSLEEP		1	/* safe to sleep */
 
-#define TASK_UNUSED		0
-#define TASK_RUNNING		1
-#define TASK_SLEEPING		2
+#define TASK_RUNNING		0
+#define TASK_SLEEPING		1
 
-#define TASK_NUCLEUS		0
-#define TASK_USER		1
+#define STACK_FRAME_SIZE	160
 
 struct psw {
 	u8 _zero0:1,
@@ -54,13 +52,12 @@ struct task {
 	struct regs regs;		/* saved registers */
 
 	struct list_head run_queue;	/* runnable list */
-	struct list_head proc_queue;	/* processes list */
+	struct list_head proc_list;	/* processes list */
 
-	int status;			/* status */
-
-	int type;			/* task type */
+	int state;			/* state */
 };
 
 extern void init_sched();		/* initialize the scheduler */
+extern int create_task(int (*f)());	/* create a new task */
 
 #endif
