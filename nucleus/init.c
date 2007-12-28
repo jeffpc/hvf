@@ -65,6 +65,11 @@ void start()
 	init_io();
 
 	/*
+	 * Register all the device drivers
+	 */
+	register_drivers();
+
+	/*
 	 * Find & init operator console
 	 */
 	init_oper_console(OPER_CONSOLE_CCUU);
@@ -107,11 +112,6 @@ void start()
 	printf("    generic pages        %llu..%llu kB",
 			(unsigned long long) first_free_page >> 10,
 			(unsigned long long) memsize >> 10);
-
-	/*
-	 * Register all the device drivers
-	 */
-	register_drivers();
 
 	printf(" Devices:");
 
