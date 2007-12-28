@@ -8,6 +8,7 @@
 #include <buddy.h>
 #include <io.h>
 #include <sched.h>
+#include <device.h>
 
 extern void IO_INT(void);
 
@@ -106,6 +107,18 @@ void start()
 	printf("    generic pages        %llu..%llu kB",
 			(unsigned long long) first_free_page >> 10,
 			(unsigned long long) memsize >> 10);
+
+	/*
+	 * Register all the device drivers
+	 */
+	register_drivers();
+
+	printf(" Devices:");
+
+	/*
+	 * Let's discover all the devices attached
+	 */
+	scan_devices();
 
 	/*
 	 * TODO:

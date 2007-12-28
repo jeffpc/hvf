@@ -23,12 +23,13 @@ ifneq ($(DIR),)
 override DIR:=$(subst /,,$(DIR))
 endif
 
-TOP_DIRS=nucleus/ mm/ lib/
+TOP_DIRS=nucleus/ mm/ lib/ drivers/
 
 all:
 	@$(MAKE) DIR=nucleus/ build
 	@$(MAKE) DIR=mm/ build
 	@$(MAKE) DIR=lib/ build
+	@$(MAKE) DIR=drivers/ build
 	@$(MAKE) hvf
 	@$(MAKE) ipl/
 
@@ -39,6 +40,7 @@ clean:
 	@$(MAKE) DIR=nucleus/ cleanup
 	@$(MAKE) DIR=mm/ cleanup
 	@$(MAKE) DIR=lib/ cleanup
+	@$(MAKE) DIR=drivers/ cleanup
 	rm -f hvf
 	rm -f loader.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl.S
 

@@ -5,6 +5,8 @@
 #define EBUSY		2
 #define EAGAIN		3
 #define EINVAL		4
+#define EEXIST		5
+#define ENOENT		6
 
 #define PTR_ERR(ptr)	((s64) ptr)
 #define ERR_PTR(err)	((void*) err)

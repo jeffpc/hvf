@@ -242,4 +242,6 @@ static inline int start_sch(u32 sch, struct orb *orb)
 	return 0;
 }
 
+extern void scan_devices();
+
 #endif
