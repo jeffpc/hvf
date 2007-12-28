@@ -124,6 +124,6 @@ void start()
 	/*
 	 * To be or not to be
 	 */
-	die();
+	BUG();
 }
 
