@@ -9,4 +9,9 @@
 #define PTR_ERR(ptr)	((s64) ptr)
 #define ERR_PTR(err)	((void*) err)
 
+static inline int IS_ERR(void *ptr)
+{
+	return -1024 < PTR_ERR(ptr) && PTR_ERR(ptr) < 0;
+}
+
 #endif
