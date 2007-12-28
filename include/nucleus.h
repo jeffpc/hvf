@@ -26,7 +26,7 @@ static inline void lpswe(void *psw)
 	);
 }
 
-static inline void die()
+static inline void die(int line)
 {
 	/* 
 	 * halt the cpu
@@ -35,9 +35,13 @@ static inline void die()
 	 * code executes, the CPU will be stopped.
 	 */
 	asm volatile(
-		"SR	%r1, %r1	# not used, but should be zero\n"
-		"SR	%r3, %r3 	# CPU Address\n"
-		"SIGP	%r1, %r3, 0x05	# Signal, order 0x05\n"
+		"LR	%%r9, %0		# line number\n"
+		"SR	%%r1, %%r1		# not used, but should be zero\n"
+		"SR	%%r3, %%r3 		# CPU Address\n"
+		"SIGP	%%r1, %%r3, 0x05	# Signal, order 0x05\n"
+	: /* out */
+	: /* in */
+	  "d" (line)
 	);
 
 	/*
@@ -46,7 +50,7 @@ static inline void die()
 	for(;;);
 }
 
-#define BUG()		die() /* FIXME: something should be outputed to console */
+#define BUG()		die(__LINE__) /* FIXME: something should be outputed to console */
 #define BUG_ON(cond)	do { \
 				if (unlikely(cond)) \
 					BUG(); \
