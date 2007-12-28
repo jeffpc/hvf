@@ -174,12 +174,12 @@ static inline int store_sch(u32 sch, struct schib *schib)
 
 	asm volatile(
 		"lr	%%r1,%2\n"
-		"stsch	0(%1)\n"
+		"stsch	%1\n"
 		"ipm	%0\n"
 		"srl	%0,28\n"
 		: /* output */
 		  "=d" (cc),
-		  "=a" (schib)
+		  "=Q" (*schib)
 		: /* input */
 		  "d" (sch)
 		: /* clobbered */
