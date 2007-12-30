@@ -1,0 +1,9 @@
+*.o
+*.rto
+ipl/ipl.S
+hvf
+loader.bin
+cscope.out
+*.swp
+*.orig
+*.rej
