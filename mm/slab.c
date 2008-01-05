@@ -7,7 +7,7 @@
 #include <slab.h>
 #include <page.h>
 
-static struct slab *generic[5];
+static struct slab *generic[6];
 
 /*
  * Create slab caches for 16, 32, 64, 128, and 256 byte allocations
@@ -34,6 +34,10 @@ int init_slab()
 	if (!generic[4])
 		goto out_err;
 
+	generic[5] = create_slab(512, 8);
+	if (!generic[5])
+		goto out_err;
+
 	return 0;
 
 out_err:
@@ -42,6 +46,7 @@ out_err:
 	free_slab(generic[2]);
 	free_slab(generic[3]);
 	free_slab(generic[4]);
+	free_slab(generic[5]);
 
 	return -ENOMEM;
 }
@@ -237,6 +242,8 @@ void *malloc(int size)
 		return alloc_slab_obj(generic[3]);
 	if (size <= 256)
 		return alloc_slab_obj(generic[4]);
+	if (size <= 512)
+		return alloc_slab_obj(generic[5]);
 	return NULL;
 }
 
