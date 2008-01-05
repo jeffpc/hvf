@@ -6,11 +6,14 @@
 #include <page.h>
 #include <mm.h>
 #include <buddy.h>
+#include <spinlock.h>
 
 /*
  * Lists of free page ranges
  */
 static struct list_head orders[64-PAGE_SHIFT];
+
+static spinlock_t orders_lock = SPIN_LOCK_UNLOCKED;
 
 void init_buddy_alloc(u64 start)
 {
@@ -94,11 +97,14 @@ struct page *alloc_pages(int order)
 {
 	struct page *page;
 	int gord;
+	unsigned long mask;
+
+	spin_lock_intsave(&orders_lock, &mask);
 
 	/* easy way */
 	page = __alloc_pages(order);
 	if (page)
-		return page;
+		goto out;
 
 	/*
 	 * There is no page-range of the given order, let's try to find the
@@ -112,18 +118,26 @@ struct page *alloc_pages(int order)
 
 		__chip_pages(page, gord, order);
 
-		return page;
+		goto out;
 	}
 
 	/* alright, totally out of memory */
-	return NULL;
+	page = NULL;
+
+out:
+	spin_unlock_intrestore(&orders_lock, mask);
+
+	return page;
 }
 
 void free_pages(void *ptr, int order)
 {
 	struct page *base = addr_to_page(ptr);
+	unsigned long mask;
 
+	spin_lock_intsave(&orders_lock, &mask);
 	list_add(&base->buddy, &orders[order]);
+	spin_unlock_intrestore(&orders_lock, mask);
 
 	/*
 	 * TODO: a more complex thing we could try is to coallesce adjecent
