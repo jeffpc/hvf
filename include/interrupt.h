@@ -23,4 +23,21 @@ struct io_int_code {
 extern void IO_INT(void);
 extern void EXT_INT(void);
 
+/**
+ * local_int_disable - disable interruptions & return old mask
+ */
+#define local_int_disable() ({ \
+	unsigned long __flags; \
+	__asm__ __volatile__ ( \
+		"stnsm 0(%1),0xfc" : "=m" (__flags) : "a" (&__flags) ); \
+	__flags; \
+	})
+
+/**
+ * local_int_restore - restore interrupt mask
+ * x:	mask to restore
+ */
+#define local_int_restore(x) \
+	__asm__ __volatile__("ssm   0(%0)" : : "a" (&x), "m" (x) : "memory")
+
 #endif
