@@ -13,4 +13,14 @@ struct io_int_code {
 #define IO_INT_NEW_PSW	((void*) 0x1f0)
 #define IO_INT_CODE	((struct io_int_code*) 0xb8)
 
+#define EXT_INT_OLD_PSW	((void*) 0x130)
+#define EXT_INT_NEW_PSW	((void*) 0x1b0)
+#define EXT_INT_CODE	((u16*) 0x86)
+
+/*
+ * Assembly stubs to call the C-handlers
+ */
+extern void IO_INT(void);
+extern void EXT_INT(void);
+
 #endif

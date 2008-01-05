@@ -145,9 +145,31 @@ out:
  */
 void init_sched()
 {
+	u64 cr0;
+	u64 time = 0x100000000; // 1 second
+
 	INIT_LIST_HEAD(&runnable);
 	INIT_LIST_HEAD(&processes);
 
 	init_idle_task();
+
+	/* enable cpu timer interrupt subclass */
+	asm volatile(
+		"stctg	0,0,%0\n"	/* get cr0 */
+		"oi	%1,0x04\n"	/* enable cpu timer subclass */
+		"ni	%1,0x7f\n"	/* disable clock comp */
+		"lctlg	0,0,%0\n"	/* reload cr0 */
+	: /* output */
+	: /* input */
+	  "m" (cr0),
+	  "m" (*(((u8*)&cr0) + 6))
+	);
+
+	asm volatile(
+		"spt	%0\n"		/* set timer value */
+	: /* output */
+	: /* input */
+	  "m" (time)
+	);
 }
 

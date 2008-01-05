@@ -9,14 +9,20 @@
 #include <io.h>
 #include <sched.h>
 #include <device.h>
-
-extern void IO_INT(void);
+#include <interrupt.h>
 
 static struct psw new_io_psw = {
 	.ea	= 1,
 	.ba	= 1,
 
 	.ptr  = (u64) &IO_INT,
+};
+
+static struct psw new_ext_psw = {
+	.ea	= 1,
+	.ba	= 1,
+
+	.ptr	= (u64) &EXT_INT,
 };
 
 /*
@@ -125,12 +131,32 @@ void start()
 	printf("    no task max");
 
 	/*
-	 * FIXME: enable the clock!
+	 * Time to enable more interrupts => load new psw
 	 */
+	memcpy(EXT_INT_NEW_PSW, &new_ext_psw, sizeof(struct psw));
+
+	memset(&psw, 0, sizeof(struct psw));
+	psw.io	= 1;
+	psw.ex	= 1;
+	psw.ea	= 1;
+	psw.ba	= 1;
+
+	asm volatile(
+		"	larl	%%r1,0f\n"
+		"	stg	%%r1,%0\n"
+		"	lpswe	%1\n"
+		"0:\n"
+	: /* output */
+	  "=m" (psw.ptr)
+	: /* input */
+	  "m" (psw)
+	: /* clobbered */
+	  "r1"
+	);
 
 	/*
-	 * To be or not to be
+	 * Loop until an interrupt takes over
 	 */
-	BUG();
+	for(;;);
 }
 

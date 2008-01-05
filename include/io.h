@@ -42,6 +42,4 @@ extern int submit_io(struct io_op *oop, int flags);
 
 extern void init_oper_console(u16 target_ccuu);
 
-extern u8 *io_stack_ptr;
-
 #endif
