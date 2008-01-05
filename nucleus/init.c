@@ -13,7 +13,6 @@
 extern void IO_INT(void);
 
 static struct psw new_io_psw = {
-	.m	= 1,
 	.ea	= 1,
 	.ba	= 1,
 
@@ -81,7 +80,6 @@ void start()
 
 	memset(&psw, 0, sizeof(struct psw));
 	psw.io	= 1;
-	psw.m	= 1;
 	psw.ea	= 1;
 	psw.ba	= 1;
 

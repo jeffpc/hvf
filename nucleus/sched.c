@@ -23,7 +23,6 @@ static int idle_task_body()
 	memset(&psw, 0, sizeof(struct psw));
 
 	psw.io = 1;
-	psw.m  = 1;
 	psw.w  = 1;
 	psw.ea = 1;
 	psw.ba = 1;
@@ -73,7 +72,6 @@ static void __init_task(struct task *task, void *f, void *stack)
 	memset(task, 0, sizeof(struct task));
 
 	task->regs.psw.io	= 1;
-	task->regs.psw.m	= 1;
 	task->regs.psw.ea	= 1;
 	task->regs.psw.ba	= 1;
 

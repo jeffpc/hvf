@@ -96,11 +96,11 @@ IOPSW:
 		#      6      0   I/O Mask (IO)               enabled
 		#      7      0   External Mask (EX)          disabled
 
-	.byte	0x04
+	.byte	0x00
 		#   bits  value   name                        desc
 		#   8-11      0   Key
 		#     12      0   <one>
-		#     13      1   Machine-Check Mask (M)      enabled
+		#     13      0   Machine-Check Mask (M)      disabled
 		#     14      0   Wait State (W)              executing
 		#     15      0   Problem State (P)           supervisor state
 		
@@ -143,12 +143,12 @@ WAITPSW:
 		#      6      1   I/O Mask (IO)               enabled
 		#      7      0   External Mask (EX)          disabled
 
-	.byte	0x06
+	.byte	0x02
 		#   bits  value   name                        desc
 		#   8-11      0   Key
 		#     12      0   <zero>
-		#     13      1   Machine-Check Mask (M)      enabled
-		#     14      1   Wait State (W)              executing
+		#     13      0   Machine-Check Mask (M)      disabled
+		#     14      1   Wait State (W)              not executing
 		#     15      0   Problem State (P)           supervisor state
 		
 	.byte	0x00

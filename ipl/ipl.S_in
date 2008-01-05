@@ -15,11 +15,11 @@
 		#      6      0   I/O Mask (IO)               disabled
 		#      7      0   External Mask (EX)          disabled
 
-	.byte	0x0c
+	.byte	0x08
 		#   bits  value   name                        desc
 		#   8-11      0   Key
 		#     12      1   <one>
-		#     13      1   Machine-Check Mask (M)      enabled
+		#     13      0   Machine-Check Mask (M)      disabled
 		#     14      0   Wait State (W)              executing
 		#     15      0   Problem State (P)           supervisor state
 		
@@ -32,7 +32,7 @@
 	.byte	0x00
 		#   bits  value   name                        desc
 		#  24-30      0   <zero>
-		#     31      1   Extended Addressing (EA)    EA + BA = 64 mode
+		#     31      0   Extended Addressing (EA)    ! 64 mode
 
 	.byte	0x80	# bits 32-39
 	.byte	0x80	# bits 40-47
