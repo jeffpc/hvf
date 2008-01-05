@@ -12,8 +12,7 @@ static inline void __translate(u8 *buf, int len, const u8 *table)
 	asm volatile(
 		"	sr	%%r0,%%r0\n"		/* test byte = 0 */
 		"	la	%%r2,0(%0)\n"		/* buffer */
-		"	sr	%%r3,%%r3\n"
-		"	ar	%%r3,%2\n"		/* length */
+		"	lr	%%r3,%2\n"		/* length */
 		"	la	%%r4,0(%1)\n"		/* table */
 		"	tre	%%r2,%%r4\n"
 		: /* output */
