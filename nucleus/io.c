@@ -2,6 +2,7 @@
  * Copyright (c) 2007 Josef 'Jeff' Sipek
  */
 
+#include <channel.h>
 #include <io.h>
 #include <interrupt.h>
 #include <sched.h>
@@ -145,18 +146,10 @@ void __io_int_handler()
 	if (!cur_op)
 		return;
 
-	asm volatile(
-		"L	%%r1, %0\n"
-		"TSCH	%1\n"
-	: /* output */
-	: /* input */
-	  "m" (cur_op->ssid),
-	  "m" (irb)
-	: /* clobbered */
-	  "r1"
-	);
+	cur_op->err = test_sch(cur_op->ssid, &irb);
+	BUG_ON(cur_op->err);
 
-	if (cur_op->handler)
+	if (!cur_op->err && cur_op->handler)
 		cur_op->handler(cur_op, &irb);
 
 	/*

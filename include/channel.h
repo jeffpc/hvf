@@ -242,6 +242,32 @@ static inline int start_sch(u32 sch, struct orb *orb)
 	return 0;
 }
 
+static inline int test_sch(u32 sch, struct irb *irb)
+{
+	int cc;
+
+	asm volatile(
+		"	lr	%%r1,%1\n"
+		"	tsch	0(%2)\n"
+		"	ipm	%0\n"
+		"	srl	%0,28\n"
+	: /* output */
+	  "=d" (cc)
+	: /* input */
+	  "d" (sch),
+	  "a" (irb)
+	: /* clobbered */
+	  "r1"
+	);
+
+	if (cc == 1)
+		return -ENOENT;
+	if (cc == 3)
+		return -EINVAL;
+
+	return 0;
+}
+
 extern void scan_devices();
 
 #endif
