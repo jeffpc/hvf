@@ -76,7 +76,7 @@ void start()
 	/*
 	 * Time to enable interrupts => load new psw
 	 */
-	memcpy((void*) 0x1f0, &new_io_psw, sizeof(struct psw));
+	memcpy(IO_INT_NEW_PSW, &new_io_psw, sizeof(struct psw));
 
 	memset(&psw, 0, sizeof(struct psw));
 	psw.io	= 1;
