@@ -67,4 +67,26 @@ static inline void spin_unlock(spinlock_t *lock)
 extern void spin_lock_intsave(spinlock_t *lock, unsigned long *mask);
 extern void spin_unlock_intrestore(spinlock_t *lock, unsigned long mask);
 
+static inline void spin_double_lock(spinlock_t *l1, spinlock_t *l2)
+{
+	if (l1 < l2) {
+		spin_lock(l1);
+		spin_lock(l2);
+	} else {
+		spin_lock(l2);
+		spin_lock(l1);
+	}
+}
+
+static inline void spin_double_unlock(spinlock_t *l1, spinlock_t *l2)
+{
+	if (l1 < l2) {
+		spin_unlock(l2);
+		spin_unlock(l1);
+	} else {
+		spin_unlock(l1);
+		spin_unlock(l2);
+	}
+}
+
 #endif
