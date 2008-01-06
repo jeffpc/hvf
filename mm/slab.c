@@ -72,8 +72,9 @@ struct slab *create_slab(u16 objsize, u8 align)
 	memset(slab, 0, PAGE_SIZE);
 
 	slab->magic = SLAB_MAGIC;
-	INIT_LIST_HEAD(&slab->slabs);
+	slab->lock = SPIN_LOCK_UNLOCKED;
 	INIT_LIST_HEAD(&slab->slab_pages);
+	slab->first = slab;
 
 	align--; /* turn into a mask */
 
@@ -144,6 +145,7 @@ static inline void *__alloc_slab_obj_newpage(struct slab *slab)
 
 	memset(new, 0, PAGE_SIZE);
 	new->magic = SLAB_CONT_MAGIC;
+	new->first = slab;
 	new->objsize = slab->objsize;
 	new->startoff = slab->startoff;
 	new->count = slab->count;
@@ -157,12 +159,18 @@ static inline void *__alloc_slab_obj_newpage(struct slab *slab)
 void *alloc_slab_obj(struct slab *passed_slab)
 {
 	struct slab *slab = passed_slab;
+	void *obj = NULL;
 	int objidx;
 	u8 *bits;
 	u8 mask;
+	unsigned long int_mask;
 
 	if (!slab)
 		return NULL;
+
+	BUG_ON(passed_slab->magic != SLAB_MAGIC);
+
+	spin_lock_intsave(&passed_slab->lock, &int_mask);
 
 	/*
 	 * Does the first slab page have an unused object?
@@ -184,7 +192,7 @@ void *alloc_slab_obj(struct slab *passed_slab)
 
 	slab = __alloc_slab_obj_newpage(passed_slab);
 	if (IS_ERR(slab))
-		return NULL;
+		goto out;
 
 alloc:
 	/* found a page */
@@ -199,12 +207,14 @@ alloc:
 		slab->used++;
 		*bits |= mask;
 
-		return ((u8*) slab) + slab->startoff + slab->objsize * objidx;
+		obj = ((u8*) slab) + slab->startoff + slab->objsize * objidx;
+		break;
 	}
 
-	/* SOMETHING STRANGE HAPPENED */
-	BUG();
-	return NULL;
+out:
+	spin_unlock_intrestore(&passed_slab->lock, int_mask);
+
+	return obj;
 }
 
 void free_slab_obj(void *ptr)
@@ -212,9 +222,12 @@ void free_slab_obj(void *ptr)
 	struct slab *slab;
 	int objidx;
 	u8 *bits;
+	unsigned long int_mask;
 
 	/* get the slab object ptr */
 	slab = (struct slab *) (((u64) ptr) & ~0xfff);
+
+	spin_lock_intsave(&slab->first->lock, &int_mask);
 
 	/* calculate the object number */
 	objidx = (((u64) ptr) - ((u64) slab) - slab->startoff) / slab->objsize;
@@ -224,8 +237,10 @@ void free_slab_obj(void *ptr)
 	*bits &= ~(1 << (7 - (objidx % 8)));
 
 	if (--slab->used) {
-		/* free the page? */
+		/* FIXME: free the page? */
 	}
+
+	spin_unlock_intrestore(&slab->first->lock, int_mask);
 }
 
 void *malloc(int size)
