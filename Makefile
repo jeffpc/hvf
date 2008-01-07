@@ -34,7 +34,7 @@ all:
 	@$(MAKE) ipl/
 
 hvf: $(patsubst %/,%/built-in.o,$(TOP_DIRS))
-	$(LD) $(LDFLAGS) -T linker.script -o $@ $^
+	$(LD) $(LDFLAGS) -T scripts/linker.script -o $@ $^
 
 clean:
 	@$(MAKE) DIR=nucleus/ cleanup
