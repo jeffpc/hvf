@@ -1,0 +1,28 @@
+#
+# Build a single directory (built-in.o)
+#
+
+.PHONY: all
+
+.PRECIOUS: %.o
+
+override DIR := $(patsubst %/,%,$(DIR))
+
+include $(DIR)/Makefile
+
+OBJS := $(foreach obj,$(objs-$(DIR)),$(patsubst %,$(DIR)/%,$(obj)))
+
+all: $(DIR)/built-in.o
+	@echo -n
+
+%/built-in.o: $(OBJS)
+	$(LD) $(LDFLAGS) -r -o $@ $(OBJS)
+
+%.o: %.S
+	$(AS) -m64 -o $@ $<
+
+%.s: %.c
+	$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -S -o $@ $<
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -c -o $@ $<

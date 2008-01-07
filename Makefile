@@ -14,22 +14,15 @@ CFLAGS=-DVERSION=\"$(VERSION)\" -g -fno-strict-aliasing -fno-builtin -nostdinc -
 NUCLEUSCFLAGS=-include include/nucleus.h
 LDFLAGS=-m elf64_s390
 
-.PRECIOUS: %.o
-
-.PHONY: all build clean mrproper cleanup hvfclean iplclean tags
-
-ifneq ($(DIR),)
-.PHONY: $(DIR)
-override DIR:=$(subst /,,$(DIR))
-endif
+export AS CC LD OBJCOPY
+export MAKEFLAGS CFLAGS NUCLEUSCFLAGS LDFLAGS
 
 TOP_DIRS=nucleus/ mm/ lib/ drivers/
 
-all:
-	@$(MAKE) DIR=nucleus/ build
-	@$(MAKE) DIR=mm/ build
-	@$(MAKE) DIR=lib/ build
-	@$(MAKE) DIR=drivers/ build
+.PHONY: all build clean mrproper cleanup hvfclean iplclean tags
+.PHONY: ipl/ $(TOP_DIRS)
+
+all: build 
 	@$(MAKE) hvf
 	@$(MAKE) ipl/
 
@@ -48,9 +41,12 @@ mrproper: clean
 	rm -f cscope.out ctags
 
 cleanup:
-	rm -f $(DIR)/*.o
+	rm -f $(DIR)*.o
 
-build: $(DIR)/built-in.o
+build: $(TOP_DIRS)
+
+$(TOP_DIRS): %/:
+	@$(MAKE) -f scripts/Makefile.build DIR=$@
 
 tags:
 	cscope -R -b
@@ -60,19 +56,6 @@ tags:
 #
 include $(patsubst %/,%/Makefile,$(TOP_DIRS))
 
-%/built-in.o: $(patsubst %,$(DIR)/%,$(objs-$(DIR)))
-	$(LD) $(LDFLAGS) -r -o $@ $(patsubst %,$(DIR)/%,$(objs-$(DIR)))
-
-%.o: %.S
-	$(AS) -m64 -o $@ $<
-
-%.s: %.c
-	$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -S -o $@ $<
-
-%.o: %.c
-	$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -c -o $@ $<
-
-
 #
 # IPL specific bits
 #
@@ -80,6 +63,7 @@ include $(patsubst %/,%/Makefile,$(TOP_DIRS))
 .PRECIOUS: ipl/%.o
 
 ipl/: loader.bin
+	@echo -n
 
 loader.bin: ipl/ipl.rto ipl/setmode.rto ipl/loader.rto
 	cat ipl/ipl.rto > "$@"
