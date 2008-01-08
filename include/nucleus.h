@@ -59,9 +59,9 @@ static inline void die(int line)
 /*
  * string.h equivalents
  */
-extern void *memset(void *s, int c, size_t n);
-extern void *memcpy(void *dst, void *src, int len);
-extern int strnlen(const char *s, size_t maxlen);
+#define memset(s,c,n)	__builtin_memset((s),(c),(n))
+#define memcpy(d,s,l)	__builtin_memcpy((d),(s),(l))
+extern size_t strnlen(const char *s, size_t count);
 
 /*
  * stdio.h equivalents
