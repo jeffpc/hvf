@@ -45,6 +45,52 @@ int register_device_type(struct device_type *dev)
 }
 
 /**
+ * find_device_by_ccuu - find device struct by ccuu
+ * @ccuu:	device ccuu to find
+ */
+struct device *find_device_by_ccuu(u16 ccuu)
+{
+	struct device *dev;
+
+	spin_lock(&devs_lock);
+
+	list_for_each_entry(dev, &devices, devices) {
+		if (dev->ccuu == ccuu) {
+			spin_unlock(&devs_lock);
+			return dev;
+		}
+	}
+
+	spin_unlock(&devs_lock);
+
+	return ERR_PTR(-ENOENT);
+}
+
+/**
+ * find_device_by_type - find device struct by type/model
+ * @type:	device type to find
+ * @model:	device model to find
+ */
+struct device *find_device_by_type(u16 type, u8 model)
+{
+	struct device *dev;
+
+	spin_lock(&devs_lock);
+
+	list_for_each_entry(dev, &devices, devices) {
+		if (dev->type == type &&
+		    dev->model == model) {
+			spin_unlock(&devs_lock);
+			return dev;
+		}
+	}
+
+	spin_unlock(&devs_lock);
+
+	return ERR_PTR(-ENOENT);
+}
+
+/**
  * __register_device - helper to register a device
  * @dev:	device to register
  */

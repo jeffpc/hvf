@@ -18,6 +18,8 @@ struct device {
 	struct device_type *dev;
 };
 
+extern struct device *find_device_by_type(u16 type, u8 model);
+extern struct device *find_device_by_ccuu(u16 ccuu);
 extern int register_device_type(struct device_type *dev);
 extern void scan_devices();
 extern void register_drivers();
