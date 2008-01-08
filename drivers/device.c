@@ -3,6 +3,7 @@
 #include <io.h>
 #include <slab.h>
 #include <device.h>
+#include <spinlock.h>
 
 struct senseid_struct {
 	u8 __reserved;
@@ -13,7 +14,10 @@ struct senseid_struct {
 } __attribute__((packed));
 
 static LIST_HEAD(device_types);
+static spinlock_t dev_types_lock;
+
 static LIST_HEAD(devices);
+static spinlock_t devs_lock;
 
 /**
  * register_device_type - register a new device type/model
@@ -23,13 +27,19 @@ int register_device_type(struct device_type *dev)
 {
 	struct device_type *entry;
 
+	spin_lock(&dev_types_lock);
+
 	list_for_each_entry(entry, &device_types, types) {
 		if (dev == entry ||
-		    (dev->type == entry->type && dev->model == entry->model))
+		    (dev->type == entry->type && dev->model == entry->model)) {
+			spin_unlock(&dev_types_lock);
 			return -EEXIST;
+		}
 	}
 
 	list_add_tail(&dev->types, &device_types);
+
+	spin_unlock(&dev_types_lock);
 
 	return 0;
 }
@@ -43,6 +53,8 @@ static int __register_device(struct device *dev)
 	struct device_type *type;
 	int err = 0;
 
+	spin_double_lock(&devs_lock, &dev_types_lock);
+
 	list_for_each_entry(type, &device_types, types) {
 		if (type->type == dev->type &&
 		    type->model == dev->model)
@@ -55,6 +67,8 @@ static int __register_device(struct device *dev)
 found:
 	dev->dev = type;
 	list_add_tail(&dev->devices, &devices);
+
+	spin_double_unlock(&devs_lock, &dev_types_lock);
 
 	return err;
 }
