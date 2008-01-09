@@ -17,10 +17,10 @@
 static inline void lpswe(void *psw)
 {
 	asm volatile(
-		"	lpswe	%0\n"
+		"	lpswe	0(%0)\n"
 	: /* output */
 	: /* input */
-	  "m" (psw)
+	  "a" (psw)
 	: /* clobbered */
 	  "cc"
 	);
