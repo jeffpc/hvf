@@ -10,6 +10,13 @@
 
 #define STACK_FRAME_SIZE	160
 
+/*
+ * The timer hardware subtracts 1 from the 51st bit every microsecond
+ */
+#define CLK_MICROSEC		0x1000UL
+
+#define HZ			100	/* number of ticks per second */
+
 struct psw {
 	u8 _zero0:1,
 	   r:1,			/* PER Mask (R)			*/

@@ -40,4 +40,6 @@ extern void EXT_INT(void);
 #define local_int_restore(x) \
 	__asm__ __volatile__("ssm   0(%0)" : : "a" (&x), "m" (x) : "memory")
 
+extern void set_timer();
+
 #endif

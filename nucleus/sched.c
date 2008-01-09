@@ -3,6 +3,7 @@
 #include <buddy.h>
 #include <slab.h>
 #include <magic.h>
+#include <interrupt.h>
 
 /* list of all runnable processes */
 static struct list_head runnable;
@@ -146,7 +147,6 @@ out:
 void init_sched()
 {
 	u64 cr0;
-	u64 time = 0x100000000; // 1 second
 
 	INIT_LIST_HEAD(&runnable);
 	INIT_LIST_HEAD(&processes);
@@ -165,11 +165,6 @@ void init_sched()
 	  "m" (*(((u8*)&cr0) + 6))
 	);
 
-	asm volatile(
-		"spt	%0\n"		/* set timer value */
-	: /* output */
-	: /* input */
-	  "m" (time)
-	);
+	set_timer();
 }
 
