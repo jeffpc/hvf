@@ -9,8 +9,6 @@
 #include <atomic.h>
 #include <buddy.h>
 
-u8 *int_stack_ptr;
-
 static atomic_t ops_used;		/* # of used slots in ops[] */
 static struct io_op_inflight_entry ops[MAX_IOS];
 					/* in-flight I/O ops */
@@ -92,13 +90,7 @@ out:
 void init_io()
 {
 	int i;
-	struct page *page;
 	u64 cr6;
-
-	page = alloc_pages(0);
-	BUG_ON(!page);
-
-	int_stack_ptr = PAGE_SIZE + (u8*)page_to_addr(page);
 
 	for(i=0; i<MAX_IOS; i++) {
 		ops[i].op = NULL;

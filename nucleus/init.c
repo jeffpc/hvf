@@ -10,6 +10,7 @@
 #include <sched.h>
 #include <device.h>
 #include <interrupt.h>
+#include <magic.h>
 
 static struct psw new_io_psw = {
 	.ea	= 1,
@@ -24,6 +25,35 @@ static struct psw new_ext_psw = {
 
 	.ptr	= (u64) &EXT_INT,
 };
+
+u8 *int_stack_ptr;
+
+static void init_int_stack()
+{
+	struct page *page;
+
+	page = alloc_pages(0);
+	BUG_ON(!page);
+
+	int_stack_ptr = PAGE_SIZE + (u8*)page_to_addr(page);
+}
+
+static void idle_task_body()
+{
+	/*
+	 * Warning: hack alert! The following overrides what __init_task
+	 * set, this allows us to skip the usual start_task wrapper.
+	 */
+	current->regs.psw.w   = 1;
+	current->regs.psw.ptr = MAGIC_PSW_IDLE_CODE;
+
+	/*
+	 * Load the new PSW that'll wait with special magic code set
+	 */
+	lpswe(&current->regs.psw);
+
+	BUG();
+}
 
 /*
  * This is where everything starts
@@ -63,6 +93,11 @@ void start()
 	 * Initialize slab allocator default caches
 	 */
 	init_slab();
+
+	/*
+	 * Allocate & initialize the interrupt stack
+	 */
+	init_int_stack();
 
 	/*
 	 * Initialize the io subsystem
@@ -124,7 +159,9 @@ void start()
 	 */
 	scan_devices();
 
-	/* Initialize the process scheduler */
+	/*
+	 * Initialize the process scheduler
+	 */
 	init_sched();
 
 	printf(" Scheduler:");
@@ -135,28 +172,10 @@ void start()
 	 */
 	memcpy(EXT_INT_NEW_PSW, &new_ext_psw, sizeof(struct psw));
 
-	memset(&psw, 0, sizeof(struct psw));
-	psw.io	= 1;
-	psw.ex	= 1;
-	psw.ea	= 1;
-	psw.ba	= 1;
-
-	asm volatile(
-		"	larl	%%r1,0f\n"
-		"	stg	%%r1,%0\n"
-		"	lpswe	%1\n"
-		"0:\n"
-	: /* output */
-	  "=m" (psw.ptr)
-	: /* input */
-	  "m" (psw)
-	: /* clobbered */
-	  "r1"
-	);
-
 	/*
-	 * Loop until an interrupt takes over
+	 * THIS IS WHERE THE IDLE TASK BEGINS
 	 */
-	for(;;);
+
+	idle_task_body();
 }
 

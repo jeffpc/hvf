@@ -2,6 +2,7 @@
 #define __SCHED_H
 
 #include <list.h>
+#include <page.h>
 
 #define SCHED_CANSLEEP		1	/* safe to sleep */
 
@@ -66,5 +67,51 @@ struct task {
 
 extern void init_sched();		/* initialize the scheduler */
 extern int create_task(int (*f)());	/* create a new task */
+extern void schedule();
+
+/**
+ * current - the current task's task struct
+ */
+#define current		extract_task()
+
+/**
+ * extract_task_ptr - given an address anywhere on the stack, return the
+ * associated task struct
+ * @stack:	a pointer to anywhere in the stack
+ */
+static inline struct task *extract_task_ptr(void *stack)
+{
+	u8 *ptr;
+	
+	ptr = (u8*) (((u64) stack) & ~(PAGE_SIZE-1));
+	ptr += PAGE_SIZE - sizeof(void*);
+
+	return *((struct task **) ptr);
+}
+
+/**
+ * extract_task - return the associated task struct
+ */
+static inline struct task *extract_task()
+{
+	int unused;
+
+	return extract_task_ptr(&unused);
+}
+
+/**
+ * set_task_ptr - set the stack's task struct pointer
+ * @stack:	a pointer to anywhere in the stack
+ * @task:	task struct pointer to be associated with the stack
+ */
+static inline void set_task_ptr(void *stack, struct task *task)
+{
+	u8 *ptr;
+	
+	ptr = (u8*) (((u64) stack) & ~(PAGE_SIZE-1));
+	ptr += PAGE_SIZE - sizeof(void*);
+
+	*((struct task**)ptr) = task;
+}
 
 #endif

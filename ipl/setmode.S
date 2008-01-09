@@ -31,6 +31,10 @@
 	#
 	# Let's set the stack pointer to make gcc happy
 	#
+	# BEWARE! A standard stack frame is 160 bytes, but because we abuse
+	# the last 8 bytes of the page as a pointer to current, we have to
+	# subtract 168 here
+	#
 
 	# r15 = 0x800000
 	#     = (8 << 20)
@@ -38,7 +42,7 @@
 	SR	%r15, %r15
 	LHI	%r15, 0x8
 	SLL	%r15, 20
-	AHI	%r15, -160
+	AHI	%r15, -168
 
 #
 # Padding to make the entire file 0x20 bytes

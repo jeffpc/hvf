@@ -15,32 +15,6 @@ static struct list_head processes;
 static struct task idle_task;
 
 /**
- * idle_task_body - body of the idle task (a wait psw)
- */
-static int idle_task_body()
-{
-	struct psw psw;
-	
-	memset(&psw, 0, sizeof(struct psw));
-
-	psw.io = 1;
-	psw.w  = 1;
-	psw.ea = 1;
-	psw.ba = 1;
-
-	psw.ptr = MAGIC_PSW_IDLE_CODE;
-
-	/* load a wait psw */
-	lpswe(&psw);
-
-	/* control should never reach here */
-
-	BUG();
-
-	return 1;
-}
-
-/**
  * start_task - helper used to start the task's code
  * @f:	function to execute
  */
@@ -49,7 +23,8 @@ static void start_task(int (*f)())
 	/*
 	 * Start executing the code
 	 */
-	(*f)();
+	if (f)
+		(*f)();
 
 	/*
 	 * Done, now, it's time to cleanup
@@ -60,6 +35,7 @@ static void start_task(int (*f)())
 	 *  - free struct
 	 *  - schedule
 	 */
+	BUG();
 }
 
 /**
@@ -73,6 +49,7 @@ static void __init_task(struct task *task, void *f, void *stack)
 	memset(task, 0, sizeof(struct task));
 
 	task->regs.psw.io	= 1;
+	task->regs.psw.ex	= 1;
 	task->regs.psw.ea	= 1;
 	task->regs.psw.ba	= 1;
 
@@ -80,22 +57,32 @@ static void __init_task(struct task *task, void *f, void *stack)
 	task->regs.psw.ptr = (u64) start_task;
 
 	task->regs.gpr[2]  = (u64) f;
-	task->regs.gpr[15] = ((u64) stack) + PAGE_SIZE - STACK_FRAME_SIZE;
+	task->regs.gpr[15] = ((u64) stack) + PAGE_SIZE - sizeof(void*) -
+			STACK_FRAME_SIZE;
+
+	/*
+	 * Last 8 bytes of the stack page contain a pointer to the task
+	 * structure
+	 */
+	set_task_ptr(stack, task);
 
 	task->state = TASK_SLEEPING;
 }
 
 /**
  * init_idle_task - initialize the idle task
+ *
+ * Since the initial thread of execution already has a stack, and the task
+ * struct is a global variable, all that is left for us to do is to
+ * associate the current stack with idle_task.
  */
 static void init_idle_task()
 {
-	struct page *page;
+	u64 stack;
 
-	page = alloc_pages(0);
-	BUG_ON(!page);
+	stack = ((u64) &stack) & ~(PAGE_SIZE-1);
 
-	__init_task(&idle_task, idle_task_body, page_to_addr(page));
+	__init_task(&idle_task, NULL, (void*) stack);
 
 	/*
 	 * NOTE: The idle task is _not_ supposed to be on either of the
@@ -139,6 +126,73 @@ out:
 	free_pages(page_to_addr(page), 0);
 
 	return err;
+}
+
+void schedule()
+{
+	struct task *prev;
+	struct task *next;
+
+	/*
+	 * Save last process's state
+	 */
+
+	prev = extract_task_ptr((void*) PSA_INT_GPR[15]);
+	
+	/*
+	 * Save the registers (gpr, psw, ...)
+	 *
+	 * FIXME: fp? ar? cr?
+	 */
+	memcpy(prev->regs.gpr, PSA_INT_GPR, sizeof(u64)*16);
+	memcpy(&prev->regs.psw, EXT_INT_OLD_PSW, sizeof(struct psw));
+
+	/*
+	 * Add back on the queue
+	 *
+	 * FIXME: should we try to be fair, and have partial slices?
+	 */
+	list_add_tail(&prev->run_queue, &runnable);
+
+	/*
+	 * If there are no runnable tasks, let's use the idle thread
+	 */
+	if (list_empty(&runnable)) {
+		next = &idle_task;
+		goto run;
+	}
+
+	next = list_first_entry(&runnable, struct task, run_queue);
+
+	/*
+	 * Remove the new task from the run queue & mark it as running
+	 */
+	list_del(&next->run_queue);
+	next->state = TASK_RUNNING;
+
+run:
+	/*
+	 * NOTE: Because we need to load the registers _BEFORE_ we issue
+	 * lpswe, we have to place the new psw into PSA and use register 0
+	 */
+	memcpy(EXT_INT_OLD_PSW, &next->regs.psw, sizeof(struct psw));
+
+	/*
+	 * Load the next task
+	 *
+	 * FIXME: fp? ar? cr?
+	 */
+	asm volatile(
+		"lmg	%%r0,%%r15,%0\n"	/* load gpr */
+		"lpswe	%1\n"			/* load new psw */
+	: /* output */
+	: /* input */
+	  "m" (next->regs.gpr[0]),
+	  "m" (*(struct psw*)EXT_INT_OLD_PSW)
+	);
+
+	/* unreachable */
+	BUG();
 }
 
 /*

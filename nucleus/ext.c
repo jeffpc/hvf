@@ -17,9 +17,19 @@ void __ext_int_handler()
 {
 	if (*EXT_INT_CODE == 0x1005) {
 		/*
-		 * This is the timer, let's figure out if we should call the
-		 * scheduler or not.
+		 * This is the timer, let's call the scheduler.
 		 */
+
+		set_timer();
+
+		/*
+		 * No need to save the registers, the assembly stub that
+		 * called this function already saved them at PSA_INT_GPR
+		 */
+		schedule();
+
+		/* unreachable */
+ 		BUG();
 	}
 }
 
