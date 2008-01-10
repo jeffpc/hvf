@@ -122,7 +122,7 @@ static void __start_console_io(char *buf, int len)
 	ioop.orb.f = 1;
 
 	memset(&ccw, 0, sizeof(struct ccw));
-	ccw.cmd = 0x09; // write with auto-carriage return
+	ccw.cmd = 0x01; // write
 	ccw.sli = 1;
 	ccw.count = len;
 	ccw.addr = (u32) (u64) buf;

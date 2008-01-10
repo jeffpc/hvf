@@ -205,7 +205,7 @@ void scan_devices()
 		dev->model = buf.dev_model;
 		dev->ccuu  = schib.path_ctl.dev_num;
 
-		printf("    %04x-%d @ %04x (sch %05x)", dev->type,
+		printf("    %04x-%d @ %04x (sch %05x)\n", dev->type,
 					dev->model, dev->ccuu, dev->sch);
 
 		if (__register_device(dev)) {

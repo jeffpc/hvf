@@ -137,22 +137,22 @@ void start()
 	  "r1"
 	);
 
-	printf("HVF version " VERSION);
-	printf(" Memory:");
-	printf("    %d kB/page", PAGE_SIZE);
-	printf("    %llu kB", (unsigned long long) memsize >> 10);
-	printf("    %llu pages", (unsigned long long) memsize >> PAGE_SHIFT);
-	printf("    PSA for each CPU     0..1024 kB");
-	printf("    nucleus              1024..%llu kB",
+	printf("HVF version " VERSION "\n");
+	printf(" Memory:\n");
+	printf("    %d kB/page\n", PAGE_SIZE);
+	printf("    %llu kB\n", (unsigned long long) memsize >> 10);
+	printf("    %llu pages\n", (unsigned long long) memsize >> PAGE_SHIFT);
+	printf("    PSA for each CPU     0..1024 kB\n");
+	printf("    nucleus              1024..%llu kB\n",
 			(unsigned long long) ((u64)PAGE_INFO_BASE) >> 10);
-	printf("    struct page array    %llu..%llu kB",
+	printf("    struct page array    %llu..%llu kB\n",
 			(unsigned long long) ((u64)PAGE_INFO_BASE) >> 10,
 			(unsigned long long) first_free_page >> 10);
-	printf("    generic pages        %llu..%llu kB",
+	printf("    generic pages        %llu..%llu kB\n",
 			(unsigned long long) first_free_page >> 10,
 			(unsigned long long) memsize >> 10);
 
-	printf(" Devices:");
+	printf(" Devices:\n");
 
 	/*
 	 * Let's discover all the devices attached
@@ -164,8 +164,8 @@ void start()
 	 */
 	init_sched();
 
-	printf(" Scheduler:");
-	printf("    no task max");
+	printf(" Scheduler:\n");
+	printf("    no task max\n");
 
 	/*
 	 * Time to enable more interrupts => load new psw
