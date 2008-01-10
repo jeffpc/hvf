@@ -26,6 +26,13 @@ static struct psw new_ext_psw = {
 	.ptr	= (u64) &EXT_INT,
 };
 
+static struct psw new_svc_psw = {
+	.ea	= 1,
+	.ba	= 1,
+
+	.ptr	= (u64) &SVC_INT,
+};
+
 u8 *int_stack_ptr;
 
 static void init_int_stack()
@@ -171,6 +178,7 @@ void start()
 	 * Time to enable more interrupts => load new psw
 	 */
 	memcpy(EXT_INT_NEW_PSW, &new_ext_psw, sizeof(struct psw));
+	memcpy(SVC_INT_NEW_PSW, &new_svc_psw, sizeof(struct psw));
 
 	/*
 	 * THIS IS WHERE THE IDLE TASK BEGINS

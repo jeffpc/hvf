@@ -19,11 +19,16 @@ struct io_int_code {
 #define EXT_INT_NEW_PSW	((void*) 0x1b0)
 #define EXT_INT_CODE	((u16*) 0x86)
 
+#define SVC_INT_OLD_PSW ((void*) 0x140)
+#define SVC_INT_NEW_PSW ((void*) 0x1c0)
+#define SVC_INT_CODE	((u16*) 0x8a)
+
 /*
  * Assembly stubs to call the C-handlers
  */
 extern void IO_INT(void);
 extern void EXT_INT(void);
+extern void SVC_INT(void);
 
 /**
  * local_int_disable - disable interruptions & return old mask
@@ -43,5 +48,11 @@ extern void EXT_INT(void);
 	__asm__ __volatile__("ssm   0(%0)" : : "a" (&x), "m" (x) : "memory")
 
 extern void set_timer();
+
+/*
+ * The Supervisor-Service call table
+ */
+#define NR_SVC			0
+extern u64 svc_table[NR_SVC];
 
 #endif
