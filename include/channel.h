@@ -2,6 +2,20 @@
 #define __CHANNEL_H
 
 /*
+ * MIDAW
+ */
+struct midaw {
+	u32 __zero0;
+	u8 __zero1;
+	u8 last:1,		/* Last */
+	   skp:1,		/* Skip */
+	   dti:1,		/* Data-Transfer-Interruption */
+	   __zero2:5;
+	u16 count;		/* Count */
+	u64 addr;		/* Data Address */
+} __attribute__((packed,aligned(16)));
+
+/*
  * We only care about format-1 CCWs
  */
 struct ccw {
