@@ -1,0 +1,16 @@
+pre v0.11:
+  - generic console layer
+  - rewrite printf io sections to be async
+    - a worker thread that starts io for the console device
+
+post v0.11:
+  - buddy allocator
+    - use a tree
+    - 2 zones (<2GB, >2GB)
+  - address spaces for processes
+
+whenever:
+  - figure out how to make an aws tape
+  - fix device detection of 3420s
+  - build
+    - fix `make foo/bar.o` and `make foo/bar.s`
