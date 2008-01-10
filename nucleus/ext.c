@@ -1,6 +1,11 @@
 #include <interrupt.h>
 #include <sched.h>
 
+/*
+ * This is the tick counter, it starts at 0 when we initialize the nucleus
+ */
+u64 ticks;
+
 void set_timer()
 {
 	u64 time = 1000 * 1000 * CLK_MICROSEC / HZ;
@@ -19,6 +24,8 @@ void __ext_int_handler()
 		/*
 		 * This is the timer, let's call the scheduler.
 		 */
+
+		ticks++;
 
 		set_timer();
 

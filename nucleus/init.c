@@ -72,6 +72,11 @@ void start()
 	struct psw psw;
 
 	/*
+	 * ticks starts at 0
+	 */
+	ticks = 0;
+
+	/*
 	 * We should determine this dynamically
 	 */
 	memsize = MEMSIZE;
