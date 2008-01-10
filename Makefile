@@ -9,6 +9,9 @@ CC=gcc
 LD=ld
 OBJCOPY=objcopy
 
+# By default, be terse
+V=0
+
 MAKEFLAGS += -rR --no-print-directory
 CFLAGS=-DVERSION=\"$(VERSION)\" -g -fno-strict-aliasing -fno-builtin -nostdinc -nostdlib -Wall -m64 -I include/ -O2
 NUCLEUSCFLAGS=-include include/nucleus.h
@@ -22,34 +25,36 @@ TOP_DIRS=nucleus/ mm/ lib/ drivers/
 .PHONY: all build clean mrproper cleanup hvfclean iplclean tags
 .PHONY: ipl/ $(TOP_DIRS)
 
-all: build 
-	@$(MAKE) hvf
-	@$(MAKE) ipl/
+include scripts/Makefile.commands
+
+all: build hvf
+	@echo "Image is `stat -c %s hvf` bytes"
+	@$(MAKE) ipl/ V=$V
 
 hvf: $(patsubst %/,%/built-in.o,$(TOP_DIRS))
-	$(LD) $(LDFLAGS) -T scripts/linker.script -o $@ $^
+	$(call link-hvf,$^,$@)
 
 clean:
-	@$(MAKE) DIR=nucleus/ cleanup
-	@$(MAKE) DIR=mm/ cleanup
-	@$(MAKE) DIR=lib/ cleanup
-	@$(MAKE) DIR=drivers/ cleanup
-	rm -f hvf
-	rm -f loader.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl.S
+	@$(MAKE) DIR=nucleus/ cleanup V=$V
+	@$(MAKE) DIR=mm/ cleanup V=$V
+	@$(MAKE) DIR=lib/ cleanup V=$V
+	@$(MAKE) DIR=drivers/ cleanup V=$V
+	$(call clean,hvf)
+	$(call clean,loader.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl.S)
 
 mrproper: clean
-	rm -f cscope.out ctags
+	$(call clean,cscope.out ctags)
 
 cleanup:
-	rm -f $(DIR)*.o
+	$(call clean,$(DIR)*.o)
 
 build: $(TOP_DIRS)
 
 $(TOP_DIRS): %/:
-	@$(MAKE) -f scripts/Makefile.build DIR=$@
+	@$(MAKE) -f scripts/Makefile.build DIR=$@ V=$V
 
 tags:
-	cscope -R -b
+	$(call cscope)
 
 #
 # Include Makefiles from all the top level directories
@@ -66,23 +71,22 @@ ipl/: loader.bin
 	@echo -n
 
 loader.bin: ipl/ipl.rto ipl/setmode.rto ipl/loader.rto
-	cat ipl/ipl.rto > "$@"
-	cat ipl/setmode.rto >> "$@"
-	cat ipl/loader.rto >> "$@"
+	$(call concat,ipl/ipl.rto ipl/setmode.rto ipl/loader.rto,$@)
+	@echo "Loader is `stat -c %s loader.bin` bytes"
 
 ipl/%.rto: ipl/%.o
-	$(OBJCOPY) -O binary -j .text $< $@
+	$(call objcopy-t,$<,$@)
 
 ipl/%.o: ipl/%.S
-	$(AS) -m31 -o $@ $<
+	$(call s-to-o-31,$<,$@)
 
 ipl/ipl.S: ipl/ipl.S_in ipl/setmode.rto ipl/loader.rto scripts/gen_ipl_s.sh
-	bash scripts/gen_ipl_s.sh "$<" "$@"
+	$(call genipl-s,$<,$@)
 
 ipl/loader.rto: ipl/loader.o
-	$(OBJCOPY) -O binary -j .text -j .data -j .rodata $< $@
+	$(call objcopy-tdr,$<,$@)
 
 ipl/loader.o: ipl/loader.c ipl/loader_asm.S hvf
-	$(AS) -m64 -o ipl/.loader_asm.o ipl/loader_asm.S
-	$(CC) $(CFLAGS) -DBLOCK_SIZE=4096 -DBYTES_TO_READ=`stat -c %s hvf` -c -o ipl/.loader.o ipl/loader.c
-	$(LD) -melf64_s390 -o $@ -T ipl/linker.script ipl/.loader.o ipl/.loader_asm.o
+	$(call s-to-o,ipl/loader_asm.S,ipl/.loader_asm.o)
+	$(call c-to-o-ipl,ipl/loader.c,ipl/.loader.o,4096,`stat -c %s hvf`)
+	$(call link-ipl,ipl/.loader.o ipl/.loader_asm.o,$@)

@@ -6,8 +6,9 @@
 
 .PRECIOUS: %.o
 
-override DIR := $(patsubst %/,%,$(DIR))
+include scripts/Makefile.commands
 
+override DIR := $(patsubst %/,%,$(DIR))
 include $(DIR)/Makefile
 
 OBJS := $(foreach obj,$(objs-$(DIR)),$(patsubst %,$(DIR)/%,$(obj)))
@@ -16,13 +17,13 @@ all: $(DIR)/built-in.o
 	@echo -n
 
 %/built-in.o: $(OBJS)
-	$(LD) $(LDFLAGS) -r -o $@ $(OBJS)
+	$(call o-to-builtin,$(OBJS),$@)
 
 %.o: %.S
-	$(AS) -m64 -o $@ $<
+	$(call s-to-o,$<,$@)
 
 %.s: %.c
-	$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -S -o $@ $<
+	$(call c-to-s,$<,$@)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -c -o $@ $<
+	$(call c-to-o,$<,$@)
