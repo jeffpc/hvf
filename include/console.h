@@ -5,17 +5,24 @@
 #include <io.h>
 #include <spinlock.h>
 
+/* line allocation size */
 #define CON_LINE_ALLOC_SIZE	256
+
+/* maximum line length */
 #define CON_MAX_LINE_LEN	(CON_LINE_ALLOC_SIZE - sizeof(struct console_line))
+
+/* maximum number of lines to buffer */
 #define CON_MAX_LINES		64
 
+/* number of lines of console text to flush at a time */
+#define CON_MAX_FLUSH_LINES	8
+
+/* line state */
 #define CON_STATE_FREE		0
 #define CON_STATE_PENDING	1
 #define CON_STATE_IO		2
 
 struct console_line {
-	struct io_op ioop;
-	struct ccw ccw;
 	u16 len;
 	u16 state;
 	u8 buf[0];

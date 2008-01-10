@@ -4,7 +4,7 @@
 #include <list.h>
 #include <page.h>
 
-#define SCHED_CANSLEEP		1	/* safe to sleep */
+#define CAN_SLEEP		1	/* safe to sleep */
 
 #define TASK_RUNNING		0
 #define TASK_SLEEPING		1
