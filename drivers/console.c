@@ -9,7 +9,7 @@ int con_write(struct console *con, u8 *buf, int len)
 	spin_lock(&con->lock);
 
 	for(idx=0; idx<con->nlines; idx++) {
-		if (!con->lines[idx]->used)
+		if (con->lines[idx]->state == CON_STATE_FREE)
 			goto found;
 	}
 
@@ -33,7 +33,7 @@ int con_write(struct console *con, u8 *buf, int len)
 	con->nlines++;
 
 found:
-	con->lines[idx]->used = 1;
+	con->lines[idx]->state = CON_STATE_PENDING;
 
 	con->lines[idx]->len = (len < CON_MAX_LINE_LEN) ?
 					len : CON_MAX_LINE_LEN;

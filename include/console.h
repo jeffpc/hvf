@@ -9,11 +9,15 @@
 #define CON_MAX_LINE_LEN	(CON_LINE_ALLOC_SIZE - sizeof(struct console_line))
 #define CON_MAX_LINES		64
 
+#define CON_STATE_FREE		0
+#define CON_STATE_PENDING	1
+#define CON_STATE_IO		2
+
 struct console_line {
 	struct io_op ioop;
 	struct ccw ccw;
 	u16 len;
-	u16 used;
+	u16 state;
 	u8 buf[0];
 };
 
