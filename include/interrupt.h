@@ -10,6 +10,7 @@ struct io_int_code {
 } __attribute__((packed));
 
 #define PSA_INT_GPR	((u64*) 0x200)
+#define PSA_TMP_PSW	((struct psw*) 0x280)
 
 #define IO_INT_OLD_PSW	((void*) 0x170)
 #define IO_INT_NEW_PSW	((void*) 0x1f0)
@@ -52,7 +53,8 @@ extern void set_timer();
 /*
  * The Supervisor-Service call table
  */
-#define NR_SVC			0
+#define SVC_SCHEDULE		0
+#define NR_SVC			1
 extern u64 svc_table[NR_SVC];
 
 #endif

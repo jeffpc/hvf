@@ -26,7 +26,7 @@ void __ext_int_handler()
 		 * No need to save the registers, the assembly stub that
 		 * called this function already saved them at PSA_INT_GPR
 		 */
-		schedule();
+		__schedule(EXT_INT_OLD_PSW);
 
 		/* unreachable */
  		BUG();

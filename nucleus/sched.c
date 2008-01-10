@@ -128,31 +128,13 @@ out:
 	return err;
 }
 
-void schedule()
+/**
+ * __sched - core of the scheduler code. This decides which task to run
+ * next, and switches over to it
+ */
+static void __sched()
 {
-	struct task *prev;
 	struct task *next;
-
-	/*
-	 * Save last process's state
-	 */
-
-	prev = extract_task_ptr((void*) PSA_INT_GPR[15]);
-	
-	/*
-	 * Save the registers (gpr, psw, ...)
-	 *
-	 * FIXME: fp? ar? cr?
-	 */
-	memcpy(prev->regs.gpr, PSA_INT_GPR, sizeof(u64)*16);
-	memcpy(&prev->regs.psw, EXT_INT_OLD_PSW, sizeof(struct psw));
-
-	/*
-	 * Add back on the queue
-	 *
-	 * FIXME: should we try to be fair, and have partial slices?
-	 */
-	list_add_tail(&prev->run_queue, &runnable);
 
 	/*
 	 * If there are no runnable tasks, let's use the idle thread
@@ -175,7 +157,7 @@ run:
 	 * NOTE: Because we need to load the registers _BEFORE_ we issue
 	 * lpswe, we have to place the new psw into PSA and use register 0
 	 */
-	memcpy(EXT_INT_OLD_PSW, &next->regs.psw, sizeof(struct psw));
+	memcpy(PSA_TMP_PSW, &next->regs.psw, sizeof(struct psw));
 
 	/*
 	 * Load the next task
@@ -188,11 +170,67 @@ run:
 	: /* output */
 	: /* input */
 	  "m" (next->regs.gpr[0]),
-	  "m" (*(struct psw*)EXT_INT_OLD_PSW)
+	  "m" (*PSA_TMP_PSW)
 	);
 
 	/* unreachable */
 	BUG();
+}
+
+/**
+ * schedule_preempted - called to switch tasks
+ */
+void __schedule(struct psw *old_psw)
+{
+	struct task *prev;
+
+	/*
+	 * Save last process's state
+	 */
+
+	prev = extract_task_ptr((void*) PSA_INT_GPR[15]);
+	
+	/*
+	 * Save the registers (gpr, psw, ...)
+	 *
+	 * FIXME: fp? ar? cr?
+	 */
+	memcpy(prev->regs.gpr, PSA_INT_GPR, sizeof(u64)*16);
+	memcpy(&prev->regs.psw, old_psw, sizeof(struct psw));
+
+	/*
+	 * Add back on the queue
+	 *
+	 * FIXME: should we try to be fair, and have partial slices?
+	 */
+	list_add_tail(&prev->run_queue, &runnable);
+
+	/*
+	 * Run the rest of the scheduler that selects the next task and
+	 * context switches
+	 */
+	__sched();
+}
+
+/**
+ * __schedule_svc - wrapper for the supervisor-service call handler
+ */
+void __schedule_svc()
+{
+	__schedule(SVC_INT_OLD_PSW);
+}
+
+/**
+ * schedule - used to explicitly yield the cpu
+ */
+void schedule()
+{
+	asm volatile(
+		"	svc	%0\n"
+	: /* output */
+	: /* input */
+	  "i" (SVC_SCHEDULE)
+	);
 }
 
 /*
