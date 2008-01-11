@@ -2,12 +2,14 @@
 #include <slab.h>
 #include <sched.h>
 
+static struct console console;
+
 /**
  * console_flusher - iterates over a console's buffers and initiates the IO
  */
 static int console_flusher()
 {
-	struct console *con = NULL;
+	struct console *con = &console;
 	int idx;
 	int midaw_count;
 	int len;
@@ -101,6 +103,26 @@ static int console_flusher()
 		while(submit_io(&ioop, CAN_SLEEP))
 			schedule();
 	}
+}
+
+void init_oper_console()
+{
+	console.dev	= NULL;
+	console.lock	= SPIN_LOCK_UNLOCKED;
+	console.nlines	= 0;
+}
+
+void start_oper_console()
+{
+	console.dev = find_device_by_type(0x3215, 0);
+	BUG_ON(IS_ERR(console.dev));
+
+	create_task(console_flusher);
+}
+
+int oper_con_write(u8 *buf, int len)
+{
+	return con_write(&console, buf, len);
 }
 
 int con_write(struct console *con, u8 *buf, int len)

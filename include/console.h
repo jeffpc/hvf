@@ -35,6 +35,9 @@ struct console {
 	struct console_line *lines[CON_MAX_LINES];
 };
 
+extern int oper_con_write(u8 *buf, int len);
+extern void start_oper_console();
+extern void init_oper_console();
 extern int con_write(struct console *con, u8 *buf, int len);
 
 #endif

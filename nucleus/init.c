@@ -9,6 +9,7 @@
 #include <io.h>
 #include <sched.h>
 #include <device.h>
+#include <console.h>
 #include <interrupt.h>
 #include <magic.h>
 
@@ -124,7 +125,7 @@ void start()
 	/*
 	 * Find & init operator console
 	 */
-	init_oper_console(OPER_CONSOLE_CCUU);
+	init_oper_console();
 
 	/*
 	 * Time to enable interrupts => load new psw
@@ -175,6 +176,11 @@ void start()
 	 * Initialize the process scheduler
 	 */
 	init_sched();
+
+	/*
+	 * Register the operator console async task
+	 */
+	start_oper_console();
 
 	printf(" Scheduler:\n");
 	printf("    no task max\n");
