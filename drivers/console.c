@@ -29,6 +29,16 @@ static int console_flusher()
 		spin_lock(&con->lock);
 
 		/*
+		 * free all the lines we just finished the IO for
+		 */
+		for(idx=0; idx < con->nlines; idx++) {
+			if (con->lines[idx]->state != CON_STATE_IO)
+				continue;
+
+			con->lines[idx]->state = CON_STATE_FREE;
+		}
+
+		/*
 		 * find at most CON_MAX_FLUSH_LINES of CON_STATE_PENDING
 		 * lines, mark them as IO, and shove necessary information
 		 * into the right MIDAW
@@ -86,7 +96,7 @@ static int console_flusher()
 		 */
 		ioop.ssid = con->dev->sch;
 		ioop.handler = NULL;
-		ioop.dtor = NULL; // FIXME: mark the lines as CON_STATE_FREE
+		ioop.dtor = NULL;
 
 		while(submit_io(&ioop, CAN_SLEEP))
 			schedule();
