@@ -1,12 +1,12 @@
-pre v0.11:
-  - generic console layer
-    - have a queue with all consoles vs. have a thread per console
-
-post v0.11:
+pre v0.12:
+  - multi-console generic console layer
+    - have a queue with all consoles vs. have a thread per console?
   - buddy allocator
     - use a tree
     - 2 zones (<2GB, >2GB)
   - address spaces for processes
+  - scheduler
+    - multi-tick quanta
 
 whenever:
   - figure out how to make an aws tape
