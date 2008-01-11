@@ -42,14 +42,23 @@ static int console_flusher()
 
 		/*
 		 * find at most CON_MAX_FLUSH_LINES of CON_STATE_PENDING
-		 * lines, mark them as IO, and shove necessary information
-		 * into the right MIDAW
+		 * lines _OR_ at most 150 bytes to send, mark them as IO,
+		 * and shove necessary information into the right MIDAW
+		 *
+		 * FIXME: If a single line contains more than 150
+		 * characters, it will cause all lines from that point on to
+		 * never appear on the console. Perhaps the best fix would
+		 * be to prevent the addition of the buffer as a line in
+		 * con_write().
 		 */
 		for(idx=0, midaw_count=0, len = 0;
 		    (idx < con->nlines) && (midaw_count < CON_MAX_FLUSH_LINES);
 		    idx++) {
 			if (con->lines[idx]->state != CON_STATE_PENDING)
 				continue;
+
+			if ((len + con->lines[idx]->len) > 150)
+				break;
 
 			con->lines[idx]->state = CON_STATE_IO;
 
