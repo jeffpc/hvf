@@ -1,7 +1,6 @@
 pre v0.11:
   - generic console layer
-  - rewrite printf io sections to be async
-    - a worker thread that starts io for the console device
+    - have a queue with all consoles vs. have a thread per console
 
 post v0.11:
   - buddy allocator
