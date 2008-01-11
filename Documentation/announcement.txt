@@ -1,0 +1,78 @@
+Subject: [ANNOUNCE] HVF v0.11
+To: hercules-390@yahoogroups.com, H390-VM@yahoogroups.com,
+	hvf@lists.josefsipek.net
+
+Hello all!
+
+I would like to announce the first public release of HVF - an open source OS
+for the zArchitecture written in C.
+
+Currently, the OS does very little. It consists of:
+
+ - simple process scheduler
+ - console layer (currently supports only one 3215 device)
+ - page allocator
+ - slab allocator (to provide a libc-like malloc())
+
+Once the system is IPLed, it outputs some information to the console, and
+then continues to idle. While this is not much there is enough code that it
+lends itself to (aside from my goal with it - see below):
+
+ - being used as a basis for experimenting with zArch
+ - being used as the beginning of a toy OS
+
+Since I do not have access to a zSeries and therefore I had to resort to
+developing and testing on Hercules. It is possible that there are issues
+that need fixing to get things running smoothly on the real thing.
+
+The ultimate goal is to have a VM/370-like OS that runs on the zArchtecture
+- to allow Linux and other modern OSes to run concurrently on a single
+machine. Here are few of the goals on the TODO list:
+
+ - nucleus should be all 64-bit (minus the arch mode switching code)
+ - mostly in C
+ - support multiple users
+ - use SIE to virtualize the hardware (S/390 and zArch modes)
+ - give something to the mainframe hobbyist community to play with :)
+
+Note that this is all for the hypervisor - I'd like to have a CMS-like OS as
+well, but that's secondary. (In a couple of days, I'm actually planning to
+post a list of ideas for the guest OS to the HVF mailing list - see below.)
+
+You can find the released source code in a tarball at:
+
+http://www.josefsipek.net/projects/hvf/src/
+
+I use Git[1] as the version control system. You can browse the history, as
+well as obtain the source at:
+
+http://repo.or.cz/w/hvf.git
+
+Feel free to grab a copy of the source code, build it (see
+Documentation/building.txt in the source tree), IPL it, tweak it, and submit
+patches :)
+
+I have also set up a mailing list as a place to discuss design, comment on
+code, etc.:
+
+http://lists.josefsipek.net/listinfo/hvf
+
+Currently, the list gets commit messages whenever something changes in the
+repository but I'm hoping that once people join it'll be more interesting
+:)
+
+Then there is the IRC channel where you can catch me pretty much all the
+time:
+
+server:		irc.oftc.net (the OFTC network)
+channel:	#hvf
+
+And finally, I have decided to use GPLv2 as the license of choice for the
+code. The major advantage of doing so is the ability to borrow code (with
+proper citation of the borrowing) from other GPLv2 projects - namely Linux.
+The extent of the borrowing is restricted to basic building blocks - e.g.,
+atomic variable types, locking primitives, but not much more beyond that.
+
+Josef 'Jeff' Sipek.
+
+[1] http://git.or.cz/
