@@ -203,7 +203,8 @@ void __schedule(struct psw *old_psw)
 	 *
 	 * FIXME: should we try to be fair, and have partial slices?
 	 */
-	list_add_tail(&prev->run_queue, &runnable);
+	if (prev != &idle_task)
+		list_add_tail(&prev->run_queue, &runnable);
 
 	/*
 	 * Run the rest of the scheduler that selects the next task and
