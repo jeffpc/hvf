@@ -14,7 +14,7 @@ extern u64 ticks;
          (type *)( (char *)__mptr - offsetof(type,member) );})
 
 /* borrowed from Linux */
-#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+#define offsetof(type, member) __builtin_offsetof(type,member)
 
 static inline void lpswe(void *psw)
 {
