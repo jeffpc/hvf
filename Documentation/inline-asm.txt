@@ -1,6 +1,7 @@
 The following information has been taken from Dr. Ulrich Weigand's SHARE 100
-presentation: "The GNU Compiler Collection on zSeries". Some modifications
-have been made to follow the HVF coding conventions.
+presentation: "The GNU Compiler Collection on zSeries", as well as from
+"Using the GNU Compiler Collection" [1,2]. Some modifications have been made
+to follow the HVF coding conventions.
 
 Syntax of "asm" construct
 =========================
@@ -34,12 +35,39 @@ List of:
 	"<constraints>" (<expression>)
 
 - constraint letters:
-  "d"	general purpose register
-  "f"	floating point register
-  "a"	address register (i.e., gpr except %r0)
-  "m"	general memory operand (base + index + displacement)
-  "Q"	S-operand (base + displacement) - gcc 3.3 only
-  "i"	immediate constant
+  "a"	address register (general purpose register except r0)
+  "c"	condition code register
+  "d"	data register (arbitrary general purpose register)
+  "f"	floating-point register
+  "I"	unsigned 8-bit constant (0..255)
+  "i"	an immediate integer operand (one with constant value) is allowed.
+	This includes symbolic constants whose values will be known only at
+	assembly time or later.
+  "J"	unsigned 12-bit constant (0..4095)
+  "K"	signed 16-bit constant (-32768..32767)
+  "L"	value appropriate as displacement.
+	  (0..4095)		for short displacement
+	  (-524288..524287)	for long displacement 
+  "M"	constant integer with a value of 0x7fffffff.
+  "m"	a memory operand is allowed, with any kind of address that the
+	machine supports in general.
+
+  "N"	multiple letter constraint followed by 4 parameter letters.
+	  0..9:   number of the part counting from most to least significant
+	  H,Q:    mode of the part
+	  D,S,H:  mode of the containing operand
+	  0,F:    value of the other parts (F-all bits set) 
+	the constraint matches if the specified part of a constant has a
+	value different from it's other parts.
+  "Q"	memory reference without index register and with short displacement.
+  "R"	memory reference with index register and short displacement.
+  "S"	memory reference without index register but with long displacement.
+  "T"	memory reference with index register and long displacement.
+  "U"	pointer with short displacement.
+  "W"	pointer with long displacement.
+  "Y"	shift count operand.
+
+(most useful being: "d" "f" "a" "m" "Q" "i")
 
 - constraint modifier characters:
   "="	write-only output operand
@@ -98,3 +126,9 @@ Examples
 	  "cc"
 	);
 
+
+Links
+=====
+
+[1] http://gcc.gnu.org/onlinedocs/gcc-4.2.2/gcc/Simple-Constraints.html
+[2] http://gcc.gnu.org/onlinedocs/gcc-4.2.2/gcc/Machine-Constraints.html
