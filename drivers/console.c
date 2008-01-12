@@ -2,14 +2,20 @@
 #include <slab.h>
 #include <sched.h>
 
-static struct console console;
+static struct console *oper_console;
+
+/*
+ * List of all consoles on the system
+ */
+static LIST_HEAD(consoles);
+static spinlock_t consoles_lock = SPIN_LOCK_UNLOCKED;
 
 /**
  * console_flusher - iterates over a console's buffers and initiates the IO
  */
 static int console_flusher()
 {
-	struct console *con = &console;
+	struct console *con = oper_console;
 	int idx;
 	int midaw_count;
 	int len;
@@ -114,24 +120,44 @@ static int console_flusher()
 	}
 }
 
-void init_oper_console()
+/**
+ * register_console - generic device registration callback
+ * @dev:	console device to register
+ */
+int register_console(struct device *dev)
 {
-	console.dev	= NULL;
-	console.lock	= SPIN_LOCK_UNLOCKED;
-	console.nlines	= 0;
+	struct console *con;
+
+	con = malloc(sizeof(struct console));
+	BUG_ON(!con);
+
+	con->dev    = dev;
+	con->lock   = SPIN_LOCK_UNLOCKED;
+	con->nlines = 0;
+
+	spin_lock(&consoles_lock);
+	list_add_tail(&con->consoles, &consoles);
+	spin_unlock(&consoles_lock);
+
+	return 0;
 }
 
-void start_oper_console()
+void start_consoles()
 {
-	console.dev = find_device_by_type(0x3215, 0);
-	BUG_ON(IS_ERR(console.dev));
+	/*
+	 * For now, we only start the operator console
+	 */
+
+	BUG_ON(list_empty(&consoles));
+
+	oper_console = list_first_entry(&consoles, struct console, consoles);
 
 	create_task(console_flusher);
 }
 
 int oper_con_write(u8 *buf, int len)
 {
-	return con_write(&console, buf, len);
+	return con_write(oper_console, buf, len);
 }
 
 int con_write(struct console *con, u8 *buf, int len)

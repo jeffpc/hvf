@@ -112,6 +112,10 @@ static int __register_device(struct device *dev)
 
 found:
 	dev->dev = type;
+
+	if (type && type->reg)
+		err = type->reg(dev);
+
 	list_add_tail(&dev->devices, &devices);
 
 	spin_double_unlock(&devs_lock, &dev_types_lock);
@@ -205,9 +209,6 @@ void scan_devices()
 		dev->model = buf.dev_model;
 		dev->ccuu  = schib.path_ctl.dev_num;
 
-		printf("    %04x-%d @ %04x (sch %05x)\n", dev->type,
-					dev->model, dev->ccuu, dev->sch);
-
 		if (__register_device(dev)) {
 			/* 
 			 * error registering ... the device struct MUST NOT
@@ -226,6 +227,16 @@ void scan_devices()
 	}
 
 	free(dev);
+}
+
+void list_devices()
+{
+	struct device *dev;
+
+	list_for_each_entry(dev, &devices, devices) {
+		printf("    %04x-%d @ %04x (sch %05x)\n", dev->type,
+					dev->model, dev->ccuu, dev->sch);
+	}
 }
 
 extern int register_driver_3215();

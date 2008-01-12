@@ -123,11 +123,6 @@ void start()
 	register_drivers();
 
 	/*
-	 * Find & init operator console
-	 */
-	init_oper_console();
-
-	/*
 	 * Time to enable interrupts => load new psw
 	 */
 	memcpy(IO_INT_NEW_PSW, &new_io_psw, sizeof(struct psw));
@@ -150,6 +145,21 @@ void start()
 	  "r1"
 	);
 
+	/*
+	 * Let's discover all the devices attached
+	 */
+	scan_devices();
+
+	/*
+	 * Initialize the process scheduler
+	 */
+	init_sched();
+
+	/*
+	 * Register the console async task
+	 */
+	start_consoles();
+
 	printf("HVF version " VERSION "\n");
 	printf(" Memory:\n");
 	printf("    %d kB/page\n", PAGE_SIZE);
@@ -164,24 +174,8 @@ void start()
 	printf("    generic pages        %llu..%llu kB\n",
 			(unsigned long long) first_free_page >> 10,
 			(unsigned long long) memsize >> 10);
-
 	printf(" Devices:\n");
-
-	/*
-	 * Let's discover all the devices attached
-	 */
-	scan_devices();
-
-	/*
-	 * Initialize the process scheduler
-	 */
-	init_sched();
-
-	/*
-	 * Register the operator console async task
-	 */
-	start_oper_console();
-
+	list_devices();
 	printf(" Scheduler:\n");
 	printf("    no task max\n");
 
