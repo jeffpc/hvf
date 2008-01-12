@@ -12,7 +12,7 @@
 #define CON_MAX_LINE_LEN	(CON_LINE_ALLOC_SIZE - sizeof(struct console_line))
 
 /* maximum number of lines to buffer */
-#define CON_MAX_LINES		64
+#define CON_MAX_LINES		32
 
 /* number of lines of console text to flush at a time */
 #define CON_MAX_FLUSH_LINES	8
