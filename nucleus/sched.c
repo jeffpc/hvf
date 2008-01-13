@@ -103,8 +103,8 @@ int create_task(int (*f)())
 	/*
 	 * Allocate a page for stack, and struct task itself
 	 */
-	page = alloc_pages(0);
-	task = malloc(sizeof(struct task));
+	page = alloc_pages(0, ZONE_NORMAL);
+	task = malloc(sizeof(struct task), ZONE_NORMAL);
 	if (!page || !task)
 		goto out;
 

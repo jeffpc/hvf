@@ -40,7 +40,7 @@ static void init_int_stack()
 {
 	struct page *page;
 
-	page = alloc_pages(0);
+	page = alloc_pages(0, ZONE_NORMAL);
 	BUG_ON(!page);
 
 	int_stack_ptr = PAGE_SIZE + (u8*)page_to_addr(page);

@@ -128,7 +128,7 @@ int register_console(struct device *dev)
 {
 	struct console *con;
 
-	con = malloc(sizeof(struct console));
+	con = malloc(sizeof(struct console), ZONE_NORMAL);
 	BUG_ON(!con);
 
 	con->dev    = dev;
@@ -185,7 +185,7 @@ int con_write(struct console *con, u8 *buf, int len)
 	/* allocate a new one */
 	idx = con->nlines;
 
-	con->lines[idx] = malloc(CON_LINE_ALLOC_SIZE);
+	con->lines[idx] = malloc(CON_LINE_ALLOC_SIZE, ZONE_NORMAL);
 	if (!con->lines[idx])
 		goto abort;
 

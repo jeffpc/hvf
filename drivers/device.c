@@ -164,7 +164,7 @@ void scan_devices()
 		 */
 
 		if (!dev)
-			dev = malloc(sizeof(struct device));
+			dev = malloc(sizeof(struct device), ZONE_NORMAL);
 		/*
 		 * if we failed to allocate memory, there's not much we can
 		 * do

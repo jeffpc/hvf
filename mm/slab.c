@@ -64,7 +64,7 @@ struct slab *create_slab(u16 objsize, u8 align)
 	if (!objsize || !align)
 		return NULL;
 
-	page = alloc_pages(0);
+	page = alloc_pages(0, ZONE_NORMAL);
 	if (!page)
 		return NULL;
 
@@ -132,12 +132,12 @@ void free_slab(struct slab *passed_slab)
 	free_pages(passed_slab, 0);
 }
 
-static inline void *__alloc_slab_obj_newpage(struct slab *slab)
+static inline void *__alloc_slab_obj_newpage(struct slab *slab, int type)
 {
 	struct page *page;
 	struct slab *new;
 
-	page = alloc_pages(0);
+	page = alloc_pages(0, type);
 	if (!page)
 		return ERR_PTR(-ENOMEM);
 
@@ -156,7 +156,7 @@ static inline void *__alloc_slab_obj_newpage(struct slab *slab)
 	return new;
 }
 
-void *alloc_slab_obj(struct slab *passed_slab)
+void *alloc_slab_obj(struct slab *passed_slab, int type)
 {
 	struct slab *slab = passed_slab;
 	void *obj = NULL;
@@ -173,16 +173,18 @@ void *alloc_slab_obj(struct slab *passed_slab)
 	spin_lock_intsave(&passed_slab->lock, &int_mask);
 
 	/*
-	 * Does the first slab page have an unused object?
+	 * Does the first slab page have an unused object _AND_ is in the
+	 * right zone?
 	 */
-	if (slab->used < slab->count)
+	if (slab->used < slab->count && ZONE_TYPE(addr_to_page(slab)) == type)
 		goto alloc;
 
 	/*
 	 * No. Find the first slab page that has unused objects
 	 */
 	list_for_each_entry(slab, &passed_slab->slab_pages, slab_pages)
-		if (slab->used < slab->count)
+		if (slab->used < slab->count &&
+		    ZONE_TYPE(addr_to_page(slab)) == type)
 			goto alloc;
 
 	/*
@@ -190,9 +192,14 @@ void *alloc_slab_obj(struct slab *passed_slab)
 	 * page
 	 */
 
-	slab = __alloc_slab_obj_newpage(passed_slab);
+	slab = __alloc_slab_obj_newpage(passed_slab, type);
 	if (IS_ERR(slab))
+		/*
+		 * FIXME: if we tried to get a ZONE_NORMAL and failed,
+		 * shouldn't we retry with ZONE_LOW?
+		 */
 		goto out;
+
 
 alloc:
 	/* found a page */
@@ -243,22 +250,22 @@ void free_slab_obj(void *ptr)
 	spin_unlock_intrestore(&slab->first->lock, int_mask);
 }
 
-void *malloc(int size)
+void *malloc(int size, int type)
 {
 	if (!size)
 		return NULL;
 	if (size <= 16)
-		return alloc_slab_obj(generic[0]);
+		return alloc_slab_obj(generic[0], type);
 	if (size <= 32)
-		return alloc_slab_obj(generic[1]);
+		return alloc_slab_obj(generic[1], type);
 	if (size <= 64)
-		return alloc_slab_obj(generic[2]);
+		return alloc_slab_obj(generic[2], type);
 	if (size <= 128)
-		return alloc_slab_obj(generic[3]);
+		return alloc_slab_obj(generic[3], type);
 	if (size <= 256)
-		return alloc_slab_obj(generic[4]);
+		return alloc_slab_obj(generic[4], type);
 	if (size <= 512)
-		return alloc_slab_obj(generic[5]);
+		return alloc_slab_obj(generic[5], type);
 	return NULL;
 }
 

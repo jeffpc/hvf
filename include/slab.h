@@ -3,6 +3,7 @@
 
 #include <list.h>
 #include <spinlock.h>
+#include <page.h>
 
 struct slab {
 	u32 magic;			/* magic */
@@ -21,7 +22,7 @@ extern int init_slab();
 extern struct slab *create_slab(u16 objsize, u8 align);
 extern void free_slab(struct slab *slab);
 
-extern void *malloc(int size);
+extern void *malloc(int size, int type);
 extern void free(void *ptr);
 
 #endif
