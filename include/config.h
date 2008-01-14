@@ -3,4 +3,8 @@
 
 #define MEMSIZE 		(1024*1024*128)
 
+#if MEMSIZE > (1024*1024*1024*2UL)
+#error Config with 2+ GB of storage is not supported (need to fix DAT)
+#endif
+
 #endif
