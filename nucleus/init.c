@@ -15,6 +15,7 @@
 #include <magic.h>
 
 static struct psw new_io_psw = {
+	.t	= 1,
 	.ea	= 1,
 	.ba	= 1,
 
@@ -22,6 +23,7 @@ static struct psw new_io_psw = {
 };
 
 static struct psw new_ext_psw = {
+	.t	= 1,
 	.ea	= 1,
 	.ba	= 1,
 
@@ -29,6 +31,7 @@ static struct psw new_ext_psw = {
 };
 
 static struct psw new_svc_psw = {
+	.t	= 1,
 	.ea	= 1,
 	.ba	= 1,
 
@@ -134,6 +137,7 @@ void start()
 	memcpy(IO_INT_NEW_PSW, &new_io_psw, sizeof(struct psw));
 
 	memset(&psw, 0, sizeof(struct psw));
+	psw.t	= 1,
 	psw.io	= 1;
 	psw.ea	= 1;
 	psw.ba	= 1;

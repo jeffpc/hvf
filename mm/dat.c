@@ -69,13 +69,18 @@ int dat_insert_page(struct address_space *as, u64 phy, u64 virt)
 
 /*
  * Note that we are lazy here, and we'll just build the entries for all the
- * storage that's installed.
+ * storage that's installed, and then we load the Primary
+ * Address-Space-Control Element.
  */
 void setup_dat()
 {
 	u64 cur_addr;
 	struct page *p;
+	struct dat_td cr1;
 
+	/*
+	 * Build PTEs
+	 */
 	p = alloc_pages(0, ZONE_NORMAL);
 	BUG_ON(!p);
 
@@ -84,4 +89,23 @@ void setup_dat()
 
 	for(cur_addr = 0; cur_addr < memsize; cur_addr += PAGE_SIZE)
 		dat_insert_page(&nucleus_as, cur_addr, cur_addr);
+
+	/*
+	 * Load up the PASCE (cr1)
+	 */
+	cr1.origin = ((u64)nucleus_as.region_table) >> 12;
+	cr1.g = 0;
+	cr1.p = 0;
+	cr1.s = 0;
+	cr1.x = 0;
+	cr1.r = 0;
+	cr1.dt = DAT_TD_DT_RTT;
+	cr1.tl = 0;
+
+	asm volatile(
+		"	lctlg	1,1,%0\n"
+	: /* output */
+	: /* input */
+	  "m" (cr1)
+	);
 }
