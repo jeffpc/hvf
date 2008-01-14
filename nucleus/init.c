@@ -3,6 +3,7 @@
  */
 
 #include <mm.h>
+#include <dat.h>
 #include <slab.h>
 #include <page.h>
 #include <buddy.h>
@@ -106,6 +107,11 @@ void start()
 	 * Initialize slab allocator default caches
 	 */
 	init_slab();
+
+ 	/*
+	 * Set up page table entries for the nucleus
+	 */
+	setup_dat();
 
 	/*
 	 * Allocate & initialize the interrupt stack

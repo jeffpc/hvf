@@ -1,6 +1,10 @@
 #ifndef __DAT_H
 #define __DAT_H
 
+struct address_space {
+	struct dat_rte *region_table;
+};
+
 /* region/segment-table destination */
 struct dat_td {
 	u64 origin:52,		/* region/segment table origin */
@@ -38,6 +42,9 @@ struct dat_rte {
 #define DAT_RTE_TT_RST		2	/* region-second */
 #define DAT_RTE_TT_RTT		1	/* region-third */
 
+#define ADDR_TO_RTE_ORIGIN(a)	((a) >> 12)
+#define RTE_ORIGIN_TO_ADDR(o)	((void*)(((u64)(o)) << 12))
+
 /* segment-table entries */
 struct dat_ste {
 	u64 origin:53,		/* page-table origin */
@@ -52,6 +59,9 @@ struct dat_ste {
 
 #define DAT_STE_TT_ST		0	/* segment-table */
 
+#define ADDR_TO_STE_ORIGIN(a)	((a) >> 11)
+#define STE_ORIGIN_TO_ADDR(o)	((void*)(((u64)(o)) << 11))
+
 /* page-table entries */
 struct dat_pte {
 	u64 pfra:52,		/* page-frame real address */
@@ -61,5 +71,13 @@ struct dat_pte {
 	    __zero1:1,
 	    __reserved:8;
 } __attribute__((packed));
+
+#define DAT_RX(addr)	(((u64)(addr)) >> 31)
+#define DAT_SX(addr)	((((u64)(addr)) >> 20) & 0x7ff)
+#define DAT_PX(addr)	((((u64)(addr)) >> 12) & 0xff)
+#define DAT_BX(addr)	(((u64)(addr))& 0xfff)
+
+extern int dat_insert_page(struct address_space *as, u64 phy, u64 virt);
+extern void setup_dat();
 
 #endif
