@@ -111,6 +111,14 @@ void init_io()
 	);
 }
 
+static int default_io_handler(struct io_op *ioop, struct irb *irb)
+{
+	/* if Device End is NOT set, keep waiting */
+	if (!(irb->status.dev_status & 0x04))
+		ioop->err = -EAGAIN;
+	return 0;
+}
+
 /*
  * I/O Interrupt handler (C portion)
  */
@@ -143,6 +151,8 @@ void __io_int_handler()
 
 	if (!cur_op->err && cur_op->handler)
 		cur_op->handler(cur_op, &irb);
+	else
+		default_io_handler(cur_op, &irb);
 
 	/*
 	 * We can do this, because the submit_io function resets ->err to
