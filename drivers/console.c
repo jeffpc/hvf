@@ -1,8 +1,7 @@
 #include <console.h>
 #include <slab.h>
 #include <sched.h>
-
-static struct console *oper_console;
+#include <directory.h>
 
 /*
  * List of all consoles on the system
@@ -144,20 +143,29 @@ int register_console(struct device *dev)
 
 void start_consoles()
 {
+	struct user *u;
+
 	/*
 	 * For now, we only start the operator console
 	 */
 
+	u = find_user_by_id("operator");
+	BUG_ON(IS_ERR(u));
+
 	BUG_ON(list_empty(&consoles));
+	u->con = list_first_entry(&consoles, struct console, consoles);
 
-	oper_console = list_first_entry(&consoles, struct console, consoles);
-
-	create_task(console_flusher, oper_console);
+	create_task(console_flusher, u->con);
 }
 
 int oper_con_write(u8 *buf, int len)
 {
-	return con_write(oper_console, buf, len);
+	struct user *u;
+
+	u = find_user_by_id("operator");
+	BUG_ON(IS_ERR(u));
+
+	return con_write(u->con, buf, len);
 }
 
 int con_write(struct console *con, u8 *buf, int len)

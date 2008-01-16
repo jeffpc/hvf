@@ -20,7 +20,7 @@ LDFLAGS=-m elf64_s390
 export AS CC LD OBJCOPY
 export MAKEFLAGS CFLAGS NUCLEUSCFLAGS LDFLAGS
 
-TOP_DIRS=nucleus/ mm/ lib/ drivers/
+TOP_DIRS=nucleus/ mm/ lib/ drivers/ cp/
 
 .PHONY: all build clean mrproper cleanup hvfclean iplclean tags
 .PHONY: ipl/ $(TOP_DIRS)
@@ -39,6 +39,7 @@ clean:
 	@$(MAKE) DIR=mm/ cleanup V=$V
 	@$(MAKE) DIR=lib/ cleanup V=$V
 	@$(MAKE) DIR=drivers/ cleanup V=$V
+	@$(MAKE) DIR=cp/ cleanup V=$V
 	$(call clean,hvf)
 	$(call clean,loader.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl.S)
 
