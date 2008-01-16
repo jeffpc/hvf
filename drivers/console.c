@@ -13,9 +13,9 @@ static spinlock_t consoles_lock = SPIN_LOCK_UNLOCKED;
 /**
  * console_flusher - iterates over a console's buffers and initiates the IO
  */
-static int console_flusher()
+static int console_flusher(void *data)
 {
-	struct console *con = oper_console;
+	struct console *con = data;
 	int idx;
 	int midaw_count;
 	int len;
@@ -152,7 +152,7 @@ void start_consoles()
 
 	oper_console = list_first_entry(&consoles, struct console, consoles);
 
-	create_task(console_flusher);
+	create_task(console_flusher, oper_console);
 }
 
 int oper_con_write(u8 *buf, int len)

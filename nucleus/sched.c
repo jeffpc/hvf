@@ -18,13 +18,13 @@ static struct task idle_task;
  * start_task - helper used to start the task's code
  * @f:	function to execute
  */
-static void start_task(int (*f)())
+static void start_task(int (*f)(void*), void *data)
 {
 	/*
 	 * Start executing the code
 	 */
 	if (f)
-		(*f)();
+		(*f)(data);
 
 	/*
 	 * Done, now, it's time to cleanup
@@ -44,7 +44,7 @@ static void start_task(int (*f)())
  * @f:		pointer to function to execute
  * @stack:	pointer to the page for stack
  */
-static void __init_task(struct task *task, void *f, void *stack)
+static void __init_task(struct task *task, void *f, void *data, void *stack)
 {
 	memset(task, 0, sizeof(struct task));
 
@@ -58,6 +58,7 @@ static void __init_task(struct task *task, void *f, void *stack)
 	task->regs.psw.ptr = (u64) start_task;
 
 	task->regs.gpr[2]  = (u64) f;
+	task->regs.gpr[3]  = (u64) data;
 	task->regs.gpr[15] = ((u64) stack) + PAGE_SIZE - sizeof(void*) -
 			STACK_FRAME_SIZE;
 
@@ -83,7 +84,7 @@ static void init_idle_task()
 
 	stack = ((u64) &stack) & ~(PAGE_SIZE-1);
 
-	__init_task(&idle_task, NULL, (void*) stack);
+	__init_task(&idle_task, NULL, NULL, (void*) stack);
 
 	/*
 	 * NOTE: The idle task is _not_ supposed to be on either of the
@@ -93,9 +94,10 @@ static void init_idle_task()
 
 /**
  * create_task - create a new task
- * @f:	function pointer to where thread of execution should begin
+ * @f:		function pointer to where thread of execution should begin
+ * @data:	arbitrary data to pass to the task
  */
-int create_task(int (*f)())
+int create_task(int (*f)(void *), void *data)
 {
 	struct page *page;
 	struct task *task;
@@ -112,7 +114,7 @@ int create_task(int (*f)())
 	/*
 	 * Set up task's state
 	 */
-	__init_task(task, f, page_to_addr(page));
+	__init_task(task, f, data, page_to_addr(page));
 
 	/*
 	 * Add the task to the scheduler lists
