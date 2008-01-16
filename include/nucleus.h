@@ -64,6 +64,7 @@ static inline void die(int line)
 #define memset(s,c,n)	__builtin_memset((s),(c),(n))
 #define memcpy(d,s,l)	__builtin_memcpy((d),(s),(l))
 extern size_t strnlen(const char *s, size_t count);
+extern int strcmp(const char *cs, const char *ct);
 
 /*
  * stdio.h equivalents

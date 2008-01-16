@@ -15,3 +15,19 @@ size_t strnlen(const char *s, size_t count)
                 /* nothing */;
         return sc - s;
 }
+
+/**
+ * strcmp - Compare two strings
+ * @cs: One string
+ * @ct: Another string
+ */
+int strcmp(const char *cs, const char *ct)
+{
+	signed char __res;
+
+	while (1) {
+		if ((__res = *cs - *ct++) != 0 || !*cs++)
+			break;
+	}
+	return __res;
+}
