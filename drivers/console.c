@@ -30,8 +30,12 @@ static int console_flusher(void *data)
 	atomic_set(&ioop.done, 1);
 	
 	for(;;) {
-		while(!atomic_read(&ioop.done))
+		/*
+		 * A do-while to force a call schedule() at least once.
+		 */
+		do {
 			schedule();
+		} while(!atomic_read(&ioop.done));
 
 		spin_lock(&con->lock);
 
