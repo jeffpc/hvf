@@ -96,7 +96,7 @@ ipl/loader_tape.o: ipl/loader.c ipl/loader_asm.o hvf
 	$(call c-to-o-ipl,ipl/loader.c,ipl/loader_c_tape.o,4096,`stat -c %s hvf`,-DTAPE_SEEK)
 	$(call link-ipl,ipl/loader_c_tape.o ipl/loader_asm.o,$@)
 
-ipl/loader_rdr.o: ipl/loader.c ipl/loader_asm.o
+ipl/loader_rdr.o: ipl/loader.c ipl/loader_asm.o hvf
 	$(call c-to-o-ipl,ipl/loader.c,ipl/loader_c_rdr.o,80,`stat -c %s hvf`,)
 	$(call link-ipl,ipl/loader_c_rdr.o ipl/loader_asm.o,$@)
 
