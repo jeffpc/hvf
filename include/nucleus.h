@@ -6,7 +6,7 @@
 #include <types.h>
 #include <errno.h>
 
-extern u64 ticks;
+extern volatile u64 ticks;
 
 /* borrowed from Linux */
 #define container_of(ptr, type, member) ({                      \

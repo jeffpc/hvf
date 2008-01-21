@@ -16,6 +16,9 @@
  */
 #define CLK_MICROSEC		0x1000UL
 
+#define SCHED_SLICE_MS		30	/* 30ms scheduler slice */
+#define SCHED_TICKS_PER_SLICE	(HZ / SCHED_SLICE_MS)
+
 #define HZ			100	/* number of ticks per second */
 
 struct psw {
@@ -61,6 +64,8 @@ struct task {
 
 	struct list_head run_queue;	/* runnable list */
 	struct list_head proc_list;	/* processes list */
+
+	u64 slice_end_time;		/* end of slice time (ticks) */
 
 	int state;			/* state */
 };

@@ -135,14 +135,14 @@ out:
  * __sched - core of the scheduler code. This decides which task to run
  * next, and switches over to it
  */
-static void __sched()
+static void __sched(int force_idle)
 {
 	struct task *next;
 
 	/*
 	 * If there are no runnable tasks, let's use the idle thread
 	 */
-	if (list_empty(&runnable)) {
+	if (force_idle || list_empty(&runnable)) {
 		next = &idle_task;
 		goto run;
 	}
@@ -156,6 +156,8 @@ static void __sched()
 	next->state = TASK_RUNNING;
 
 run:
+	next->slice_end_time = (force_idle) ? force_idle : ticks + SCHED_TICKS_PER_SLICE;
+
 	/*
 	 * NOTE: Because we need to load the registers _BEFORE_ we issue
 	 * lpswe, we have to place the new psw into PSA and use register 0
@@ -186,6 +188,7 @@ run:
 void __schedule(struct psw *old_psw)
 {
 	struct task *prev;
+	int force_idle = 0;
 
 	/*
 	 * Save last process's state
@@ -202,18 +205,29 @@ void __schedule(struct psw *old_psw)
 	memcpy(&prev->regs.psw, old_psw, sizeof(struct psw));
 
 	/*
-	 * Add back on the queue
-	 *
-	 * FIXME: should we try to be fair, and have partial slices?
+	 * Idle task doesn't get added back to the queue
 	 */
-	if (prev != &idle_task)
-		list_add_tail(&prev->run_queue, &runnable);
+	if (prev == &idle_task)
+		goto go;
 
+	/*
+	 * Add back on the queue
+	 */
+	list_add_tail(&prev->run_queue, &runnable);
+
+	/*
+	 * If the previous task didn't use it's full slice, force idle_task
+	 * to take over.
+	 */
+	if (prev->slice_end_time >= (ticks + SCHED_TICKS_PER_SLICE))
+		force_idle = prev->slice_end_time;
+
+go:
 	/*
 	 * Run the rest of the scheduler that selects the next task and
 	 * context switches
 	 */
-	__sched();
+	__sched(force_idle);
 }
 
 /**

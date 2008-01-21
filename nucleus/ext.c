@@ -4,7 +4,7 @@
 /*
  * This is the tick counter, it starts at 0 when we initialize the nucleus
  */
-u64 ticks;
+volatile u64 ticks;
 
 void set_timer()
 {
@@ -33,10 +33,12 @@ void __ext_int_handler()
 		 * No need to save the registers, the assembly stub that
 		 * called this function already saved them at PSA_INT_GPR
 		 */
-		__schedule(EXT_INT_OLD_PSW);
+		if (!(ticks % SCHED_TICKS_PER_SLICE)) {
+			__schedule(EXT_INT_OLD_PSW);
 
-		/* unreachable */
- 		BUG();
+			/* unreachable */
+			BUG();
+		}
 	}
 }
 
