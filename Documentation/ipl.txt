@@ -1,14 +1,26 @@
 This file attempts to describe what happens during IPL.
 
-NOTE: At the time, only IPL from tape is supported.
+NOTE: At the time, only IPL from tape and card reader is supported.
 
-1) system reads 24 bytes from the device
+1) system reads 24 bytes from the device 
 
    a) bytes   0-7: new PSW, no interrupts, start address 0x800000 (8MB)
 
-   b) bytes  8-15: CCW to rewind the tape to previous TM
+   IPL from tape:
 
-   c) bytes 16-23: CCW to read the entire loader to 0x800000 (8 MB)
+      b) bytes  8-15: CCW to rewind the tape to previous TM
+
+      c) bytes 16-23: CCW to read the entire loader to 0x800000 (8 MB)
+
+   IPL from card reader:
+
+      b) bytes  8-15: CCW to read 80 bytes (containing up to 10 CCWs) to
+         0x18
+
+      c) bytes 16-23: CCW to read 24 bytes (containing up to 3 CCWs) to 0x68
+
+      Command chaining starts reading CCWs from addres 0x18 on. These read
+      the loader to 0x800000 (8 MB)
 
 2) arch mode is changed to z/Arch (see ipl/setmode.S)
 
@@ -19,10 +31,12 @@ NOTE: At the time, only IPL from tape is supported.
    NOTE: loader.c use static inlines extensively, and thefore stack usage is
    minimal
 
-   a) nucleus is read from tape to 0x400000 (4 MB)
+   a) If the IPL was from a tape, a CCW is issues to seek to the next TM
 
-      NOTE: the data at 4MB just read is an 64-bit s390 ELF binary with
-      Linux ABI bits
+   b) nucleus is read from tape to 0x400000 (4 MB)
+
+      NOTE: the data at 4MB just read is a 64-bit s390 ELF binary with Linux
+      ABI bits
 
       i)   addition CCW address is set in the ORB
 
@@ -56,9 +70,9 @@ NOTE: At the time, only IPL from tape is supported.
 
       viii)return to caller (back to ipl/loader.c)
 
-   b) verify ELF header magic number, machine, type, etc. values
+   c) verify ELF header magic number, machine, type, etc. values
 
-   c) traverse the section headers & copy data to final destination
+   d) traverse the section headers & copy data to final destination
 
       i)   if the section type is PROGBITS (data stored in the ELF), copy
            the data from it's temporary location to the desired location
@@ -75,6 +89,6 @@ NOTE: At the time, only IPL from tape is supported.
       NOTE: SYMTAB and STRTAB section types should be copied to a useful
       location to allow for symbols to be looked up during nucleus execution
 
-   d) jump to the entry point as indicated by the ELF header
+   e) jump to the entry point as indicated by the ELF header
 
 At this point, the nucleus is executing.
