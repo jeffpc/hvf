@@ -1,8 +1,10 @@
 *.o
 *.rto
-ipl/ipl.S
+ipl/ipl_rdr_ccws.S
+ipl/ipl_tape.S
 hvf
-loader.bin
+loader_rdr.bin
+loader_tape.bin
 cscope.out
 *.swp
 *.orig

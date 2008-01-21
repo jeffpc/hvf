@@ -5,7 +5,7 @@
 
 len=80 # this is going the be the size of ipl.rto
 len=$(expr $len + `stat -c %s ipl/setmode.rto`)
-len=$(expr $len + `stat -c %s ipl/loader.rto`)
+len=$(expr $len + `stat -c %s ipl/loader_tape.rto`)
 dif=`expr $len % 80`
 
 if [ $dif -ne 0 ]; then

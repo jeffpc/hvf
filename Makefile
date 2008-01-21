@@ -41,7 +41,7 @@ clean:
 	@$(MAKE) DIR=drivers/ cleanup V=$V
 	@$(MAKE) DIR=cp/ cleanup V=$V
 	$(call clean,hvf)
-	$(call clean,loader.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl.S)
+	$(call clean,loader_*.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl_tape.S ipl/ipl_rdr_ccws.S)
 
 mrproper: clean
 	$(call clean,cscope.out ctags)
@@ -68,12 +68,37 @@ include $(patsubst %/,%/Makefile,$(TOP_DIRS))
 
 .PRECIOUS: ipl/%.o
 
-ipl/: loader.bin
+ipl/: loader_rdr.bin loader_tape.bin
 	@echo -n
 
-loader.bin: ipl/ipl.rto ipl/setmode.rto ipl/loader.rto
-	$(call concat,ipl/ipl.rto ipl/setmode.rto ipl/loader.rto,$@)
-	@echo "Loader is `stat -c %s loader.bin` bytes"
+loader_rdr.bin: ipl/ipl_rdr.rto ipl/ipl_rdr_ccws.rto ipl/setmode.rto ipl/loader_rdr.rto
+	$(call concat,$^,$@)
+	$(call pad,$@,80)
+	@echo "Card reader loader is `stat -c %s $@` bytes"
+
+loader_tape.bin: ipl/ipl_tape.rto ipl/setmode.rto ipl/loader_tape.rto
+	$(call concat,$^,$@)
+	@echo "Tape loader is `stat -c %s $@` bytes"
+
+ipl/loader_asm.o: ipl/loader_asm.S
+	$(call s-to-o,$<,$@)
+
+ipl/ipl_tape.S: ipl/ipl_tape.S_in ipl/setmode.rto ipl/loader_tape.rto scripts/gen_tape_ipl_s.sh
+	$(call genipl-tape,ipl/ipl_tape.S_in,$@)
+
+ipl/ipl_rdr_ccws.S: ipl/setmode.rto ipl/loader_rdr.rto
+	$(call genipl-rdr,$@)
+
+ipl/loader_%.rto: ipl/loader_%.o
+	$(call objcopy-tdr,$<,$@)
+
+ipl/loader_tape.o: ipl/loader.c ipl/loader_asm.o hvf
+	$(call c-to-o-ipl,ipl/loader.c,ipl/loader_c_tape.o,4096,`stat -c %s hvf`,-DTAPE_SEEK)
+	$(call link-ipl,ipl/loader_c_tape.o ipl/loader_asm.o,$@)
+
+ipl/loader_rdr.o: ipl/loader.c ipl/loader_asm.o
+	$(call c-to-o-ipl,ipl/loader.c,ipl/loader_c_rdr.o,80,`stat -c %s hvf`,)
+	$(call link-ipl,ipl/loader_c_rdr.o ipl/loader_asm.o,$@)
 
 ipl/%.rto: ipl/%.o
 	$(call objcopy-t,$<,$@)
@@ -81,13 +106,3 @@ ipl/%.rto: ipl/%.o
 ipl/%.o: ipl/%.S
 	$(call s-to-o-31,$<,$@)
 
-ipl/ipl.S: ipl/ipl.S_in ipl/setmode.rto ipl/loader.rto scripts/gen_ipl_s.sh
-	$(call genipl-s,$<,$@)
-
-ipl/loader.rto: ipl/loader.o
-	$(call objcopy-tdr,$<,$@)
-
-ipl/loader.o: ipl/loader.c ipl/loader_asm.S hvf
-	$(call s-to-o,ipl/loader_asm.S,ipl/.loader_asm.o)
-	$(call c-to-o-ipl,ipl/loader.c,ipl/.loader.o,4096,`stat -c %s hvf`)
-	$(call link-ipl,ipl/.loader.o ipl/.loader_asm.o,$@)

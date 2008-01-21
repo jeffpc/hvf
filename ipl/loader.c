@@ -176,16 +176,7 @@ unsigned char ORB[32] __attribute__ ((aligned (16))) = {
 	/*   0-31      0   <zero/reserved>                              */
 };
 
-static inline void *memcpy(void *dst, void *src, int len)
-{
-	unsigned char *d = dst;
-	unsigned char *s = src;
-
-	while(len--)
-		*d++ = *s++;
-
-	return dst;
-}
+#define memcpy(d,s,l)	__builtin_memcpy((d), (s), (l))
 
 /* 
  * halt the cpu
@@ -226,7 +217,12 @@ static inline void readnucleus()
 	/* set the CCW address in the ORB */
 	*((u32 *) &ORB[8]) = (u32) seek_ccw;
 
+#ifdef TAPE_SEEK
+	/*
+	 * Seek to the next tape mark
+	 */
 	__do_io();
+#endif
 
 	/*
 	 * Second, read in BLOCK_SIZE chunks of nucleus
