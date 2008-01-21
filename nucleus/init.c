@@ -111,6 +111,13 @@ void start()
 	 */
 	init_slab();
 
+	/*
+	 * Set up interrupt PSWs
+	 */
+	memcpy(IO_INT_NEW_PSW, &new_io_psw, sizeof(struct psw));
+	memcpy(EXT_INT_NEW_PSW, &new_ext_psw, sizeof(struct psw));
+	memcpy(SVC_INT_NEW_PSW, &new_svc_psw, sizeof(struct psw));
+
  	/*
 	 * Set up page table entries for the nucleus
 	 */
@@ -134,8 +141,6 @@ void start()
 	/*
 	 * Time to enable interrupts => load new psw
 	 */
-	memcpy(IO_INT_NEW_PSW, &new_io_psw, sizeof(struct psw));
-
 	memset(&psw, 0, sizeof(struct psw));
 	psw.t	= 1,
 	psw.io	= 1;
@@ -188,12 +193,6 @@ void start()
 	list_devices();
 	printf(" Scheduler:\n");
 	printf("    no task max\n");
-
-	/*
-	 * Time to enable more interrupts => load new psw
-	 */
-	memcpy(EXT_INT_NEW_PSW, &new_ext_psw, sizeof(struct psw));
-	memcpy(SVC_INT_NEW_PSW, &new_svc_psw, sizeof(struct psw));
 
 	/*
 	 * THIS IS WHERE THE IDLE TASK BEGINS
