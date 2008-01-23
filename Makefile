@@ -2,7 +2,7 @@
 # HVF: Hobbyist Virtualization Facility
 #
 
-VERSION=0.11
+VERSION=0.12
 
 AS=as
 CC=gcc
