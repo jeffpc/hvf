@@ -1,15 +1,23 @@
-pre v0.12:
+pre v0.13:
   - multi-console generic console layer
     - have a queue with all consoles vs. have a thread per console?
-  - buddy allocator
-    - use a tree
-    - 2 zones (<2GB, >2GB)
-  - address spaces for processes
-  - scheduler
-    - multi-tick quanta
+  - disable DAT in nucleus or use secondary AS
+  - set up storage for the guest
+  - directory
+    - virtual device info
+  - cp
+    - few trivial commands
+
+pre v0.14:
+  - directory
+    - multiple users
+    - password
 
 whenever:
   - figure out how to make an aws tape
   - fix device detection of 3420s
   - build
     - fix `make foo/bar.o` and `make foo/bar.s`
+  - DAT
+    - allow more than 2 GB of storage to be used
+    - check for FIXMEs related to <2GB memory usage
