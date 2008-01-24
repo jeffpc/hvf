@@ -15,9 +15,10 @@ static spinlock_t consoles_lock = SPIN_LOCK_UNLOCKED;
 static int console_flusher(void *data)
 {
 	struct console *con = data;
-	int idx;
+	struct console_line *cline;
 	int midaw_count;
 	int len;
+	int free_count;
 
 	/* needed for the IO */
 	struct io_op ioop;
@@ -42,11 +43,18 @@ static int console_flusher(void *data)
 		/*
 		 * free all the lines we just finished the IO for
 		 */
-		for(idx=0; idx < con->nlines; idx++) {
-			if (con->lines[idx]->state != CON_STATE_IO)
+		free_count = 0;
+		list_for_each_entry(cline, &con->write_lines, lines) {
+			if (cline->state != CON_STATE_IO)
 				continue;
 
-			con->lines[idx]->state = CON_STATE_FREE;
+			cline->state = CON_STATE_FREE;
+			free_count++;
+
+			if (free_count > CON_MAX_FREE_LINES) {
+				list_del(&cline->lines);
+				free(cline);
+			}
 		}
 
 		/*
@@ -60,21 +68,24 @@ static int console_flusher(void *data)
 		 * be to prevent the addition of the buffer as a line in
 		 * con_write().
 		 */
-		for(idx=0, midaw_count=0, len = 0;
-		    (idx < con->nlines) && (midaw_count < CON_MAX_FLUSH_LINES);
-		    idx++) {
-			if (con->lines[idx]->state != CON_STATE_PENDING)
-				continue;
-
-			if ((len + con->lines[idx]->len) > 150)
+		midaw_count = 0;
+		len = 0;
+		list_for_each_entry(cline, &con->write_lines, lines) {
+			if (midaw_count >= CON_MAX_FLUSH_LINES)
 				break;
 
-			con->lines[idx]->state = CON_STATE_IO;
+			if (cline->state != CON_STATE_PENDING)
+				continue;
+
+			if ((len + cline->len) > 150)
+				break;
+
+			cline->state = CON_STATE_IO;
 
 			memset(&midaws[midaw_count], 0, sizeof(struct midaw));
-			midaws[midaw_count].count = con->lines[idx]->len;
-			midaws[midaw_count].addr  = (u64) con->lines[idx]->buf;
-			len += con->lines[idx]->len;
+			midaws[midaw_count].count = cline->len;
+			midaws[midaw_count].addr  = (u64) cline->buf;
+			len += cline->len;
 
 			midaw_count++;
 		}
@@ -136,7 +147,7 @@ int register_console(struct device *dev)
 
 	con->dev    = dev;
 	con->lock   = SPIN_LOCK_UNLOCKED;
-	con->nlines = 0;
+	INIT_LIST_HEAD(&con->write_lines);
 
 	spin_lock(&consoles_lock);
 	list_add_tail(&con->consoles, &consoles);
@@ -174,41 +185,28 @@ int oper_con_write(u8 *buf, int len)
 
 int con_write(struct console *con, u8 *buf, int len)
 {
-	int idx;
 	int bytes = 0;
+	struct console_line *cline;
 
 	spin_lock(&con->lock);
 
-	for(idx=0; idx<con->nlines; idx++) {
-		if (con->lines[idx]->state == CON_STATE_FREE)
+	list_for_each_entry(cline, &con->write_lines, lines) {
+		if (cline->state == CON_STATE_FREE)
 			goto found;
 	}
 
 	/* None found, can we allocate a new one? */
-	if (con->nlines == CON_MAX_LINES)
-		/*
-		 * FIXME: maybe this is where we should use a mutex instead
-		 * of a spinlock; this would allow us to grab it if
-		 * possible, and fail only if we'd have to sleep in an
-		 * non-schedulable case
-		 */
+	cline = malloc(CON_LINE_ALLOC_SIZE, ZONE_NORMAL);
+	if (!cline)
 		goto abort;
 
-	/* allocate a new one */
-	idx = con->nlines;
-
-	con->lines[idx] = malloc(CON_LINE_ALLOC_SIZE, ZONE_NORMAL);
-	if (!con->lines[idx])
-		goto abort;
-
-	con->nlines++;
+	list_add_tail(&cline->lines, &con->write_lines);
 
 found:
-	con->lines[idx]->state = CON_STATE_PENDING;
+	cline->state = CON_STATE_PENDING;
 
-	con->lines[idx]->len = (len < CON_MAX_LINE_LEN) ?
-					len : CON_MAX_LINE_LEN;
-	memcpy(con->lines[idx]->buf, buf, con->lines[idx]->len);
+	cline->len = (len < CON_MAX_LINE_LEN) ?  len : CON_MAX_LINE_LEN;
+	memcpy(cline->buf, buf, cline->len);
 
 	/*
 	 * All done here. The async thread will pick up the line of text,

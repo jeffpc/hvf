@@ -11,8 +11,8 @@
 /* maximum line length */
 #define CON_MAX_LINE_LEN	(CON_LINE_ALLOC_SIZE - sizeof(struct console_line))
 
-/* maximum number of lines to buffer */
-#define CON_MAX_LINES		32
+/* maximum number of free lines to keep around */
+#define CON_MAX_FREE_LINES	32
 
 /* number of lines of console text to flush at a time */
 #define CON_MAX_FLUSH_LINES	8
@@ -23,6 +23,7 @@
 #define CON_STATE_IO		2
 
 struct console_line {
+	struct list_head lines;
 	u16 len;
 	u16 state;
 	u8 buf[0];
@@ -32,8 +33,7 @@ struct console {
 	struct list_head consoles;
 	struct device *dev;
 	spinlock_t lock;
-	int nlines;
-	struct console_line *lines[CON_MAX_LINES];
+	struct list_head write_lines;
 };
 
 extern int register_console(struct device *dev);
