@@ -66,14 +66,19 @@ static inline void die(int line)
 extern size_t strnlen(const char *s, size_t count);
 extern int strcmp(const char *cs, const char *ct);
 
+struct console;
+
 /*
  * stdio.h equivalents
  */
-extern int vprintf(const char *fmt, va_list args)
-        __attribute__ ((format (printf, 1, 0)));
+extern int vprintf(struct console *con, const char *fmt, va_list args)
+        __attribute__ ((format (printf, 2, 0)));
+extern int con_printf(struct console *con, const char *fmt, ...)
+        __attribute__ ((format (printf, 2, 3)));
 extern int printf(const char *fmt, ...)
         __attribute__ ((format (printf, 1, 2)));
-extern int vsnprintf(char *buf, size_t size, const char *fmt, va_list args);
+extern int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
+        __attribute__ ((format (printf, 3, 0)));
 
 /*
  * stdarg.h equivalents

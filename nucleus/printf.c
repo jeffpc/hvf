@@ -4,10 +4,11 @@
 
 #include <channel.h>
 #include <console.h>
+#include <directory.h>
 #include <ebcdic.h>
 #include <slab.h>
 
-int vprintf(const char *fmt, va_list args)
+int vprintf(struct console *con, const char *fmt, va_list args)
 {
 	int ret;
 	char buf[128];
@@ -15,22 +16,35 @@ int vprintf(const char *fmt, va_list args)
 	ret = vsnprintf(buf, 128, fmt, args);
 	if (ret) {
 		ascii2ebcdic((u8 *) buf, ret);
-		oper_con_write((u8 *) buf, ret);
+		con_write(con, (u8 *) buf, ret);
 	}
 
 	return ret;
 }
 
-/*
- * Logic borrowed from Linux's printk
- */
-int printf(const char *fmt, ...)
+int con_printf(struct console *con, const char *fmt, ...)
 {
 	va_list args;
 	int r;
 
 	va_start(args, fmt);
-	r = vprintf(fmt, args);
+	r = vprintf(con, fmt, args);
+	va_end(args);
+
+	return r;
+}
+
+int printf(const char *fmt, ...)
+{
+	struct user *user;
+	va_list args;
+	int r;
+
+	user = find_user_by_id("operator");
+	BUG_ON(IS_ERR(user));
+
+	va_start(args, fmt);
+	r = vprintf(user->con, fmt, args);
 	va_end(args);
 
 	return r;

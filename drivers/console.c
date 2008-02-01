@@ -161,16 +161,6 @@ void start_consoles()
 	create_task(console_flusher, u->con);
 }
 
-int oper_con_write(u8 *buf, int len)
-{
-	struct user *u;
-
-	u = find_user_by_id("operator");
-	BUG_ON(IS_ERR(u));
-
-	return con_write(u->con, buf, len);
-}
-
 int con_write(struct console *con, u8 *buf, int len)
 {
 	int bytes = 0;
