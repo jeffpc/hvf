@@ -7,6 +7,7 @@
 #define EINVAL		4
 #define EEXIST		5
 #define ENOENT		6
+#define EUCHECK		7
 
 #define PTR_ERR(ptr)	((s64) ptr)
 #define ERR_PTR(err)	((void*) err)

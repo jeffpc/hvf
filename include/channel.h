@@ -274,8 +274,6 @@ static inline int test_sch(u32 sch, struct irb *irb)
 	  "r1"
 	);
 
-	if (cc == 1)
-		return -ENOENT;
 	if (cc == 3)
 		return -EINVAL;
 

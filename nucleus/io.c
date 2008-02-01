@@ -113,9 +113,16 @@ void init_io()
 
 static int default_io_handler(struct io_op *ioop, struct irb *irb)
 {
-	/* if Device End is NOT set, keep waiting */
-	if (!(irb->status.dev_status & 0x04))
-		ioop->err = -EAGAIN;
+	ioop->err = -EAGAIN;
+
+	/* Unit check? */
+	if (irb->status.dev_status & 0x02)
+		ioop->err = -EUCHECK; /* FIXME: we should bail */
+
+	/* Device End is set, we're done */
+	if (irb->status.dev_status & 0x04)
+		ioop->err = 0;
+
 	return 0;
 }
 
@@ -147,17 +154,16 @@ void __io_int_handler()
 		return;
 
 	cur_op->err = test_sch(cur_op->ssid, &irb);
-	BUG_ON(cur_op->err);
 
 	if (!cur_op->err && cur_op->handler)
 		cur_op->handler(cur_op, &irb);
-	else
+	else if (!cur_op->err)
 		default_io_handler(cur_op, &irb);
 
 	/*
-	 * We can do this, because the submit_io function resets ->err to
-	 * zero, and therefore regardless of ->handler being defined, ->err
-	 * will have a reasonable value
+	 * We can do this, because the test_sch function sets ->err, and
+	 * therefore regardless of ->handler being defined, ->err will have
+	 * a reasonable value
 	 */
 	if (cur_op->err == -EAGAIN)
 		return; /* leave handler registered */

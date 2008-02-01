@@ -202,7 +202,7 @@ void scan_devices()
 			;
 
 		if (ioop.err)
-			continue;
+			continue; /* FIXME: msch ctl.e=0 */
 
 		dev->sch   = sch;
 		dev->type  = buf.dev_type;
