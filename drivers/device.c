@@ -123,6 +123,43 @@ found:
 	return err;
 }
 
+static int do_sense_id(u32 sch, struct senseid_struct *buf)
+{
+	struct io_op ioop;
+	struct ccw ccw;
+	int ret;
+
+	/*
+	 * Set up IO op for Sense-ID
+	 */
+	ioop.ssid = sch;
+	ioop.handler = NULL;
+	ioop.dtor = NULL;
+
+	memset(&ioop.orb, 0, sizeof(struct orb));
+	ioop.orb.lpm = 0xff;
+	ioop.orb.addr = (u32) (u64) &ccw;
+	ioop.orb.f = 1;
+
+	memset(&ccw, 0, sizeof(struct ccw));
+	ccw.cmd = 0xe4; /* Sense-ID */
+	ccw.sli = 1;
+	ccw.count = sizeof(struct senseid_struct);
+	ccw.addr = (u32) (u64) buf;
+
+	/*
+	 * issue SENSE-ID
+	 */
+	ret = submit_io(&ioop, 0);
+	BUG_ON(ret);
+
+	/* FIXME: this is a very nasty hack */
+	while(!atomic_read(&ioop.done))
+		;
+
+	return ioop.err;
+}
+
 /*
  * Scan all subchannel ids, and register each device
  */
@@ -130,11 +167,8 @@ void scan_devices()
 {
 	struct schib schib;
 	struct device *dev = NULL;
-	struct io_op ioop;
-	struct ccw ccw;
-	u32 sch;
 	struct senseid_struct buf;
-	int ret;
+	u32 sch;
 
 	memset(&schib, 0, sizeof(struct schib));
 
@@ -177,32 +211,10 @@ void scan_devices()
 			continue;
 
 		/*
-		 * issue SENSE-ID
+		 * Find out what the device is - whichever way is necessary
 		 */
-		ioop.ssid = sch;
-		ioop.handler = NULL;
-		ioop.dtor = NULL;
-
-		memset(&ioop.orb, 0, sizeof(struct orb));
-		ioop.orb.lpm = 0xff;
-		ioop.orb.addr = (u32) (u64) &ccw;
-		ioop.orb.f = 1;
-
-		memset(&ccw, 0, sizeof(struct ccw));
-		ccw.cmd = 0xe4; // sense id
-		ccw.sli = 1;
-		ccw.count = sizeof(struct senseid_struct);
-		ccw.addr = (u32) (u64) &buf;
-
-		ret = submit_io(&ioop, 0);
-		BUG_ON(ret);
-
-		/* FIXME: this is a very nasty hack */
-		while(!atomic_read(&ioop.done))
-			;
-
-		if (ioop.err)
-			continue; /* FIXME: msch ctl.e=0 */
+		if (do_sense_id(sch, &buf))
+			continue;
 
 		dev->sch   = sch;
 		dev->type  = buf.dev_type;
