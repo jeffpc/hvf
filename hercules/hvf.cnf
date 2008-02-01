@@ -19,11 +19,10 @@ ARCHMODE  ESAME
 # |     |       |
 # V     V       V
 #---    ----    --------------------
-0009	3270	
+0009	3215	
 000C    3505	../loader_rdr.bin ../hvf ebcdic multifile
 000D    3525    punch00d.txt ascii
 000E    1403    print00e.txt crlf
-001F    3215
 0040	3270
 0041	3270
 0580	3420	tape-hvf.tdf

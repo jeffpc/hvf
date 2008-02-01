@@ -13,6 +13,23 @@ struct senseid_struct {
 	u8 dev_model;
 } __attribute__((packed));
 
+struct static_device {
+	u16 dev_num;
+	struct senseid_struct sense;
+};
+
+#define END_OF_STATIC_DEV_LIST	0xffff
+
+/*
+ * This defines staticly-configured devices - ugly but necessary for devices
+ * that fail to identify themseleves via Sense-ID
+ */
+static struct static_device static_device_list[] = {
+	{ .dev_num = 0x0009, .sense = { .dev_type = 0x3215, .dev_model = 0 } },
+	{ .dev_num = END_OF_STATIC_DEV_LIST },
+};
+
+
 static LIST_HEAD(device_types);
 static spinlock_t dev_types_lock;
 
@@ -123,11 +140,25 @@ found:
 	return err;
 }
 
-static int do_sense_id(u32 sch, struct senseid_struct *buf)
+static int do_sense_id(u32 sch, u16 dev_num, struct senseid_struct *buf)
 {
 	struct io_op ioop;
 	struct ccw ccw;
 	int ret;
+	int idx;
+	struct static_device *dev;
+
+	/*
+	 * Check static configuration; if device is found (by device
+	 * number), use that information instead of issuing sense-id
+	 */
+	for(idx = 0; dev = &static_device_list[idx],
+	    dev->dev_num != END_OF_STATIC_DEV_LIST; idx++) {
+		if (dev->dev_num == dev_num) {
+			memcpy(buf, &dev->sense, sizeof(struct senseid_struct));
+			return 0;
+		}
+	}
 
 	/*
 	 * Set up IO op for Sense-ID
@@ -213,7 +244,7 @@ void scan_devices()
 		/*
 		 * Find out what the device is - whichever way is necessary
 		 */
-		if (do_sense_id(sch, &buf))
+		if (do_sense_id(sch, schib.path_ctl.dev_num, &buf))
 			continue;
 
 		dev->sch   = sch;
