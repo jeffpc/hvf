@@ -3,6 +3,7 @@
 
 struct address_space {
 	struct dat_rte *region_table;
+	struct dat_ste *segment_table;
 };
 
 /* region/segment-table destination */
