@@ -5,6 +5,7 @@
 #include <buddy.h>
 #include <slab.h>
 #include <dat.h>
+#include <cp.h>
 
 static int __alloc_guest_storage(struct user *user)
 {
@@ -35,7 +36,22 @@ static int cp_init(void *data)
 
 	__alloc_guest_storage(user);
 
+	/* FIXME: print current time */
+	con_printf(user->con, "\nLOGON AT %02d:%02d:%02d %s %s %04d-%02d-%02d\n", 
+			0, 0, 0, "EST", "FRIDAY", 0, 0, 0);
+
 	for (;;) {
+		/*
+		 * FIXME:
+		 *   - process any console input
+		 *   - process any intercepts from SIE
+		 *   - issue any pending interruptions
+		 *   - check if the VM is in a running state, and if it is,
+		 *     continue executing it
+		 *   - if there's really nothing to do, schedule()
+		 */
+
+		schedule();
 	}
 }
 

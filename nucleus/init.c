@@ -13,6 +13,7 @@
 #include <console.h>
 #include <interrupt.h>
 #include <magic.h>
+#include <cp.h>
 
 static struct psw new_io_psw = {
 	.t	= 1,
@@ -193,6 +194,8 @@ void start()
 	list_devices();
 	printf(" Scheduler:\n");
 	printf("    no task max\n");
+
+	spawn_oper_cp();
 
 	/*
 	 * THIS IS WHERE THE IDLE TASK BEGINS
