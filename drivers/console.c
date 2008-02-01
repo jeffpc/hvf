@@ -57,14 +57,8 @@ static int console_flusher(void *data)
 
 		/*
 		 * find at most CON_MAX_FLUSH_LINES of CON_STATE_PENDING
-		 * lines _OR_ at most 150 bytes to send, mark them as IO,
-		 * and shove necessary information into the right MIDAW
-		 *
-		 * FIXME: If a single line contains more than 150
-		 * characters, it will cause all lines from that point on to
-		 * never appear on the console. Perhaps the best fix would
-		 * be to prevent the addition of the buffer as a line in
-		 * con_write().
+		 * lines and shove necessary information into the right
+		 * CCW
 		 */
 		ccw_count = 0;
 		list_for_each_entry(cline, &con->write_lines, lines) {
