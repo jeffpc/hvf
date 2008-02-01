@@ -16,14 +16,12 @@ static int console_flusher(void *data)
 {
 	struct console *con = data;
 	struct console_line *cline;
-	int midaw_count;
-	int len;
 	int free_count;
+	int ccw_count;
 
 	/* needed for the IO */
 	struct io_op ioop;
-	struct ccw ccw;
-	struct midaw midaws[CON_MAX_FLUSH_LINES];
+	struct ccw ccws[CON_MAX_FLUSH_LINES];
 
 	/*
 	 * Workaround to make entering the loop below simpler
@@ -68,26 +66,24 @@ static int console_flusher(void *data)
 		 * be to prevent the addition of the buffer as a line in
 		 * con_write().
 		 */
-		midaw_count = 0;
-		len = 0;
+		ccw_count = 0;
 		list_for_each_entry(cline, &con->write_lines, lines) {
-			if (midaw_count >= CON_MAX_FLUSH_LINES)
+			if (ccw_count >= CON_MAX_FLUSH_LINES)
 				break;
 
 			if (cline->state != CON_STATE_PENDING)
 				continue;
 
-			if ((len + cline->len) > 150)
-				break;
-
 			cline->state = CON_STATE_IO;
 
-			memset(&midaws[midaw_count], 0, sizeof(struct midaw));
-			midaws[midaw_count].count = cline->len;
-			midaws[midaw_count].addr  = (u64) cline->buf;
-			len += cline->len;
+			// FIXME: make sure buffer is in <2GB
+			ccws[ccw_count].addr = (u32) (u64) cline->buf;
+			ccws[ccw_count].count = cline->len;
+			ccws[ccw_count].cmd   = 0x01; /* write */
+			ccws[ccw_count].sli   = 1;
+			ccws[ccw_count].cc    = 1; /* command chaining */
 
-			midaw_count++;
+			ccw_count++;
 		}
 
 		/*
@@ -98,29 +94,21 @@ static int console_flusher(void *data)
 		/*
 		 * Anything to do?
 		 */
-		if (!midaw_count)
+		if (!ccw_count)
 			continue;
 
 		/*
-		 * Mark the last MIDAW as the last one
+		 * Clear Command-Chaining on the last CCW
 		 */
-		midaws[midaw_count-1].last = 1;
+		ccws[ccw_count-1].cc = 0;
 
 		/*
 		 * Now, set up the ORB and CCW
 		 */
 		memset(&ioop.orb, 0, sizeof(struct orb));
 		ioop.orb.lpm = 0xff;
-		ioop.orb.addr = (u32) (u64) &ccw; // FIXME: make sure ccw is in <2GB
+		ioop.orb.addr = (u32) (u64) ccws; // FIXME: make sure ccw is in <2GB
 		ioop.orb.f = 1;		/* format 1 CCW */
-		ioop.orb.d = 1;		/* MIDAW CCW */
-
-		memset(&ccw, 0, sizeof(struct ccw));
-		ccw.cmd   = 0x01; /* write */
-		ccw.sli   = 1;
-		ccw.mida  = 1;
-		ccw.count = len;
-		ccw.addr  = (u32) (u64) midaws; // FIXME: make sure midaws is in <2GB
 
 		/*
 		 * Set up the operation handler pointers, and start the IO
