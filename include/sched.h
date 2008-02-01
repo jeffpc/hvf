@@ -3,6 +3,7 @@
 
 #include <list.h>
 #include <page.h>
+#include <dat.h>
 
 #define CAN_SLEEP		1	/* safe to sleep */
 
@@ -56,6 +57,11 @@ struct regs {
 	/* FIXME: fpr[16] */
 };
 
+struct guest_state {
+	struct address_space as;
+	/* FIXME: SIE block */
+};
+
 /*
  * This structure describes a running process.
  */
@@ -66,6 +72,8 @@ struct task {
 	struct list_head proc_list;	/* processes list */
 
 	u64 slice_end_time;		/* end of slice time (ticks) */
+
+	struct guest_state *guest;	/* guest state */
 
 	int state;			/* state */
 };
