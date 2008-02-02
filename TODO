@@ -1,21 +1,24 @@
-pre v0.13:
-  - multi-console generic console layer
-    - have a queue with all consoles vs. have a thread per console?
-  - disable DAT in nucleus or use secondary AS
-  - set up storage for the guest
-  - directory
-    - virtual device info
+pre v0.14:
+  - cp
+    - echo user input
+
+pre v0.15:
   - cp
     - few trivial commands
-
-pre v0.14:
   - directory
     - multiple users
     - password
+  - multi-console generic console layer
+    - have a queue with all consoles vs. have a thread per console?
+
+pre v0.16:
+  - directory
+    - virtual device info
+  - SIE
+    - disable DAT in nucleus or use secondary AS
 
 whenever:
   - figure out how to make an aws tape
-  - fix device detection of 3420s
   - build
     - fix `make foo/bar.o` and `make foo/bar.s`
   - DAT
