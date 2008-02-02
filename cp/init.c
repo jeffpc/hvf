@@ -6,6 +6,7 @@
 #include <slab.h>
 #include <dat.h>
 #include <cp.h>
+#include <clock.h>
 
 static int __alloc_guest_storage(struct user *user)
 {
@@ -29,6 +30,7 @@ static int __alloc_guest_storage(struct user *user)
 static int cp_init(void *data)
 {
 	struct user *user = data;
+	struct datetime dt;
 
 	current->guest = malloc(sizeof(struct guest_state), ZONE_NORMAL);
 	BUG_ON(!current->guest);
@@ -36,9 +38,9 @@ static int cp_init(void *data)
 
 	__alloc_guest_storage(user);
 
-	/* FIXME: print current time */
-	con_printf(user->con, "\nLOGON AT %02d:%02d:%02d %s %s %04d-%02d-%02d\n", 
-			0, 0, 0, "EST", "FRIDAY", 0, 0, 0);
+	get_parsed_tod(&dt);
+	con_printf(user->con, "\nLOGON AT %02d:%02d:%02d UTC %04d-%02d-%02d\n", 
+			dt.th, dt.tm, dt.ts, dt.dy, dt.dm, dt.dd);
 
 	for (;;) {
 		/*

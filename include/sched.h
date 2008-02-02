@@ -4,6 +4,7 @@
 #include <list.h>
 #include <page.h>
 #include <dat.h>
+#include <clock.h>
 
 #define CAN_SLEEP		1	/* safe to sleep */
 
@@ -11,11 +12,6 @@
 #define TASK_SLEEPING		1
 
 #define STACK_FRAME_SIZE	160
-
-/*
- * The timer hardware subtracts 1 from the 51st bit every microsecond
- */
-#define CLK_MICROSEC		0x1000UL
 
 #define SCHED_SLICE_MS		30	/* 30ms scheduler slice */
 #define SCHED_TICKS_PER_SLICE	(HZ / SCHED_SLICE_MS)
