@@ -24,12 +24,16 @@ struct io_int_code {
 #define SVC_INT_NEW_PSW ((void*) 0x1c0)
 #define SVC_INT_CODE	((u16*) 0x8a)
 
+#define PGM_INT_OLD_PSW	((void*) 0x150)
+#define PGM_INT_NEW_PSW ((void*) 0x1d0)
+
 /*
  * Assembly stubs to call the C-handlers
  */
 extern void IO_INT(void);
 extern void EXT_INT(void);
 extern void SVC_INT(void);
+extern void PGM_INT(void);
 
 /**
  * local_int_disable - disable interruptions & return old mask

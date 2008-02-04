@@ -82,3 +82,31 @@ SVC_INT:
 	LMG	%r0,%r15,0x200(%r0)
 
 	LPSWE	0x140			# go back to what we interrupted
+
+
+#
+# Program Interrupt
+#
+	.align 4
+.globl PGM_INT
+	.type	PGM_INT, @function
+PGM_INT:
+	# save regs
+	STMG	%r0,%r15,0x200(%r0)
+
+	# set up stack
+	LARL	%r15, int_stack_ptr
+	LG	%r15, 0(%r15)
+	AGHI	%r15,-160
+
+	LARL	%r14, __pgm_int_handler
+	BALR	%r14, %r14		# call the real handler
+
+	#
+	# NOTE: we may never return from the C-interrupt handler
+	#
+
+	# restore regs
+	LMG	%r0,%r15,0x200(%r0)
+
+	LPSWE	0x150			# go back to what we interrupted

@@ -39,6 +39,14 @@ static struct psw new_svc_psw = {
 	.ptr	= (u64) &SVC_INT,
 };
 
+static struct psw new_pgm_psw = {
+	.t	= 1,
+	.ea	= 1,
+	.ba	= 1,
+
+	.ptr	= (u64) &PGM_INT,
+};
+
 u8 *int_stack_ptr;
 
 static void init_int_stack()
@@ -118,6 +126,7 @@ void start()
 	memcpy(IO_INT_NEW_PSW, &new_io_psw, sizeof(struct psw));
 	memcpy(EXT_INT_NEW_PSW, &new_ext_psw, sizeof(struct psw));
 	memcpy(SVC_INT_NEW_PSW, &new_svc_psw, sizeof(struct psw));
+	memcpy(PGM_INT_NEW_PSW, &new_pgm_psw, sizeof(struct psw));
 
  	/*
 	 * Set up page table entries for the nucleus
