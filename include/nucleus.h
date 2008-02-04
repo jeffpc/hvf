@@ -28,31 +28,9 @@ static inline void lpswe(void *psw)
 	);
 }
 
-static inline void die(int line)
-{
-	/* 
-	 * halt the cpu
-	 * 
-	 * NOTE: we don't care about not clobbering registers as when this
-	 * code executes, the CPU will be stopped.
-	 */
-	asm volatile(
-		"LR	%%r9, %0		# line number\n"
-		"SR	%%r1, %%r1		# not used, but should be zero\n"
-		"SR	%%r3, %%r3 		# CPU Address\n"
-		"SIGP	%%r1, %%r3, 0x05	# Signal, order 0x05\n"
-	: /* out */
-	: /* in */
-	  "d" (line)
-	);
-
-	/*
-	 * If SIGP failed, loop forever
-	 */
-	for(;;);
-}
-
-#define BUG()		die(__LINE__) /* FIXME: something should be outputed to console */
+#define BUG()		do { \
+				asm volatile(".byte 0x00,0x00" : : : "memory"); \
+			} while(0)
 #define BUG_ON(cond)	do { \
 				if (unlikely(cond)) \
 					BUG(); \

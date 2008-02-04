@@ -26,6 +26,8 @@ struct io_int_code {
 
 #define PGM_INT_OLD_PSW	((void*) 0x150)
 #define PGM_INT_NEW_PSW ((void*) 0x1d0)
+#define PGM_INT_ILC	((u8*) 0x8d)
+#define PGM_INT_CODE	((u16*) 0x8e)
 
 /*
  * Assembly stubs to call the C-handlers
