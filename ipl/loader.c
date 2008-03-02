@@ -215,7 +215,7 @@ static inline void readnucleus()
 	 */
 
 	/* set the CCW address in the ORB */
-	*((u32 *) &ORB[8]) = (u32) seek_ccw;
+	*((u32 *) &ORB[8]) = (u32) (u64) seek_ccw;
 
 #ifdef TAPE_SEEK
 	/*
@@ -229,7 +229,7 @@ static inline void readnucleus()
 	 */
 
 	/* set the CCW address in the ORB */
-	*((u32 *) &ORB[8]) = (u32) read_ccw;
+	*((u32 *) &ORB[8]) = (u32) (u64) read_ccw;
 
 	read_ccw[6] = ((unsigned char) (BLOCK_SIZE >> 8) & 0xff);
 	read_ccw[7] = ((unsigned char) (BLOCK_SIZE & 0xff));
