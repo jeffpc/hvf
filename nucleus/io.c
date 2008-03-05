@@ -5,6 +5,7 @@
 #include <channel.h>
 #include <io.h>
 #include <interrupt.h>
+#include <device.h>
 #include <sched.h>
 #include <atomic.h>
 #include <spinlock.h>
@@ -155,6 +156,10 @@ static void __cpu_initiated_io(struct io_op *ioop)
 		ioop->dtor(ioop);
 }
 
+static void __dev_initiated_io()
+{
+}
+
 /*
  * I/O Interrupt handler (C portion)
  */
@@ -162,6 +167,7 @@ void __io_int_handler()
 {
 	unsigned long intmask;
 	struct io_op *ioop;
+	struct device *dev;
 
 	/*
 	 * Scan the ops list to see if it is a CPU-initiated operation
@@ -184,7 +190,12 @@ void __io_int_handler()
 
 	/*
 	 * device-initiated operation
-	 *
-	 * FIXME: pass the info up to the driver
 	 */
+	dev = find_device_by_sch(IO_INT_CODE->ssid);
+	BUG_ON(IS_ERR(dev));
+
+	if (dev->dev->interrupt)
+		dev->dev->interrupt();
+	else
+		__dev_initiated_io();
 }

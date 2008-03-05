@@ -138,6 +138,14 @@ int register_console(struct device *dev)
 	return 0;
 }
 
+/**
+ * console_interrupt - generic console callback
+ */
+int console_interrupt()
+{
+	return 0;
+}
+
 void start_consoles()
 {
 	struct user *u;

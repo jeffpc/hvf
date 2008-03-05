@@ -37,6 +37,7 @@ struct console {
 };
 
 extern int register_console(struct device *dev);
+extern int console_interrupt();
 extern void start_consoles();
 extern int con_write(struct console *con, u8 *buf, int len);
 

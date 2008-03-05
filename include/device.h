@@ -8,6 +8,7 @@ struct device;
 struct device_type {
 	struct list_head types;
 	int (*reg)(struct device *dev);
+	int (*interrupt)();
 	u16 type;
 	u8 model;
 };
