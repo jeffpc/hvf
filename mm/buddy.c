@@ -66,13 +66,14 @@ void init_buddy_alloc(u64 start)
 
 static struct page *__do_alloc_pages(int order, struct list_head *orders)
 {
-	struct list_head *entry;
+	struct page *page;
 
 	if (!list_empty(&orders[order])) {
-		entry = orders[order].next;
-		list_del(entry);
+		page = list_first_entry(&orders[order], struct page, buddy);
 
-		return list_entry(entry, struct page, buddy);
+		list_del(&page->buddy);
+
+		return page;
 	}
 
 	return NULL;
