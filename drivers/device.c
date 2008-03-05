@@ -84,6 +84,28 @@ struct device *find_device_by_ccuu(u16 ccuu)
 }
 
 /**
+ * find_device_by_sch - find device struct by subchannel number
+ * @sch:	device subchannel
+ */
+struct device *find_device_by_sch(u32 sch)
+{
+	struct device *dev;
+
+	spin_lock(&devs_lock);
+
+	list_for_each_entry(dev, &devices, devices) {
+		if (dev->sch == sch) {
+			spin_unlock(&devs_lock);
+			return dev;
+		}
+	}
+
+	spin_unlock(&devs_lock);
+
+	return ERR_PTR(-ENOENT);
+}
+
+/**
  * find_device_by_type - find device struct by type/model
  * @type:	device type to find
  * @model:	device model to find
