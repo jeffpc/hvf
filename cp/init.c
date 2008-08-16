@@ -7,6 +7,7 @@
 #include <dat.h>
 #include <cp.h>
 #include <clock.h>
+#include <ebcdic.h>
 
 static int __alloc_guest_storage(struct user *user)
 {
@@ -27,6 +28,31 @@ static int __alloc_guest_storage(struct user *user)
 	return 0;
 }
 
+static void process_cmd(struct user *user)
+{
+	u8 cmd[128];
+	int ret;
+
+	ret = con_read(user->con, cmd, 128);
+
+	if (ret == -1)
+		return; /* no lines to read */
+
+	if (!ret) {
+		con_printf(user->con, "CP\n");
+		return; /* empty line */
+	}
+
+	ebcdic2ascii(cmd, ret);
+
+	/*
+	 * we got a command to process!
+	 */
+
+	/* FIXME: do some parsing */
+	con_printf(user->con, "Invalid CP command: %s\n", cmd);
+}
+
 static int cp_init(void *data)
 {
 	struct user *user = data;
@@ -44,14 +70,16 @@ static int cp_init(void *data)
 
 	for (;;) {
 		/*
-		 * FIXME:
 		 *   - process any console input
+		 * FIXME:
 		 *   - process any intercepts from SIE
 		 *   - issue any pending interruptions
 		 *   - check if the VM is in a running state, and if it is,
 		 *     continue executing it
 		 *   - if there's really nothing to do, schedule()
 		 */
+
+		process_cmd(user);
 
 		schedule();
 	}
