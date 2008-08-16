@@ -2,39 +2,72 @@
 
 struct cpcmd {
 	const char *name;
-	int (*f)(struct user *u, char *cmd, int len);
+
+	/* handle function pointer */
+	int (*fnx)(struct user *u, char *cmd, int len);
+
+	/* sub-command handler table */
+	struct cpcmd *sub;
 };
 
-static int cmd_query(struct user *u, char *cmd, int len)
-{
-	con_printf(u->con, "got a query! '%s'\n", cmd);
-	return 0;
-}
+/*
+ * We use includes here to avoid namespace polution with all the sub-command
+ * handler functions
+ */
+#include "cmd_display.c"
+#include "cmd_query.c"
 
 static struct cpcmd commands[] = {
-	{"QUERY", cmd_query},
-	{NULL, NULL},
+	{"QUERY", cmd_query, NULL},
+	{"DISPLAY", NULL, cmd_tbl_display},
+	{NULL, NULL, NULL},
 };
 
-int invoke_cp_cmd(struct user *u, char *cmd, int len)
+static int __invoke_cp_cmd(struct cpcmd *t, struct user *u, char *cmd, int len)
 {
-	int i;
+	int i, ret;
 
-	for(i=0; commands[i].name; i++) {
-		/* if they don't begin the same, skip... */
-		if (strncmp(commands[i].name, cmd, len))
+	for(i=0; t[i].name; i++) {
+		const char *inp = cmd, *exp = t[i].name;
+		int match_len = 0;
+
+		while(*inp && *exp && (match_len < len) && (*inp == *exp)) {
+			match_len++;
+			inp++;
+			exp++;
+		}
+
+		/* doesn't even begin the same */
+		if (!match_len)
 			continue;
 
 		/*
-		 * if they aren't the same length, and the next char isn't a
-		 * space, skip...
+		 * the next char in the input is...
 		 */
-		if (strnlen(commands[i].name, len) != len &&
-		    cmd[strnlen(commands[i].name, len)] != ' ')
+		if (cmd[match_len] == ' ')
+			/*
+			 * command was given arguments - skip over the
+			 * delimiting space
+			 */
+			match_len++;
+		else if (cmd[match_len] != '\0')
+			/*
+			 * command mis-match, try the next one
+			 */
 			continue;
 
-		return commands[i].f(u, cmd, len);
+		if (t[i].sub) {
+			ret = __invoke_cp_cmd(t[i].sub, u, cmd + match_len, len - match_len);
+			return (ret == -EINVAL) ? -ESUBINVAL : ret;
+		}
+
+		return t[i].fnx(u, cmd + match_len, len - match_len);
 	}
 
 	return -EINVAL;
+}
+
+int invoke_cp_cmd(struct user *u, char *cmd, int len)
+{
+	return __invoke_cp_cmd(commands, u, cmd, len);
 }

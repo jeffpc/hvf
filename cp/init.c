@@ -49,8 +49,20 @@ static void process_cmd(struct user *user)
 	 * we got a command to process!
 	 */
 	ret = invoke_cp_cmd(user, (char*) cmd, ret);
-	if (ret == -EINVAL)
-		con_printf(user->con, "Invalid CP command: %s\n", cmd);
+	switch (ret) {
+		case 0:
+			/* all fine */
+			break;
+		case -EINVAL:
+			con_printf(user->con, "Invalid CP command: %s\n", cmd);
+			break;
+		case -ESUBINVAL:
+			con_printf(user->con, "Invalid CP sub-command: %s\n", cmd);
+			break;
+		default:
+			BUG();
+			break;
+	}
 }
 
 /*
