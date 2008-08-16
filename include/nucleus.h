@@ -43,6 +43,7 @@ static inline void lpswe(void *psw)
 #define memcpy(d,s,l)	__builtin_memcpy((d),(s),(l))
 extern size_t strnlen(const char *s, size_t count);
 extern int strcmp(const char *cs, const char *ct);
+extern int strncmp(const char *cs, const char *ct, int len);
 
 struct console;
 

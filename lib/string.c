@@ -31,3 +31,20 @@ int strcmp(const char *cs, const char *ct)
 	}
 	return __res;
 }
+
+/**
+ * strncmp - Compare two strings
+ * @cs: One string
+ * @ct: Another string
+ * @len: max length
+ */
+int strncmp(const char *cs, const char *ct, int len)
+{
+	signed char __res;
+
+	while (1) {
+		if ((__res = *cs - *ct++) != 0 || !*cs++ || len--)
+			break;
+	}
+	return __res;
+}
