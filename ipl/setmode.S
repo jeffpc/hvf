@@ -16,6 +16,7 @@
 	LHI	%r1, 0x1	# switch all to z/Arch
 	SR	%r3, %r3	# CPU Address (CPU0000)
 	SIGP	%r1, %r3, 0x12	# Signal, order 0x12
+	SAM64
 	# On error:
 	#   Bit 55 = 1, cc1 (inval param)
 	#   Bit 54 = 1, cc1 (incorrect state)
@@ -47,6 +48,5 @@
 #
 # Padding to make the entire file 0x20 bytes
 #
-	BCR	0, %r7
 	BCR	0, %r7
 	BCR	0, %r7

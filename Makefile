@@ -104,5 +104,5 @@ ipl/%.rto: ipl/%.o
 	$(call objcopy-t,$<,$@)
 
 ipl/%.o: ipl/%.S
-	$(call s-to-o-31,$<,$@)
+	$(call s-to-o,$<,$@)
 
