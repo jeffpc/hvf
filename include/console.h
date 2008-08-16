@@ -34,11 +34,14 @@ struct console {
 	struct device *dev;
 	spinlock_t lock;
 	struct list_head write_lines;
+	struct list_head read_lines;
+	atomic_t issue_read;
 };
 
 extern int register_console(struct device *dev);
-extern int console_interrupt();
+extern int console_interrupt(struct device *dev, struct irb *irb);
 extern void start_consoles();
+extern int con_read(struct console *con, u8 *buf, int size);
 extern int con_write(struct console *con, u8 *buf, int len);
 
 #endif

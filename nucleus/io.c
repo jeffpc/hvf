@@ -121,17 +121,16 @@ static int default_io_handler(struct io_op *ioop, struct irb *irb)
 	return 0;
 }
 
-static void __cpu_initiated_io(struct io_op *ioop)
+static void __cpu_initiated_io(struct io_op *ioop, struct irb *irb)
 {
 	unsigned long intmask;
-	struct irb irb;
 
-	ioop->err = test_sch(ioop->ssid, &irb);
+	ioop->err = test_sch(ioop->ssid, irb);
 
 	if (!ioop->err && ioop->handler)
-		ioop->handler(ioop, &irb);
+		ioop->handler(ioop, irb);
 	else if (!ioop->err)
-		default_io_handler(ioop, &irb);
+		default_io_handler(ioop, irb);
 
 	/*
 	 * We can do this, because the test_sch function sets ->err, and
@@ -156,7 +155,7 @@ static void __cpu_initiated_io(struct io_op *ioop)
 		ioop->dtor(ioop);
 }
 
-static void __dev_initiated_io()
+static void __dev_initiated_io(struct device *dev, struct irb *irb)
 {
 }
 
@@ -168,6 +167,7 @@ void __io_int_handler()
 	unsigned long intmask;
 	struct io_op *ioop;
 	struct device *dev;
+	struct irb irb;
 
 	/*
 	 * Scan the ops list to see if it is a CPU-initiated operation
@@ -182,7 +182,7 @@ void __io_int_handler()
 
 			spin_unlock_intrestore(&ops_lock, intmask);
 
-			__cpu_initiated_io(ioop);
+			__cpu_initiated_io(ioop, &irb);
 			return;
 		}
 	}
@@ -194,8 +194,10 @@ void __io_int_handler()
 	dev = find_device_by_sch(IO_INT_CODE->ssid);
 	BUG_ON(IS_ERR(dev));
 
+	BUG_ON(test_sch(dev->sch, &irb));
+
 	if (dev->dev->interrupt)
-		dev->dev->interrupt();
+		dev->dev->interrupt(dev, &irb);
 	else
-		__dev_initiated_io();
+		__dev_initiated_io(dev, &irb);
 }
