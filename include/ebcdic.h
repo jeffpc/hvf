@@ -27,5 +27,7 @@ static inline void __translate(u8 *buf, int len, const u8 *table)
 
 #define ascii2ebcdic(buf, len)	\
 			__translate((buf), (len), ascii2ebcdic_table)
+#define ebcdic2ascii(buf, len)  \
+			__translate((buf), (len), ebcdic2ascii_table)
 
 #endif
