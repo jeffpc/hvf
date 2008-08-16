@@ -4,10 +4,10 @@
 
 VERSION=0.14
 
-AS=as
-CC=gcc
-LD=ld
-OBJCOPY=objcopy
+AS=$(CROSS_COMPILE)as
+CC=$(CROSS_COMPILE)gcc
+LD=$(CROSS_COMPILE)ld
+OBJCOPY=$(CROSS_COMPILE)objcopy
 
 # By default, be terse
 V=0
