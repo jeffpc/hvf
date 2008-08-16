@@ -48,9 +48,9 @@ static void process_cmd(struct user *user)
 	/*
 	 * we got a command to process!
 	 */
-
-	/* FIXME: do some parsing */
-	con_printf(user->con, "Invalid CP command: %s\n", cmd);
+	ret = invoke_cp_cmd(user, (char*) cmd, ret);
+	if (ret == -EINVAL)
+		con_printf(user->con, "Invalid CP command: %s\n", cmd);
 }
 
 /*

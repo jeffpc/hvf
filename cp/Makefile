@@ -1,1 +1,1 @@
-objs-cp := init.o directory.o
+objs-cp := init.o directory.o cmds.o
