@@ -71,10 +71,10 @@ SVC_INT:
 
 	# find the right handler
 	LARL	%r14, svc_table		# table address
-	LH	%r2, 0x8a		# interruption code
+	LGH	%r2, 0x8a		# interruption code
 	SLL	%r2, 3
 					# byte offset into table
-	LG	%r14, 0(%r14,%r2)	# load value from table
+	LG	%r14, 0(%r2,%r14)	# load value from table
 
 	BALR	%r14, %r14		# call the real handler
 
