@@ -26,7 +26,18 @@ static inline int get_tod(u64 *tod)
 	int cc;
 
 	asm volatile(
+#if 0
+		/*
+		 * STCKF was added to the z9, and therefore generates a
+		 * operation exception on any pre-z9 hardware.
+		 *
+		 * GNU as doesn't like stckf mnemonic, so let's just invoke
+		 * it by hand.
+		 */
+		".insn	s,0xb27c0000,%0\n"
+#else
 		"stck	%0\n"
+#endif
 		"ipm	%1\n"
 		"srl	%1,28\n"
 	: /* output */
