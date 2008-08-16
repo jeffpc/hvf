@@ -53,6 +53,16 @@ static void process_cmd(struct user *user)
 	con_printf(user->con, "Invalid CP command: %s\n", cmd);
 }
 
+/*
+ * FIXME:
+ * - issue any pending interruptions
+ * - issue sie
+ * - process SIE intercepts
+ */
+static void run_guest(struct user *user)
+{
+}
+
 static int cp_init(void *data)
 {
 	struct user *user = data;
@@ -64,6 +74,8 @@ static int cp_init(void *data)
 
 	__alloc_guest_storage(user);
 
+	current->guest->state = GUEST_STOPPED;
+
 	get_parsed_tod(&dt);
 	con_printf(user->con, "\nLOGON AT %02d:%02d:%02d UTC %04d-%02d-%02d\n",
 			dt.th, dt.tm, dt.ts, dt.dy, dt.dm, dt.dd);
@@ -71,17 +83,19 @@ static int cp_init(void *data)
 	for (;;) {
 		/*
 		 *   - process any console input
-		 * FIXME:
-		 *   - process any intercepts from SIE
-		 *   - issue any pending interruptions
-		 *   - check if the VM is in a running state, and if it is,
-		 *     continue executing it
-		 *   - if there's really nothing to do, schedule()
+		 *   - if the guest is running
+		 *     - issue any pending interruptions
+		 *     - continue executing it
+		 *     - process any intercepts from SIE
+		 *   - else, schedule()
 		 */
 
 		process_cmd(user);
 
-		schedule();
+		if (current->guest->state == GUEST_RUNNING)
+			run_guest(user);
+		else
+			schedule();
 	}
 }
 

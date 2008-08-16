@@ -53,8 +53,14 @@ struct regs {
 	/* FIXME: fpr[16] */
 };
 
+enum guest_cpustate {
+	GUEST_STOPPED = 0,
+	GUEST_RUNNING,
+};
+
 struct guest_state {
 	struct address_space as;
+	enum guest_cpustate state;
 	/* FIXME: SIE block */
 };
 
