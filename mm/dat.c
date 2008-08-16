@@ -44,7 +44,7 @@ int dat_insert_page(struct address_space *as, u64 phy, u64 virt)
 
 		goto walk_segment;
 	}
- 
+
 	BUG_ON(DAT_RX(virt)); // FIXME: we don't support storage >2GB
 
 	if (region->origin == 0xfffffffffffffUL) {

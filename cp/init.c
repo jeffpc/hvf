@@ -65,7 +65,7 @@ static int cp_init(void *data)
 	__alloc_guest_storage(user);
 
 	get_parsed_tod(&dt);
-	con_printf(user->con, "\nLOGON AT %02d:%02d:%02d UTC %04d-%02d-%02d\n", 
+	con_printf(user->con, "\nLOGON AT %02d:%02d:%02d UTC %04d-%02d-%02d\n",
 			dt.th, dt.tm, dt.ts, dt.dy, dt.dm, dt.dd);
 
 	for (;;) {

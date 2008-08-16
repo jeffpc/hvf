@@ -24,18 +24,18 @@ static void abend()
 		"%016llx%016llx%016llx%016llx",
 		*PGM_INT_CODE, (*PGM_INT_ILC) >> 1,
 		*((u64*) PGM_INT_OLD_PSW), *(((u64*) PGM_INT_OLD_PSW)+1),
-		PSA_INT_GPR[0],  PSA_INT_GPR[1],  PSA_INT_GPR[2],  PSA_INT_GPR[3], 
-		PSA_INT_GPR[4],  PSA_INT_GPR[5],  PSA_INT_GPR[6],  PSA_INT_GPR[7], 
-		PSA_INT_GPR[8],  PSA_INT_GPR[9],  PSA_INT_GPR[10], PSA_INT_GPR[11], 
+		PSA_INT_GPR[0],  PSA_INT_GPR[1],  PSA_INT_GPR[2],  PSA_INT_GPR[3],
+		PSA_INT_GPR[4],  PSA_INT_GPR[5],  PSA_INT_GPR[6],  PSA_INT_GPR[7],
+		PSA_INT_GPR[8],  PSA_INT_GPR[9],  PSA_INT_GPR[10], PSA_INT_GPR[11],
 		PSA_INT_GPR[12], PSA_INT_GPR[13], PSA_INT_GPR[14], PSA_INT_GPR[15]
 	);
 
 	if (ret)
 		ascii2ebcdic((u8 *) abend_msg_buf, ret);
 
-	/* 
+	/*
 	 * halt the cpu
-	 * 
+	 *
 	 * NOTE: we don't care about not clobbering registers as when this
 	 * code executes, the CPU will be stopped.
 	 */

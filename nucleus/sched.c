@@ -195,7 +195,7 @@ void __schedule(struct psw *old_psw)
 	 */
 
 	prev = extract_task_ptr((void*) PSA_INT_GPR[15]);
-	
+
 	/*
 	 * Save the registers (gpr, psw, ...)
 	 *

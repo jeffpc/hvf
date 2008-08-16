@@ -128,7 +128,7 @@ void start()
 	memcpy(SVC_INT_NEW_PSW, &new_svc_psw, sizeof(struct psw));
 	memcpy(PGM_INT_NEW_PSW, &new_pgm_psw, sizeof(struct psw));
 
- 	/*
+	/*
 	 * Set up page table entries for the nucleus
 	 */
 	setup_dat();

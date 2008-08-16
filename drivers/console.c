@@ -109,7 +109,7 @@ static int console_flusher(void *data)
 	 * Workaround to make entering the loop below simpler
 	 */
 	atomic_set(&ioop.done, 1);
-	
+
 	for(;;) {
 		/*
 		 * A do-while to force a call schedule() at least once.

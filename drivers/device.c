@@ -239,7 +239,7 @@ void scan_devices()
 		if (!schib.path_ctl.v)
 			continue;
 
-		/* 
+		/*
 		 * The following code tries to take the following steps:
 		 *   - alloc device struct
 		 *   - enable the subchannel
@@ -275,7 +275,7 @@ void scan_devices()
 		dev->ccuu  = schib.path_ctl.dev_num;
 
 		if (__register_device(dev)) {
-			/* 
+			/*
 			 * error registering ... the device struct MUST NOT
 			 * be freed as it has been added onto the devices
 			 * list. All that needs to be done is to reset the

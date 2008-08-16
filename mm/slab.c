@@ -85,7 +85,7 @@ struct slab *create_slab(u16 objsize, u8 align)
 
 	/* number of objects in a page */
 	slab->count = 8 * (PAGE_SIZE - sizeof(struct slab)) / (8 * objsize + 1);
-	
+
 	/* offset of the first object */
 	slab->startoff = sizeof(struct slab) + (slab->count + 4) / 8;
 	if (slab->startoff & align) {
@@ -93,7 +93,7 @@ struct slab *create_slab(u16 objsize, u8 align)
 
 		slab->startoff += align + 1 - (slab->startoff & align);
 
-		/* 
+		/*
 		 * TODO: there's got to be a better way to ensure that we
 		 * fit into a single page
 		 */
