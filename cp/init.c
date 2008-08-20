@@ -53,14 +53,14 @@ static void process_cmd(struct user *user)
 		case 0:
 			/* all fine */
 			break;
-		case -EINVAL:
+		case -ENOENT:
 			con_printf(user->con, "Invalid CP command: %s\n", cmd);
 			break;
-		case -ESUBINVAL:
+		case -ESUBENOENT:
 			con_printf(user->con, "Invalid CP sub-command: %s\n", cmd);
 			break;
 		default:
-			BUG();
+			con_printf(user->con, "RC=%d\n", ret);
 			break;
 	}
 }

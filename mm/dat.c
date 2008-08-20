@@ -139,3 +139,45 @@ void setup_dat()
 	  "m" (cr1)
 	);
 }
+
+/*
+ * region/segment/pagetable walker to translate virtual address to physical
+ * addresses
+ */
+int virt2phy(struct address_space *as, u64 virt, u64 *phy)
+{
+	struct dat_ste *segment;
+	struct dat_pte *pte;
+
+	if (!as->region_table) {
+		segment = as->segment_table;
+		BUG_ON(!segment);
+		goto walk_segment;
+	}
+
+	BUG();
+	return -EFAULT;
+
+walk_segment:
+	BUG_ON(DAT_RX(virt));
+
+	segment = &segment[DAT_SX(virt)];
+
+	if (segment->i || (segment->tt != DAT_STE_TT_ST))
+		goto invalid;
+
+	/* get the right page table */
+
+	pte = STE_ORIGIN_TO_ADDR(segment->origin);
+	pte = &pte[DAT_PX(virt)];
+
+	if (pte->i)
+		goto invalid;
+
+	*phy = (pte->pfra << 12) | DAT_BX(virt);
+	return 0;
+
+invalid:
+	*phy = 0xffffffffffffffffULL;
+	return -EFAULT;
+}
