@@ -1,4 +1,6 @@
 #include <directory.h>
+#include <dat.h>
+#include <sched.h>
 
 struct cpcmd {
 	const char *name;
