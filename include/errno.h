@@ -5,9 +5,9 @@
 #define EBUSY		2
 #define EAGAIN		3
 #define EINVAL		4
-#define ESUBINVAL	5
-#define EEXIST		6
-#define ENOENT		7
+#define EEXIST		5
+#define ENOENT		6
+#define ESUBENOENT	7
 #define EUCHECK		8
 
 #define PTR_ERR(ptr)	((s64) ptr)

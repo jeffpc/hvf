@@ -58,13 +58,13 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct user *u, char *cmd, int len)
 
 		if (t[i].sub) {
 			ret = __invoke_cp_cmd(t[i].sub, u, cmd + match_len, len - match_len);
-			return (ret == -EINVAL) ? -ESUBINVAL : ret;
+			return (ret == -ENOENT) ? -ESUBENOENT : ret;
 		}
 
 		return t[i].fnx(u, cmd + match_len, len - match_len);
 	}
 
-	return -EINVAL;
+	return -ENOENT;
 }
 
 int invoke_cp_cmd(struct user *u, char *cmd, int len)
