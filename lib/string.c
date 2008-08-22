@@ -48,3 +48,19 @@ int strncmp(const char *cs, const char *ct, int len)
 	}
 	return __res;
 }
+
+/**
+ * strcmp - Compare two strings ignoring case
+ * @s1: One string
+ * @s2: Another string
+ */
+int strcasecmp(const char *s1, const char *s2)
+{
+        int c1, c2;
+
+        do {
+                c1 = tolower(*s1++);
+                c2 = tolower(*s2++);
+        } while (c1 == c2 && c1 != 0);
+        return c1 - c2;
+}

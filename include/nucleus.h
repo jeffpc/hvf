@@ -44,12 +44,24 @@ static inline void lpswe(void *psw)
 extern size_t strnlen(const char *s, size_t count);
 extern int strcmp(const char *cs, const char *ct);
 extern int strncmp(const char *cs, const char *ct, int len);
+extern int strcasecmp(const char *s1, const char *s2);
 
-struct console;
+static inline unsigned char tolower(unsigned char c)
+{
+	/*
+	 * TODO: This would break if we ever tried to compile within an EBCDIC
+	 * environment
+	 */
+	if ((c >= 'A') && (c <= 'Z'))
+		c -= 'A'-'a';
+	return c;
+}
 
 /*
  * stdio.h equivalents
  */
+struct console;
+
 extern int vprintf(struct console *con, const char *fmt, va_list args)
         __attribute__ ((format (printf, 2, 0)));
 extern int snprintf(char *buf, int len, const char *fmt, ...)
@@ -65,7 +77,7 @@ extern int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
  * stdarg.h equivalents
  */
 #define va_start(ap, last)	__builtin_va_start(ap, last)
-#define va_arg(ap, type) 	__builtin_va_arg(ap, type)
-#define va_end(ap) 		__builtin_va_end(ap)
+#define va_arg(ap, type)	__builtin_va_arg(ap, type)
+#define va_end(ap)		__builtin_va_end(ap)
 
 #endif
