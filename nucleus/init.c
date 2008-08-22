@@ -49,6 +49,9 @@ static struct psw new_pgm_psw = {
 
 u8 *int_stack_ptr;
 
+/* the time HVF got IPLd */
+struct datetime ipltime;
+
 static void init_int_stack()
 {
 	struct page *page;
@@ -204,6 +207,7 @@ void start()
 	printf(" Scheduler:\n");
 	printf("    no task max\n");
 
+	get_parsed_tod(&ipltime);
 	spawn_oper_cp();
 
 	/*
