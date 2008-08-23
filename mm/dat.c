@@ -113,12 +113,8 @@ void load_as(struct address_space *as)
 	/*
 	 * Load up the PASCE (cr1)
 	 */
+	memset(&cr1, 0, sizeof(struct dat_td));
 	cr1.origin = ((u64)as->segment_table) >> 12;
-	cr1.g = 0;
-	cr1.p = 0;
-	cr1.s = 0;
-	cr1.x = 0;
-	cr1.r = 0;
 	cr1.dt = DAT_TD_DT_ST;
 	cr1.tl = 3;
 
