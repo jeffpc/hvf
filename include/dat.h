@@ -80,6 +80,7 @@ struct dat_pte {
 
 extern int dat_insert_page(struct address_space *as, u64 phy, u64 virt);
 extern void setup_dat();
+extern void load_as(struct address_space *as);
 
 extern int virt2phy(struct address_space *as, u64 virt, u64 *phy);
 

@@ -3,8 +3,6 @@
 #include <dat.h>
 #include <mm.h>
 
-static struct address_space nucleus_as;
-
 static void *alloc_table(int order)
 {
 	struct page *p;
@@ -101,29 +99,21 @@ walk_segment:
 	return 0;
 }
 
-/*
- * Note that we are lazy here, and we'll just build the entries for all the
- * storage that's installed, and then we load the Primary
- * Address-Space-Control Element.
- */
 void setup_dat()
 {
-	u64 cur_addr;
+	/* nothing to do! */
+}
+
+void load_as(struct address_space *as)
+{
 	struct dat_td cr1;
 
-	/*
-	 * Build PTEs
-	 */
-	nucleus_as.region_table = NULL;
-	nucleus_as.segment_table = NULL;
-
-	for(cur_addr = 0; cur_addr < memsize; cur_addr += PAGE_SIZE)
-		dat_insert_page(&nucleus_as, cur_addr, cur_addr);
+	BUG_ON(!as->segment_table);
 
 	/*
 	 * Load up the PASCE (cr1)
 	 */
-	cr1.origin = ((u64)nucleus_as.segment_table) >> 12;
+	cr1.origin = ((u64)as->segment_table) >> 12;
 	cr1.g = 0;
 	cr1.p = 0;
 	cr1.s = 0;

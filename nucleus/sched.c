@@ -48,7 +48,6 @@ static void __init_task(struct task *task, void *f, void *data, void *stack)
 {
 	memset(task, 0, sizeof(struct task));
 
-	task->regs.psw.t	= 1,
 	task->regs.psw.io	= 1;
 	task->regs.psw.ex	= 1;
 	task->regs.psw.ea	= 1;

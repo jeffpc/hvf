@@ -16,7 +16,6 @@
 #include <cp.h>
 
 static struct psw new_io_psw = {
-	.t	= 1,
 	.ea	= 1,
 	.ba	= 1,
 
@@ -24,7 +23,6 @@ static struct psw new_io_psw = {
 };
 
 static struct psw new_ext_psw = {
-	.t	= 1,
 	.ea	= 1,
 	.ba	= 1,
 
@@ -32,7 +30,6 @@ static struct psw new_ext_psw = {
 };
 
 static struct psw new_svc_psw = {
-	.t	= 1,
 	.ea	= 1,
 	.ba	= 1,
 
@@ -40,7 +37,6 @@ static struct psw new_svc_psw = {
 };
 
 static struct psw new_pgm_psw = {
-	.t	= 1,
 	.ea	= 1,
 	.ba	= 1,
 
@@ -155,7 +151,6 @@ void start()
 	 * Time to enable interrupts => load new psw
 	 */
 	memset(&psw, 0, sizeof(struct psw));
-	psw.t	= 1,
 	psw.io	= 1;
 	psw.ea	= 1;
 	psw.ba	= 1;
