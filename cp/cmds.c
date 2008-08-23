@@ -17,12 +17,15 @@ struct cpcmd {
  * We use includes here to avoid namespace polution with all the sub-command
  * handler functions
  */
+#include "cmd_beginstop.c"
 #include "cmd_display.c"
 #include "cmd_query.c"
 
 static struct cpcmd commands[] = {
-	{"QUERY", cmd_query, NULL},
+	{"BEGIN", cmd_begin, NULL},
 	{"DISPLAY", NULL, cmd_tbl_display},
+	{"QUERY", cmd_query, NULL},
+	{"STOP", cmd_stop, NULL},
 	{NULL, NULL, NULL},
 };
 
