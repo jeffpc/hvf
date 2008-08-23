@@ -1,21 +1,20 @@
-pre v0.14:
-  - cp
-    - echo user input
-
 pre v0.15:
   - cp
     - few trivial commands
+  - SIE
+    - virtualize CPU, registers, and storage
+
+pre v0.16:
+  - cp
+    - STORE command
+  - SIE
+    - virtualize devices (dedicated)
   - directory
     - multiple users
     - password
+    - virtual device info
   - multi-console generic console layer
     - have a queue with all consoles vs. have a thread per console?
-
-pre v0.16:
-  - directory
-    - virtual device info
-  - SIE
-    - disable DAT in nucleus or use secondary AS
 
 whenever:
   - figure out how to make an aws tape
