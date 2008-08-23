@@ -31,12 +31,12 @@ struct psw {
 	   m:1,			/* Machine-Check Mask (M)	*/
 	   w:1,			/* Wait State (W)		*/
 	   p:1;			/* Problem State (P)		*/
-		
+
 	u8 as:2,		/* Address-Space Control (AS)	*/
 	   cc:2,		/* Condition Code (CC)		*/
 	   prog_mask:4;		/* Program Mask			*/
 
-	u8 _zero3:7,	
+	u8 _zero3:7,
 	   ea:1;		/* Extended Addressing (EA)	*/
 
 	u32 ba:1,		/* Basic Addressing (BA)	*/
