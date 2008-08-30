@@ -48,6 +48,17 @@ extern int strcmp(const char *cs, const char *ct);
 extern int strncmp(const char *cs, const char *ct, int len);
 extern int strcasecmp(const char *s1, const char *s2);
 
+static inline unsigned char toupper(unsigned char c)
+{
+	/*
+	 * TODO: This would break if we ever tried to compile within an EBCDIC
+	 * environment
+	 */
+	if ((c >= 'a') && (c <= 'z'))
+		c += 'A'-'a';
+	return c;
+}
+
 static inline unsigned char tolower(unsigned char c)
 {
 	/*
