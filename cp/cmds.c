@@ -37,7 +37,7 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct user *u, char *cmd, int len)
 		const char *inp = cmd, *exp = t[i].name;
 		int match_len = 0;
 
-		while(*inp && *exp && (match_len < len) && (*inp == *exp)) {
+		while(*inp && *exp && (match_len < len) && (toupper(*inp) == *exp)) {
 			match_len++;
 			inp++;
 			exp++;
