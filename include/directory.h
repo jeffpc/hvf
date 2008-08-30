@@ -34,6 +34,9 @@ struct vdev {
 
 		/* VDEV_MDISK */
 		struct {
+			u16 cyloff;	/* first cylinder # */
+			u16 cylcnt;	/* cylinder count */
+			u16 rdev;	/* real DASD containing the mdisk */
 		} mdisk;
 
 		/* VDEV_LINK */
