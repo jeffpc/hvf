@@ -147,6 +147,7 @@ static void __sched(int force_idle)
 	}
 
 	next = list_first_entry(&runnable, struct task, run_queue);
+	BUG_ON(!next);
 
 	/*
 	 * Remove the new task from the run queue & mark it as running
@@ -194,6 +195,7 @@ void __schedule(struct psw *old_psw)
 	 */
 
 	prev = extract_task_ptr((void*) PSA_INT_GPR[15]);
+	BUG_ON(!prev);
 
 	/*
 	 * Save the registers (gpr, psw, ...)
