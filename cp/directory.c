@@ -35,6 +35,13 @@ static struct user directory[] = {
 				.u.spool = { .type = 0x1403, .model = 1, },
 			},
 			{
+				/* 191 DASD */
+				.type = VDEV_MDISK,
+				.vdev = 0x0191,
+				.vsch = 0x10004,
+				.u.mdisk = { .cyloff = 15, .cylcnt = 100, .rdev = 0x0192, },
+			},
+			{
 				/* END */
 				.type = VDEV_INVAL,
 			},

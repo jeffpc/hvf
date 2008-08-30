@@ -53,7 +53,7 @@ struct user {
 	u64 storage_size;
 
 	/* FIXME: make this dynamically allocated */
-	struct vdev devices[5];
+	struct vdev devices[6];
 };
 
 extern struct user *find_user_by_id(char *userid);
