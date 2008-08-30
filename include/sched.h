@@ -58,10 +58,16 @@ enum guest_cpustate {
 	GUEST_RUNNING,
 };
 
+#include <sie.h>
+
 struct guest_state {
+	/* the SIE control block is picky about alignment */
+	struct sie_cb sie_cb;
+
+	struct regs regs;
+
 	struct address_space as;
 	enum guest_cpustate state;
-	/* FIXME: SIE block */
 };
 
 /*

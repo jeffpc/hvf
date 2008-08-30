@@ -65,28 +65,31 @@ static void process_cmd(struct user *user)
 	}
 }
 
-/*
- * FIXME:
- * - issue any pending interruptions
- * - issue sie
- * - process SIE intercepts
- */
-static void run_guest(struct user *user)
-{
-}
-
 static int cp_init(void *data)
 {
 	struct user *user = data;
 	struct datetime dt;
+	struct page *page;
 
-	current->guest = malloc(sizeof(struct guest_state), ZONE_NORMAL);
-	BUG_ON(!current->guest);
-	memset(current->guest, 0, sizeof(struct guest_state));
+	page = alloc_pages(0, ZONE_NORMAL);
+	BUG_ON(!page);
+
+	current->guest = page_to_addr(page);
+	memset(current->guest, 0, PAGE_SIZE);
 
 	__alloc_guest_storage(user);
 
 	current->guest->state = GUEST_STOPPED;
+	current->guest->sie_cb.gmsor = 0;
+	current->guest->sie_cb.gmslm = user->storage_size;
+	current->guest->sie_cb.gcr[0]  = 0xE0UL;
+	current->guest->sie_cb.gcr[14] = 0xC2000000UL;
+	current->guest->sie_cb.gbea = 1;
+	current->guest->sie_cb.ecb  = 2;
+	current->guest->sie_cb.eca  = 0xC1002001U;
+	/*
+	 * TODO: What about ->scaoh and ->scaol?
+	 */
 
 	get_parsed_tod(&dt);
 	con_printf(user->con, "\nLOGON AT %02d:%02d:%02d UTC %04d-%02d-%02d\n",

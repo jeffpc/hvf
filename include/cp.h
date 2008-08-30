@@ -10,5 +10,6 @@
 
 extern void spawn_oper_cp();
 extern int invoke_cp_cmd(struct user *u, char *cmd, int len);
+extern void run_guest(struct user *user);
 
 #endif

@@ -45,6 +45,6 @@ struct sie_cb {
 	u64		gcr[16];		/* 0x0100 */
 	u64		gbea;			/* 0x0180 */
 	u8		reserved188[120];	/* 0x0188 */
-} __attribute__((packed));
+} __attribute__((aligned(256),packed));
 
 #endif
