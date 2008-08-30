@@ -14,6 +14,20 @@ struct cpcmd {
 };
 
 /*
+ * Map a device type to a nice to display name
+ */
+static char* type2name(u16 type)
+{
+	switch (type) {
+		case 0x1403:	return "PRT";
+		case 0x3215:	return "CONS";
+		case 0x3505:	return "RDR";
+		case 0x3525:	return "PUN";
+		default:	return "????";
+	}
+}
+
+/*
  * We use includes here to avoid namespace polution with all the sub-command
  * handler functions
  */
