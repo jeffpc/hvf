@@ -318,7 +318,7 @@ static struct disassm_instruction l2_b2[256] = {
 	DA_INST		(S, STPX),
 	DA_INST		(S, STAP),
 	DA_INST_INV	(),
-	DA_INST_INV	(),
+	DA_INST		(S, SIE),
 	DA_INST_INV	(),
 	DA_INST_INV	(),
 	DA_INST_INV	(),
