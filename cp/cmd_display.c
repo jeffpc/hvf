@@ -151,6 +151,15 @@ static int cmd_display_gpr(struct user *u, char *cmd, int len)
 	return 0;
 }
 
+static int cmd_display_psw(struct user *u, char *cmd, int len)
+{
+	u32 *ptr = (u32*) &current->guest->sie_cb.gpsw;
+
+	con_printf(u->con, "PSW = %08x %08x %08x %08x\n",
+		   ptr[0], ptr[1], ptr[2], ptr[3]);
+	return 0;
+}
+
 static struct cpcmd cmd_tbl_display[] = {
 	{"STORAGE", cmd_display_storage, NULL},
 	{"GPR", cmd_display_gpr, NULL},
@@ -158,7 +167,7 @@ static struct cpcmd cmd_tbl_display[] = {
 	{"FPR", cmd_display_fpr, NULL},
 	{"CR", cmd_display_cr, NULL},
 	{"AR", cmd_display_ar, NULL},
-	{"PSW", cmd_display_psw, NULL},
 #endif
+	{"PSW", cmd_display_psw, NULL},
 	{NULL, NULL, NULL},
 };
