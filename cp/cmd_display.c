@@ -122,10 +122,39 @@ static int cmd_display_storage(struct user *u, char *cmd, int len)
 	return 0;
 }
 
+static int cmd_display_gpr(struct user *u, char *cmd, int len)
+{
+	con_printf(u->con, "GR  0 = %016llx %016llx\n",
+		   current->guest->regs.gpr[0],
+		   current->guest->regs.gpr[1]);
+	con_printf(u->con, "GR  2 = %016llx %016llx\n",
+		   current->guest->regs.gpr[2],
+		   current->guest->regs.gpr[3]);
+	con_printf(u->con, "GR  4 = %016llx %016llx\n",
+		   current->guest->regs.gpr[4],
+		   current->guest->regs.gpr[5]);
+	con_printf(u->con, "GR  6 = %016llx %016llx\n",
+		   current->guest->regs.gpr[6],
+		   current->guest->regs.gpr[7]);
+	con_printf(u->con, "GR  8 = %016llx %016llx\n",
+		   current->guest->regs.gpr[8],
+		   current->guest->regs.gpr[9]);
+	con_printf(u->con, "GR 10 = %016llx %016llx\n",
+		   current->guest->regs.gpr[10],
+		   current->guest->regs.gpr[11]);
+	con_printf(u->con, "GR 12 = %016llx %016llx\n",
+		   current->guest->regs.gpr[12],
+		   current->guest->regs.gpr[13]);
+	con_printf(u->con, "GR 14 = %016llx %016llx\n",
+		   current->guest->regs.gpr[14],
+		   current->guest->regs.gpr[15]);
+	return 0;
+}
+
 static struct cpcmd cmd_tbl_display[] = {
 	{"STORAGE", cmd_display_storage, NULL},
-#if 0
 	{"GPR", cmd_display_gpr, NULL},
+#if 0
 	{"FPR", cmd_display_fpr, NULL},
 	{"CR", cmd_display_cr, NULL},
 	{"AR", cmd_display_ar, NULL},
