@@ -10,7 +10,7 @@ __do_io:
 	#
 	# r4 = 0x80000000
 	#
-	SR	%r4, %r4
+	XGR	%r4, %r4
 	LHI	%r4, 0x8
 	SLL	%r4, 20
 	#
@@ -81,9 +81,50 @@ IONOTDONE:
 	LPSWE	0x170
 
 #
+# The PGM interrupt handler
+#
+.globl PGMHANDLER
+PGMHANDLER:
+	STMG	%r1,%r3,0x200
+
+	# r3 = 0x80000000
+	XGR	%r3, %r3
+	LHI	%r3, 0x8
+	SLL	%r3, 20
+
+	# is ILC == 3?
+	LGH	%r2,0x8C
+	CGHI	%r2,0x0006
+	BNE	ERR
+
+	# grab the old PSW address, subtract length of TPROT, and compare it
+	# with the TPROT opcode (0xe501)
+	LG	%r1,0x158
+	AGHI	%r1,-6
+	LLGH	%r2,TPROTOP(%r3)
+	LLGH	%r1,0(%r1)
+	CGR	%r2,%r1
+	BNE	ERR(%r3)
+
+	# set CC=3
+	OI	0x152,0x30
+
+	LMG	%r1,%r3,0x200
+
+	LPSWE	0x150
+
+ERR:
+.byte	0x00, 0x00
+
+
+#
 # Useful data
 #
 .data
+.globl TPROTOP
+TPROTOP:
+.byte	0xe5, 0x01
+
 	.align 8
 .globl IOPSW
 IOPSW:

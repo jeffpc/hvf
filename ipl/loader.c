@@ -177,6 +177,7 @@ unsigned char ORB[32] __attribute__ ((aligned (16))) = {
 };
 
 #define memcpy(d,s,l)	__builtin_memcpy((d), (s), (l))
+#define memset(s,c,n)	__builtin_memset((s),(c),(n))
 
 /* 
  * halt the cpu
@@ -202,8 +203,56 @@ static inline void die()
  * It is easier to write this thing in assembly...
  */
 extern void __do_io();
+extern void PGMHANDLER();
 
-/* 
+static u64 pgm_new_psw[2] = {
+	0x0000000180000000ULL, (u64) &PGMHANDLER,
+};
+
+/*
+ * determine amount of storage
+ */
+static u64 sense_memsize()
+{
+	u64 size;
+	int cc;
+
+#define SKIP_SIZE	(1024*1024ULL)
+
+	/* set new PGM psw */
+	memcpy((void*)0x1d0, pgm_new_psw, 16);
+
+	for(size = 0; size < ((u64)~SKIP_SIZE)-1; size += SKIP_SIZE) {
+		asm volatile(
+			"lg	%%r1,%1\n"
+			"tprot	0(%%r1),0\n"
+			"ipm	%0\n"
+			"srl    %0,28\n"
+		: /* output */
+		  "=d" (cc)
+		: /* input */
+		  "m" (size)
+		: /* clobber */
+		  "cc", "r1"
+		);
+
+		/*
+		 * we cheat here a little...if we try to tprot a location
+		 * that isn't part of the configuration, a program exception
+		 * fires off, but our handler sets the CC to 3, and resumes
+		 * execution
+		 */
+		if (cc == 3)
+			break;
+	}
+
+	/* invalidate new PGM psw */
+	memset((void*)0x1d0, 0, 16);
+
+	return size;
+}
+
+/*
  * read the entire nucleus into into TEMP_BASE
  */
 static inline void readnucleus()
@@ -253,7 +302,7 @@ void load_nucleus(void)
 	register int i;
 	register Elf64_Ehdr *nucleus_elf;
 	register Elf64_Shdr *section;
-	register void (*start_sym)(void);
+	register void (*start_sym)(u64);
 
 	/*
 	 * Read entire ELF to temporary location
@@ -285,7 +334,7 @@ void load_nucleus(void)
 		section = (Elf64_Shdr*) (TEMP_BASE +
 					 nucleus_elf->e_shoff +
 					 nucleus_elf->e_shentsize * i);
-		
+
 		switch (section->sh_type) {
 			case SHT_PROGBITS:
 				if (!section->sh_addr)
@@ -320,5 +369,5 @@ void load_nucleus(void)
 	 * Now, jump to the nucleus entry point
 	 */
 	start_sym = (void*) nucleus_elf->e_entry;
-	start_sym();
+	start_sym(sense_memsize());
 }

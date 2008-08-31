@@ -78,7 +78,7 @@ static void idle_task_body()
 /*
  * This is where everything starts
  */
-void start()
+void start(u64 __memsize)
 {
 	u64 first_free_page;
 	u64 struct_page_bytes;
@@ -90,9 +90,10 @@ void start()
 	ticks = 0;
 
 	/*
-	 * We should determine this dynamically
+	 * FIXME: >2GB is unsupported
 	 */
-	memsize = MEMSIZE;
+	memsize = __memsize > (2ULL * 1024 * 1024 * 1024) ?
+		(2ULL * 1024 * 1024 * 1024) : __memsize;
 
 	/*
 	 * Initialize struct page entries
