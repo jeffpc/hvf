@@ -159,6 +159,14 @@ run:
 	next->slice_end_time = (force_idle) ? force_idle : ticks + SCHED_TICKS_PER_SLICE;
 
 	/*
+	 * Would we return to SIE? If so, go to the next instruction
+	 *
+	 * SIE is 4 bytes long, the first 2 bytes are the opcode: 0xb214
+	 */
+	if (*((u16*) next->regs.psw.ptr) == 0xb214)
+		next->regs.psw.ptr += 4;
+
+	/*
 	 * NOTE: Because we need to load the registers _BEFORE_ we issue
 	 * lpswe, we have to place the new psw into PSA and use register 0
 	 */
