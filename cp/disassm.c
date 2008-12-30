@@ -2472,7 +2472,7 @@ static struct disassm_instruction l1[256] = {
 	DA_INST		(RR, SPM),
 	DA_INST		(RR, BALR),
 	DA_INST		(RR, BCTR),
-	DA_INST		(RR, BCR),
+	DA_INST		(RR_MASK, BCR),
 	DA_INST_INV	()				/* 08 */,
 	DA_INST_INV	(),
 	DA_INST		(I, SVC),
@@ -2536,7 +2536,7 @@ static struct disassm_instruction l1[256] = {
 	DA_INST		(RX, EX),
 	DA_INST		(RX, BAL),
 	DA_INST		(RX, BCT),
-	DA_INST		(RX, BC),
+	DA_INST		(RX_MASK, BC),
 	DA_INST		(RX, LH),			/* 48 */
 	DA_INST		(RX, CH),
 	DA_INST		(RX, AH),
@@ -2781,8 +2781,10 @@ static int da_snprintf(unsigned char *bytes, char *buf, int buflen,
 				 *((int*)(bytes+2)));			/* I2 */
 			break;
 		case IF_RR:
-			snprintf(buf, buflen, IPFX "R%d,R%d",
+		case IF_RR_MASK:
+			snprintf(buf, buflen, IPFX "%s%d,R%d",
 				 inst->u.name,
+				 inst->fmt == IF_RR_MASK ? "" : "R",
 				 *(bytes+1) >> 4,			/* R1 */
 				 *(bytes+1) & 0xf);			/* R2 */
 			break;
@@ -2822,8 +2824,10 @@ static int da_snprintf(unsigned char *bytes, char *buf, int buflen,
 				 *(bytes+2) >> 4);			/* B2 */
 			break;
 		case IF_RX:
-			snprintf(buf, buflen, IPFX "R%d,%d(R%d,R%d)",
+		case IF_RX_MASK:
+			snprintf(buf, buflen, IPFX "%s%d,%d(R%d,R%d)",
 				 inst->u.name,
+				 inst->fmt == IF_RX_MASK ? "" : "R",
 				 *(bytes+1) >> 4,			/* R1 */
 				 *((unsigned short*)(bytes+2)) & 0x0fff,/* D2 */
 				 *(bytes+1) & 0xf,			/* X2 */
