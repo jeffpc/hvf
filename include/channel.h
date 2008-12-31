@@ -257,7 +257,7 @@ static inline int test_sch(u32 sch, struct irb *irb)
 	  "d" (sch),
 	  "a" (irb)
 	: /* clobbered */
-	  "r1"
+	  "cc", "r1"
 	);
 
 	if (cc == 3)
