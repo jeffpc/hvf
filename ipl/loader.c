@@ -354,6 +354,8 @@ void load_nucleus(void)
 				 * copy, and we assume that the ELF sections
 				 * don't overlap
 				 */
+				memset((void*) section->sh_addr,
+				       0, section->sh_size);
 				break;
 			case SHT_SYMTAB:
 			case SHT_STRTAB:
