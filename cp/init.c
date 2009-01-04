@@ -117,12 +117,12 @@ static int cp_init(void *data)
 void spawn_oper_cp()
 {
 	struct user *u;
-	int err;
+	struct task *task;
 
 	u = find_user_by_id("operator");
 	BUG_ON(IS_ERR(u));
 
-	err = create_task(cp_init, u);
+	task = create_task(cp_init, u);
 
-	BUG_ON(err);
+	BUG_ON(IS_ERR(task));
 }

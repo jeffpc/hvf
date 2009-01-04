@@ -96,11 +96,10 @@ static void init_idle_task()
  * @f:		function pointer to where thread of execution should begin
  * @data:	arbitrary data to pass to the task
  */
-int create_task(int (*f)(void *), void *data)
+struct task* create_task(int (*f)(void *), void *data)
 {
 	struct page *page;
 	struct task *task;
-	int err = -ENOMEM;
 
 	/*
 	 * Allocate a page for stack, and struct task itself
@@ -121,13 +120,13 @@ int create_task(int (*f)(void *), void *data)
 	list_add_tail(&task->proc_list, &processes);
 	list_add_tail(&task->run_queue, &runnable);
 
-	return 0;
+	return task;
 
 out:
 	free(task);
 	free_pages(page_to_addr(page), 0);
 
-	return err;
+	return ERR_PTR(-ENOMEM);
 }
 
 /**

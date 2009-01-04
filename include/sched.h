@@ -87,7 +87,8 @@ struct task {
 };
 
 extern void init_sched();		/* initialize the scheduler */
-extern int create_task(int (*f)(void*), void*);	/* create a new task */
+extern struct task* create_task(int (*f)(void*), void*);
+					/* create a new task */
 extern void schedule();			/* yield the cpu */
 extern void __schedule(struct psw *);	/* scheduler helper - use with caution */
 extern void __schedule_svc();
