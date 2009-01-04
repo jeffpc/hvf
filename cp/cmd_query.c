@@ -1,3 +1,13 @@
+static char *__guest_state_to_str(enum guest_cpustate st)
+{
+	switch (st) {
+		case GUEST_STOPPED:	return "STOPPED";
+		case GUEST_RUNNING:	return "RUNNING";
+	}
+
+	return "???";
+}
+
 static int cmd_query(struct user *u, char *cmd, int len)
 {
 	if (!strcasecmp(cmd, "CPLEVEL")) {
@@ -17,6 +27,7 @@ static int cmd_query(struct user *u, char *cmd, int len)
 	} else if (!strcasecmp(cmd, "VIRTUAL")) {
 		int i;
 
+		con_printf(u->con, "CPU %s\n", __guest_state_to_str(current->guest->state));
 		con_printf(u->con, "STORAGE = %lluM\n", u->storage_size >> 20);
 
 		for(i=0; u->devices[i].type != VDEV_INVAL; i++) {
