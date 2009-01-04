@@ -272,6 +272,25 @@ void start_consoles()
 	create_task(console_flusher, u->con);
 }
 
+int con_read_pending(struct console *con)
+{
+	struct console_line *cline;
+	int ret = 0;
+
+	spin_lock(&con->lock);
+
+	list_for_each_entry(cline, &con->read_lines, lines) {
+		if (cline->state == CON_STATE_IO) {
+			ret = 1;
+			break;
+		}
+	}
+
+	spin_unlock(&con->lock);
+
+	return ret;
+}
+
 int con_read(struct console *con, u8 *buf, int size)
 {
 	struct console_line *cline;
