@@ -59,6 +59,9 @@ static void process_cmd(struct user *user)
 		case -ESUBENOENT:
 			con_printf(user->con, "Invalid CP sub-command: %s\n", cmd);
 			break;
+		case -EINVAL:
+			con_printf(user->con, "Operand missing or invalid\n");
+			break;
 		default:
 			con_printf(user->con, "RC=%d\n", ret);
 			break;
