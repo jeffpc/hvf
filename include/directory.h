@@ -48,6 +48,7 @@ struct vdev {
 struct user {
 	char *userid;
 	struct console *con;
+	struct task *task;
 
 	/* VM configuration */
 	u64 storage_size;

@@ -114,15 +114,39 @@ static int cp_init(void *data)
 	}
 }
 
+/*
+ * FIXME: This function should service all the consoles on the system
+ */
+static int cp_cmd_intercept_gen(void *data)
+{
+	struct user *user = data;
+
+	for(;;) {
+		schedule();
+
+		if (!user->task->guest ||
+		    user->task->guest->state == GUEST_STOPPED)
+			continue;
+
+		if (!con_read_pending(user->con))
+			continue;
+
+		/*
+		 * There's a read pending. Generate an interception.
+		 */
+		atomic_set_mask(CPUSTAT_STOP_INT, &user->task->guest->sie_cb.cpuflags);
+	}
+}
+
 void spawn_oper_cp()
 {
 	struct user *u;
-	struct task *task;
 
 	u = find_user_by_id("operator");
 	BUG_ON(IS_ERR(u));
 
-	task = create_task(cp_init, u);
+	u->task = create_task(cp_init, u);
+	BUG_ON(IS_ERR(u->task));
 
-	BUG_ON(IS_ERR(task));
+	BUG_ON(IS_ERR(create_task(cp_cmd_intercept_gen, u)));
 }
