@@ -7,6 +7,29 @@
 
 #include <atomic.h>
 
+/*
+ * Constants for sie_cb->cpuflags
+ */
+#define CPUSTAT_HOST		0x80000000
+#define CPUSTAT_WAIT		0x10000000
+#define CPUSTAT_ECALL_PEND	0x08000000
+#define CPUSTAT_STOP_INT	0x04000000
+#define CPUSTAT_IO_INT		0x02000000
+#define CPUSTAT_EXT_INT		0x01000000
+#define CPUSTAT_RUNNING		0x00800000
+#define CPUSTAT_RETAINED	0x00400000
+#define CPUSTAT_TIMING_SUB	0x00020000
+#define CPUSTAT_SIE_SUB		0x00010000
+#define CPUSTAT_RRF		0x00008000
+#define CPUSTAT_SLSV		0x00004000
+#define CPUSTAT_SLSR		0x00002000
+#define CPUSTAT_ZARCH		0x00000800
+#define CPUSTAT_MCDS		0x00000100
+#define CPUSTAT_SM		0x00000080
+#define CPUSTAT_G		0x00000008
+#define CPUSTAT_J		0x00000002
+#define CPUSTAT_P		0x00000001
+
 struct sie_cb {
 	atomic_t	cpuflags;		/* 0x0000 */
 	u32		prefix;			/* 0x0004 */
