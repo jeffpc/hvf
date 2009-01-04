@@ -39,8 +39,6 @@ static int cmd_store_storage(struct user *u, char *cmd, int len)
 	 */
 	guest_addr &= ~((u64) 3ULL);
 
-	con_printf(u->con, "guest:  addr = %llx\n", guest_addr);
-
 	/* walk the page tables to find the real page frame */
 	ret = virt2phy(&current->guest->as, guest_addr, &host_addr);
 	if (ret) {
@@ -49,17 +47,9 @@ static int cmd_store_storage(struct user *u, char *cmd, int len)
 		return ret;
 	}
 
-	con_printf(u->con, "host:   addr = %llx\n", host_addr);
-
-	/*
-	 * this is a clever trick to have one format string and have it
-	 * print (almost arbitrary amount of data); we give it a length (in
-	 * digits) of the result, and always give it a u64 value
-	 */
-	con_printf(u->con, "R%016llX  will be set to %08lX\n", guest_addr,
-		   (unsigned long) val);
-
 	*((u32*) host_addr) = val;
+
+	con_printf(u->con, "Store complete.\n");
 
 	return 0;
 }

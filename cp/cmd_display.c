@@ -68,8 +68,6 @@ static int cmd_display_storage(struct user *u, char *cmd, int len)
 	if (!dis)
 		guest_addr &= ~((u64) mlen-1);
 
-	con_printf(u->con, "guest:  addr = %llx; len = %d\n", guest_addr, mlen);
-
 	/* walk the page tables to find the real page frame */
 	ret = virt2phy(&current->guest->as, guest_addr, &host_addr);
 	if (ret) {
@@ -77,8 +75,6 @@ static int cmd_display_storage(struct user *u, char *cmd, int len)
 			   "guest configuration\n");
 		return ret;
 	}
-
-	con_printf(u->con, "host:   addr = %llx\n", host_addr);
 
 	if (dis) {
 		char buf[64];
