@@ -3,6 +3,16 @@
 #include <dat.h>
 #include <cp.h>
 
+static void handle_interception()
+{
+	/*
+	 * FIXME: here we decide why we got intercepted, and handle whatever
+	 * we have to handle
+	 */
+
+	atomic_clear_mask(CPUSTAT_STOP_INT, &current->guest->sie_cb.cpuflags);
+}
+
 /*
  * FIXME:
  * - issue any pending interruptions
@@ -51,4 +61,6 @@ void run_guest(struct user *user)
 	: /* clobbered */
 	  "memory"
 	);
+
+	handle_interception();
 }
