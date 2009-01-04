@@ -1,6 +1,7 @@
 static int parse_addrspec(u64 *ret, char *s, int len)
 {
 	u64 tmp;
+	int parsed = 0;
 
 	tmp = 0;
 	while(*s != '\0') {
@@ -13,10 +14,11 @@ static int parse_addrspec(u64 *ret, char *s, int len)
 			return -EINVAL;
 
 		s++;
+		parsed = 1;
 	}
 
 	*ret = tmp;
-	return 0;
+	return (parsed == 1 ? 0 : -EINVAL);
 }
 
 /*
