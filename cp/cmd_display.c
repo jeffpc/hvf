@@ -120,6 +120,21 @@ static int cmd_display_storage(struct user *u, char *cmd, int len)
 	return 0;
 }
 
+static int cmd_display_siecb(struct user *u, char *cmd, int len)
+{
+	u32 *val;
+	int i;
+
+	val = (u32*) &current->guest->sie_cb;
+
+	for(i=0; i<(sizeof(struct sie_cb)/sizeof(u32)); i+=4)
+		con_printf(u->con, "%03lX  %08X %08X %08X %08X\n",
+			   i*sizeof(u32), val[i], val[i+1], val[i+2],
+			   val[i+3]);
+
+	return 0;
+}
+
 static int cmd_display_gpr(struct user *u, char *cmd, int len)
 {
 	con_printf(u->con, "GR  0 = %016llx %016llx\n",
@@ -167,5 +182,6 @@ static struct cpcmd cmd_tbl_display[] = {
 	{"AR", cmd_display_ar, NULL},
 #endif
 	{"PSW", cmd_display_psw, NULL},
+	{"SIECB", cmd_display_siecb, NULL},
 	{NULL, NULL, NULL},
 };
