@@ -31,6 +31,7 @@ static char* type2name(u16 type)
  * We use includes here to avoid namespace polution with all the sub-command
  * handler functions
  */
+#include "cmd_helpers.c"
 #include "cmd_beginstop.c"
 #include "cmd_display.c"
 #include "cmd_query.c"
