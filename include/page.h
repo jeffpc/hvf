@@ -18,7 +18,10 @@
  * This structure describes a page of memory
  */
 struct page {
-	struct list_head buddy;		/* buddy allocator list */
+	union {
+		struct list_head buddy;	/* buddy allocator list */
+		struct list_head guest;	/* guest storage list */
+	};
 };
 
 /*

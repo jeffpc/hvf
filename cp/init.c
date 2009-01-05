@@ -14,10 +14,14 @@ static int __alloc_guest_storage(struct user *user)
 	u64 pages = user->storage_size >> PAGE_SHIFT;
 	struct page *p;
 
+	INIT_LIST_HEAD(&current->guest_pages);
+
 	while (pages) {
 		p = alloc_pages(0, ZONE_NORMAL);
 		if (!p)
 			continue; /* FIXME: sleep? */
+
+		list_add(&p->guest, &current->guest_pages);
 
 		pages--;
 

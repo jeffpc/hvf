@@ -86,6 +86,7 @@ struct task {
 	u64 slice_end_time;		/* end of slice time (ticks) */
 
 	struct guest_state *guest;	/* guest state */
+	struct list_head guest_pages;	/* list of guest pages */
 
 	int state;			/* state */
 };
