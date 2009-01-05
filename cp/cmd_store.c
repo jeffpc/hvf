@@ -38,6 +38,30 @@ static int cmd_store_storage(struct user *u, char *cmd, int len)
 	return 0;
 }
 
+static int cmd_store_gpr(struct user *u, char *cmd, int len)
+{
+	u64 *ptr = (u64*) &current->guest->regs.gpr;
+	u64 val, gpr;
+
+	cmd = __extract_hex(cmd, &gpr);
+	if (IS_ERR(cmd))
+		return PTR_ERR(cmd);
+	if (gpr > 15)
+		return -EINVAL;
+
+	cmd = __consume_ws(cmd);
+
+	cmd = __extract_hex(cmd, &val);
+	if (IS_ERR(cmd))
+		return PTR_ERR(cmd);
+
+	ptr[gpr] = val;
+
+	con_printf(u->con, "Store complete.\n");
+
+	return 0;
+}
+
 static int cmd_store_psw(struct user *u, char *cmd, int len)
 {
 	u32 *ptr = (u32*) &current->guest->sie_cb.gpsw;
@@ -85,8 +109,8 @@ static int cmd_store_psw(struct user *u, char *cmd, int len)
 
 static struct cpcmd cmd_tbl_store[] = {
 	{"STORAGE", cmd_store_storage, NULL},
-#if 0
 	{"GPR", cmd_store_gpr, NULL},
+#if 0
 	{"FPR", cmd_store_fpr, NULL},
 	{"CR", cmd_store_cr, NULL},
 	{"AR", cmd_store_ar, NULL},
