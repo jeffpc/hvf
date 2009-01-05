@@ -1,6 +1,6 @@
 static int cmd_begin(struct user *u, char *cmd, int len)
 {
-	current->guest->state = GUEST_RUNNING;
+	current->guest->state = GUEST_OPERATING;
 	return 0;
 }
 

@@ -2,7 +2,9 @@ static char *__guest_state_to_str(enum guest_cpustate st)
 {
 	switch (st) {
 		case GUEST_STOPPED:	return "STOPPED";
-		case GUEST_RUNNING:	return "RUNNING";
+		case GUEST_OPERATING:	return "RUNNING";
+		case GUEST_LOAD:	return "LOADING";
+		case GUEST_CHECKSTOP:	return "CHECK-STOP";
 	}
 
 	return "???";

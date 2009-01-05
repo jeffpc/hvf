@@ -52,9 +52,14 @@ struct regs {
 	/* FIXME: fpr[16] */
 };
 
+/*
+ * These states mirror those described in chapter 4 of SA22-7832-06
+ */
 enum guest_cpustate {
 	GUEST_STOPPED = 0,
-	GUEST_RUNNING,
+	GUEST_OPERATING,
+	GUEST_LOAD,
+	GUEST_CHECKSTOP,
 };
 
 #include <sie.h>

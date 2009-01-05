@@ -110,7 +110,7 @@ static int cp_init(void *data)
 
 		process_cmd(user);
 
-		if (current->guest->state == GUEST_RUNNING)
+		if (current->guest->state == GUEST_OPERATING)
 			run_guest(user);
 		else
 			schedule();
