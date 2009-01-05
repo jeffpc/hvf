@@ -34,12 +34,14 @@ static char* type2name(u16 type)
 #include "cmd_helpers.c"
 #include "cmd_beginstop.c"
 #include "cmd_display.c"
+#include "cmd_ipl.c"
 #include "cmd_query.c"
 #include "cmd_store.c"
 
 static struct cpcmd commands[] = {
 	{"BEGIN", cmd_begin, NULL},
 	{"DISPLAY", NULL, cmd_tbl_display},
+	{"IPL", cmd_ipl, NULL},
 	{"QUERY", cmd_query, NULL},
 	{"STOP", cmd_stop, NULL},
 	{"STORE", NULL, cmd_tbl_store},
