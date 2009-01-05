@@ -164,6 +164,35 @@ static int cmd_display_gpr(struct user *u, char *cmd, int len)
 	return 0;
 }
 
+static int cmd_display_cr(struct user *u, char *cmd, int len)
+{
+	con_printf(u->con, "CR  0 = %016llx %016llx\n",
+		   current->guest->sie_cb.gcr[0],
+		   current->guest->sie_cb.gcr[1]);
+	con_printf(u->con, "CR  2 = %016llx %016llx\n",
+		   current->guest->sie_cb.gcr[2],
+		   current->guest->sie_cb.gcr[3]);
+	con_printf(u->con, "CR  4 = %016llx %016llx\n",
+		   current->guest->sie_cb.gcr[4],
+		   current->guest->sie_cb.gcr[5]);
+	con_printf(u->con, "CR  6 = %016llx %016llx\n",
+		   current->guest->sie_cb.gcr[6],
+		   current->guest->sie_cb.gcr[7]);
+	con_printf(u->con, "CR  8 = %016llx %016llx\n",
+		   current->guest->sie_cb.gcr[8],
+		   current->guest->sie_cb.gcr[9]);
+	con_printf(u->con, "CR 10 = %016llx %016llx\n",
+		   current->guest->sie_cb.gcr[10],
+		   current->guest->sie_cb.gcr[11]);
+	con_printf(u->con, "CR 12 = %016llx %016llx\n",
+		   current->guest->sie_cb.gcr[12],
+		   current->guest->sie_cb.gcr[13]);
+	con_printf(u->con, "CR 14 = %016llx %016llx\n",
+		   current->guest->sie_cb.gcr[14],
+		   current->guest->sie_cb.gcr[15]);
+	return 0;
+}
+
 static int cmd_display_psw(struct user *u, char *cmd, int len)
 {
 	u32 *ptr = (u32*) &current->guest->sie_cb.gpsw;
@@ -176,9 +205,9 @@ static int cmd_display_psw(struct user *u, char *cmd, int len)
 static struct cpcmd cmd_tbl_display[] = {
 	{"STORAGE", cmd_display_storage, NULL},
 	{"GPR", cmd_display_gpr, NULL},
+	{"CR", cmd_display_cr, NULL},
 #if 0
 	{"FPR", cmd_display_fpr, NULL},
-	{"CR", cmd_display_cr, NULL},
 	{"AR", cmd_display_ar, NULL},
 #endif
 	{"PSW", cmd_display_psw, NULL},

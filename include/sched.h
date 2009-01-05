@@ -48,7 +48,6 @@ struct psw {
 struct regs {
 	struct psw psw;
 	u64 gpr[16];
-	u64 cr[16];
 	u32 ar[16];
 	/* FIXME: fpr[16] */
 };
