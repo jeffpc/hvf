@@ -82,17 +82,17 @@ static int cp_init(void *data)
 
 	__alloc_guest_storage(user);
 
-	current->guest->state = GUEST_STOPPED;
+	memset(&current->guest->sie_cb, 0, sizeof(struct sie_cb));
 	current->guest->sie_cb.gmsor = 0;
 	current->guest->sie_cb.gmslm = user->storage_size;
-	current->guest->sie_cb.gcr[0]  = 0xE0UL;
-	current->guest->sie_cb.gcr[14] = 0xC2000000UL;
 	current->guest->sie_cb.gbea = 1;
 	current->guest->sie_cb.ecb  = 2;
 	current->guest->sie_cb.eca  = 0xC1002001U;
 	/*
 	 * TODO: What about ->scaoh and ->scaol?
 	 */
+
+	guest_power_on_reset(user);
 
 	get_parsed_tod(&dt);
 	con_printf(user->con, "\nLOGON AT %02d:%02d:%02d UTC %04d-%02d-%02d\n",
