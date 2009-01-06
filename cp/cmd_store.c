@@ -43,7 +43,7 @@ static int cmd_store_gpr(struct user *u, char *cmd, int len)
 	u64 *ptr = (u64*) &current->guest->regs.gpr;
 	u64 val, gpr;
 
-	cmd = __extract_hex(cmd, &gpr);
+	cmd = __extract_dec(cmd, &gpr);
 	if (IS_ERR(cmd))
 		return PTR_ERR(cmd);
 	if (gpr > 15)
@@ -67,7 +67,7 @@ static int cmd_store_fpr(struct user *u, char *cmd, int len)
 	u64 *ptr = (u64*) &current->guest->regs.fpr;
 	u64 val, fpr;
 
-	cmd = __extract_hex(cmd, &fpr);
+	cmd = __extract_dec(cmd, &fpr);
 	if (IS_ERR(cmd))
 		return PTR_ERR(cmd);
 	if (fpr > 15)
@@ -108,7 +108,7 @@ static int cmd_store_cr(struct user *u, char *cmd, int len)
 	u64 *ptr = (u64*) &current->guest->sie_cb.gcr;
 	u64 val, cr;
 
-	cmd = __extract_hex(cmd, &cr);
+	cmd = __extract_dec(cmd, &cr);
 	if (IS_ERR(cmd))
 		return PTR_ERR(cmd);
 	if (cr > 15)
@@ -132,7 +132,7 @@ static int cmd_store_ar(struct user *u, char *cmd, int len)
 	u32 *ptr = (u32*) &current->guest->regs.ar;
 	u64 val, ar;
 
-	cmd = __extract_hex(cmd, &ar);
+	cmd = __extract_dec(cmd, &ar);
 	if (IS_ERR(cmd))
 		return PTR_ERR(cmd);
 	if (ar > 15)
