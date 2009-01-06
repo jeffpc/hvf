@@ -126,6 +126,10 @@ static void __perform_cpu_reset(int flags)
 	}
 
 	if (flags & RESET_STORAGE) {
+		struct page *p;
+
+		list_for_each_entry(p, &current->guest_pages, guest)
+			memset(page_to_addr(p), 0, PAGE_SIZE);
 	}
 
 	if (flags & RESET_NONVOL_STORAGE) {
