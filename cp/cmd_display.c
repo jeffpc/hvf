@@ -164,6 +164,41 @@ static int cmd_display_gpr(struct user *u, char *cmd, int len)
 	return 0;
 }
 
+static int cmd_display_fpcr(struct user *u, char *cmd, int len)
+{
+	con_printf(u->con, "FPCR  = %08x\n", current->guest->regs.fpcr);
+	return 0;
+}
+
+static int cmd_display_fpr(struct user *u, char *cmd, int len)
+{
+	con_printf(u->con, "FR  0 = %016llx %016llx\n",
+		   current->guest->regs.fpr[0],
+		   current->guest->regs.fpr[1]);
+	con_printf(u->con, "FR  2 = %016llx %016llx\n",
+		   current->guest->regs.fpr[2],
+		   current->guest->regs.fpr[3]);
+	con_printf(u->con, "FR  4 = %016llx %016llx\n",
+		   current->guest->regs.fpr[4],
+		   current->guest->regs.fpr[5]);
+	con_printf(u->con, "FR  6 = %016llx %016llx\n",
+		   current->guest->regs.fpr[6],
+		   current->guest->regs.fpr[7]);
+	con_printf(u->con, "FR  8 = %016llx %016llx\n",
+		   current->guest->regs.fpr[8],
+		   current->guest->regs.fpr[9]);
+	con_printf(u->con, "FR 10 = %016llx %016llx\n",
+		   current->guest->regs.fpr[10],
+		   current->guest->regs.fpr[11]);
+	con_printf(u->con, "FR 12 = %016llx %016llx\n",
+		   current->guest->regs.fpr[12],
+		   current->guest->regs.fpr[13]);
+	con_printf(u->con, "FR 14 = %016llx %016llx\n",
+		   current->guest->regs.fpr[14],
+		   current->guest->regs.fpr[15]);
+	return 0;
+}
+
 static int cmd_display_cr(struct user *u, char *cmd, int len)
 {
 	con_printf(u->con, "CR  0 = %016llx %016llx\n",
@@ -234,9 +269,8 @@ static int cmd_display_psw(struct user *u, char *cmd, int len)
 static struct cpcmd cmd_tbl_display[] = {
 	{"STORAGE", cmd_display_storage, NULL},
 	{"GPR", cmd_display_gpr, NULL},
-#if 0
+	{"FPCR", cmd_display_fpcr, NULL},
 	{"FPR", cmd_display_fpr, NULL},
-#endif
 	{"CR", cmd_display_cr, NULL},
 	{"AR", cmd_display_ar, NULL},
 	{"PSW", cmd_display_psw, NULL},
