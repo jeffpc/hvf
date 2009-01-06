@@ -108,9 +108,8 @@ static void __perform_cpu_reset(int flags)
 		/* FIXME: initialize to 0x1 */
 	}
 
-	if (flags & RESET_FPCR) {
-		/* FIXME */
-	}
+	if (flags & RESET_FPCR)
+		current->guest->regs.fpcr = 0;
 
 	if (flags & RESET_AR)
 		memset(current->guest->regs.ar, 0, 16*sizeof(u32));
@@ -118,9 +117,8 @@ static void __perform_cpu_reset(int flags)
 	if (flags & RESET_GPR)
 		memset(current->guest->regs.gpr, 0, 16*sizeof(u64));
 
-	if (flags & RESET_FPR) {
-		/* FIXME */
-	}
+	if (flags & RESET_FPR)
+		memset(current->guest->regs.fpr, 0, 16*sizeof(u64));
 
 	if (flags & RESET_STORAGE_KEYS) {
 	}

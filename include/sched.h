@@ -53,7 +53,8 @@ struct psw {
 struct guest_regs {
 	u64 gpr[16];
 	u32 ar[16];
-	/* FIXME: fpr[16] & fpcr */
+	u64 fpr[64];
+	u32 fpcr;
 };
 
 /* saved registers for CP tasks */

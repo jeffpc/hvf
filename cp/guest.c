@@ -32,6 +32,10 @@ void run_guest(struct user *user)
 	load_as(&current->guest->as);
 
 	/*
+	 * FIXME: load FPRs & FPCR
+	 */
+
+	/*
 	 * IMPORTANT: We MUST keep a valid stack address in R15. This way,
 	 * if SIE gets interrupted via an interrupt in the host, the
 	 * scheduler can still get to the struct task pointer on the stack
@@ -61,6 +65,10 @@ void run_guest(struct user *user)
 	: /* clobbered */
 	  "memory"
 	);
+
+	/*
+	 * FIXME: store FPRs & FPCR
+	 */
 
 	handle_interception();
 }
