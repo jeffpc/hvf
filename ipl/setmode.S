@@ -36,12 +36,17 @@
 	# the last 8 bytes of the page as a pointer to current, we have to
 	# subtract 168 here
 	#
+	# NOTE: Once this thread of execution turns into the idle thread,
+	# the stack can be reused for something else. Since it's allocated
+	# in the 128th processor's PSA, we have to make sure that it won't
+	# get initialized until after the idle thread kicks in.
+	#
 
-	# r15 = 0x800000
-	#     = (8 << 20)
+	# r15 = 0x100000
+	#     = (1 << 20)
 	#
 	SR	%r15, %r15
-	LHI	%r15, 0x8
+	LHI	%r15, 0x1
 	SLL	%r15, 20
 	AHI	%r15, -168
 
