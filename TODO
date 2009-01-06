@@ -1,14 +1,13 @@
 pre v0.15:
-  - cp
-    - few trivial commands
   - SIE
-    - virtualize CPU, registers, and storage
+    - virtualize devices (VDEV_DED)
 
 pre v0.16:
-  - cp
-    - STORE command
   - SIE
-    - virtualize devices (dedicated)
+    - virtualize console (VDEV_CONS)
+    - virtualize spool (VDEV_SPOOL)
+    - virtualize minidisks (VDEV_MDISK)
+    - virtualize linked devices (VDEV_LINK)
   - directory
     - multiple users
     - password
