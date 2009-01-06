@@ -45,11 +45,21 @@ struct psw {
 	u64 ptr;
 };
 
+/*
+ * saved registers for guests
+ *
+ * NOTE: some registers are saved in the SIE control block!
+ */
+struct guest_regs {
+	u64 gpr[16];
+	u32 ar[16];
+	/* FIXME: fpr[16] & fpcr */
+};
+
+/* saved registers for CP tasks */
 struct regs {
 	struct psw psw;
 	u64 gpr[16];
-	u32 ar[16];
-	/* FIXME: fpr[16] */
 };
 
 /*
@@ -68,7 +78,7 @@ struct guest_state {
 	/* the SIE control block is picky about alignment */
 	struct sie_cb sie_cb;
 
-	struct regs regs;
+	struct guest_regs regs;
 
 	struct address_space as;
 	enum guest_cpustate state;
