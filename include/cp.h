@@ -19,5 +19,6 @@ extern void guest_load_normal(struct user *user);
 extern void guest_load_clear(struct user *user);
 
 extern void run_guest(struct user *user);
+extern void handle_interception(struct user *user);
 
 #endif

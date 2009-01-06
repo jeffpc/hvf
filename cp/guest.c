@@ -3,20 +3,9 @@
 #include <dat.h>
 #include <cp.h>
 
-static void handle_interception()
-{
-	/*
-	 * FIXME: here we decide why we got intercepted, and handle whatever
-	 * we have to handle
-	 */
-
-	atomic_clear_mask(CPUSTAT_STOP_INT, &current->guest->sie_cb.cpuflags);
-}
-
 /*
  * FIXME:
  * - issue any pending interruptions
- * - process SIE intercepts
  */
 void run_guest(struct user *user)
 {
@@ -70,5 +59,5 @@ void run_guest(struct user *user)
 	 * FIXME: store FPRs & FPCR
 	 */
 
-	handle_interception();
+	handle_interception(user);
 }
