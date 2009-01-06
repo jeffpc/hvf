@@ -2,7 +2,7 @@
 # HVF: Hobbyist Virtualization Facility
 #
 
-VERSION=0.15-rc2
+VERSION=0.15-rc3
 
 AS=$(CROSS_COMPILE)as
 CC=$(CROSS_COMPILE)gcc
