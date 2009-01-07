@@ -29,7 +29,10 @@
 	# new IO interruption PSW address
 .equ	PSANEWIO,120
 
-	# the code itself
+###############################################################################
+# Code begins here                                                            #
+###############################################################################
+
 .globl GUEST_IPL_CODE
 	.type	GUEST_IPL_CODE, @function
 GUEST_IPL_CODE:
@@ -68,15 +71,18 @@ GUEST_IPL_CODE:
 	# an error occured, return an error
 
 	LM	r0,r15,REGSAVE(r12)
-	.byte	0x00,0x01			# return to hypervisor
+	DIAG	r0,r0,1				# return to hypervisor
 
 .equ	DONE,(.-GUEST_IPL_CODE)
 	# we were successful!
 
 	LM	r0,r15,REGSAVE(r12)
-	.byte	0x00,0x00			# return to hypervisor
+	DIAG	r0,r0,0				# return to hypervisor
 
-DATA:
+###############################################################################
+# Data begins here                                                            #
+###############################################################################
+
 .equ	SCHID,(.-GUEST_IPL_CODE)
 	.long	0
 
@@ -105,7 +111,7 @@ DATA:
 
 	.align 4
 .equ	SCHIB,(.-GUEST_IPL_CODE)
-	.skip	(12*4),0			# the SCHIB is BIG
+	.skip	(13*4),0			# the SCHIB is BIG
 
 	.align 4
 .globl GUEST_IPL_REGSAVE
