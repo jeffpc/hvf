@@ -12,7 +12,7 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 	/* consume any extra whitespace */
 	cmd = __consume_ws(cmd);
 
-	ret = parse_addrspec(&guest_addr, cmd, len);
+	ret = parse_addrspec(&guest_addr, NULL, cmd);
 	if (ret) {
 		con_printf(sys->con, "DISPLAY: Invalid addr-spec '%s'\n", cmd);
 		return ret;

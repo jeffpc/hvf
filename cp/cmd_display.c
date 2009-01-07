@@ -1,4 +1,4 @@
-static int parse_addrspec(u64 *ret, char *s, int len)
+static int parse_addrspec(u64 *val, u64 *len, char *s)
 {
 	u64 tmp;
 	int parsed = 0;
@@ -10,6 +10,8 @@ static int parse_addrspec(u64 *ret, char *s, int len)
 		else if ((*s >= 'A' && *s <= 'F') ||
 			 (*s >= 'a' && *s <= 'f'))
 			tmp = 16*tmp + 10 + ((*s & ~0x20) - 'A');
+		else if (*s == '.' && parsed)
+			break;
 		else
 			return -EINVAL;
 
@@ -17,8 +19,115 @@ static int parse_addrspec(u64 *ret, char *s, int len)
 		parsed = 1;
 	}
 
-	*ret = tmp;
+	if (len) {
+		*len = 0;
+		if (*s == '.') {
+			s = __extract_hex(s+1, len);
+			if (IS_ERR(s))
+				parsed = 0;
+		}
+	}
+
+	*val = tmp;
+
 	return (parsed == 1 ? 0 : -EINVAL);
+}
+
+enum display_fmt {
+	FMT_NUMERIC = 0,
+	FMT_INSTRUCT,
+};
+
+static void __display_storage_instruct(struct virt_sys *sys, u64 guest_addr,
+				       u64 host_addr, u64 mlen)
+{
+	char buf[64];
+	int ilen;
+	u64 val;
+
+	u64 end_addr;
+
+	if (!mlen)
+		mlen = 1;
+
+	end_addr = guest_addr + mlen;
+
+	while(guest_addr < end_addr) {
+		/*
+		 * FIXME: make sure crossing page-boundary doesn't break
+		 * give us garbage
+		 */
+		ilen = disassm((unsigned char*) host_addr, buf, 64);
+
+		if ((host_addr & PAGE_MASK) >= (PAGE_SIZE-ilen)) {
+			con_printf(sys->con, "DISPLAY: Instruction spans page "
+				   "boundary - not supported\n");
+			break;
+		}
+
+		/* load the dword at the address, and shift it to the LSB part */
+		val = *((u64*)host_addr) >> 8*(sizeof(u64) - ilen);
+
+		con_printf(sys->con, "R%016llX  %0*llX%*s  %s\n", guest_addr,
+			   2*ilen, val,			/* inst hex dump */
+			   12-2*ilen, "",		/* spacer */
+			   buf);
+
+		host_addr += ilen;
+		guest_addr += ilen;
+	}
+}
+
+static void __display_storage_numeric(struct virt_sys *sys, u64 guest_addr,
+				      u64 host_addr, u64 mlen)
+{
+	u32 *ptr;
+
+	if (mlen > 4)
+		mlen = (mlen >> 2) + !!(mlen & 0x3);
+	else
+		mlen = 1;
+
+	/* round down */
+	guest_addr &= ~((u64) 0x3);
+	ptr = (u32*)(host_addr & ~((u64) 0x3));
+
+	while(mlen) {
+		/* load the dword at the address, and shift it to the LSB part */
+
+		switch (mlen) {
+			case 1:
+				con_printf(sys->con, "R%016llX  %08X\n",
+					   guest_addr, ptr[0]);
+				mlen -= 1;
+				break;
+			case 2:
+				con_printf(sys->con, "R%016llX  %08X %08X\n",
+					   guest_addr, ptr[0], ptr[1]);
+				mlen -= 2;
+				break;
+			case 3:
+				con_printf(sys->con, "R%016llX  %08X %08X "
+					   "%08X\n", guest_addr, ptr[0],
+					   ptr[1], ptr[2]);
+				mlen -= 3;
+				break;
+			default:
+				con_printf(sys->con, "R%016llX  %08X %08X "
+					   "%08X %08X\n", guest_addr,
+					   ptr[0], ptr[1], ptr[2], ptr[3]);
+				mlen -= 4;
+				break;
+		}
+
+		guest_addr += 16;
+		ptr += 4;
+
+		if (guest_addr & PAGE_MASK) {
+			con_printf(sys->con, "FIXME: would cross page boundary. halting output\n");
+			break;
+		}
+	}
 }
 
 /*
@@ -27,46 +136,32 @@ static int parse_addrspec(u64 *ret, char *s, int len)
 static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 {
 	int ret;
-	u64 guest_addr, host_addr, val;
-	int mlen = 0;
-	int dis = 0;
+	u64 guest_addr, host_addr;
+	u64 mlen = 0;
+	enum display_fmt fmt;
 
 	switch (cmd[0]) {
-		case 'C': case 'c':
-			/* char */
-			mlen = 1; cmd++; len--; break;
-		case 'H': case 'h':
-			/* half-word */
-			mlen = 2; cmd++; len--; break;
-		case 'W': case 'w':
-			/* word */
-			mlen = 4; cmd++; len--; break;
-		case 'D': case 'd':
-			/* double-word */
-			mlen = 8; cmd++; len--; break;
+		case 'N': case 'n':
+			/* numeric */
+			cmd++;
+			fmt = FMT_NUMERIC;
+			break;
 		case 'I': case 'i':
 			/* instruction */
-			dis = 1;
-			cmd++; len--;
+			cmd++;
+			fmt = FMT_INSTRUCT;
 			break;
 		default:
-			con_printf(sys->con, "DISPLAY: Invalid length/type '%s'\n",
-				   cmd);
-			return -EINVAL;
+			/* numeric */
+			fmt = FMT_NUMERIC;
+			break;
 	}
 
-	ret = parse_addrspec(&guest_addr, cmd, len);
+	ret = parse_addrspec(&guest_addr, &mlen, cmd);
 	if (ret) {
 		con_printf(sys->con, "DISPLAY: Invalid addr-spec '%s'\n", cmd);
 		return ret;
 	}
-
-	/*
-	 * round down to the nearest word/dword/etc - only if not
-	 * disassembling
-	 */
-	if (!dis)
-		guest_addr &= ~((u64) mlen-1);
 
 	/* walk the page tables to find the real page frame */
 	ret = virt2phy(&sys->as, guest_addr, &host_addr);
@@ -76,46 +171,10 @@ static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 		return ret;
 	}
 
-	if (dis) {
-		char buf[64];
-
-		/*
-		 * FIXME: make sure crossing page-boundary doesn't break
-		 * give us garbage
-		 */
-		mlen = disassm((unsigned char*) host_addr, buf, 64);
-
-		if ((mlen > 2) && ((host_addr & (PAGE_SIZE-1)) >= (PAGE_SIZE-2))) {
-			con_printf(sys->con, "DISPLAY: Instruction spans page "
-				   "boundary - not supported\n");
-			return 0;
-		}
-
-		/* load the dword at the address, and shift it to the LSB part */
-		val = *((u64*)host_addr) >> 8*(sizeof(u64) - mlen);
-
-		con_printf(sys->con, "R%016llX  %0*llX%*s  %s\n", guest_addr,
-			   2*mlen, val,			/* inst hex dump */
-			   12-2*mlen, "",		/* spacer */
-			   buf);
-	} else {
-		/* load the dword at the address, and shift it to the LSB part */
-		val = *((u64*)host_addr) >> 8*(sizeof(u64) - mlen);
-
-		/*
-		 * this is a clever trick to have one format string and have it
-		 * print (almost arbitrary amount of data); we give it a length (in
-		 * digits) of the result, and always give it a u64 value
-		 */
-		if (mlen < 8)
-			con_printf(sys->con, "R%016llX  %0*llX\n", guest_addr,
-				   mlen << 1, val);
-		else if (mlen == 8)
-			con_printf(sys->con, "R%016llX  %08llX %08llX\n", guest_addr,
-				   val >> 32, val & 0xffffffffULL);
-		else
-			con_printf(sys->con, "DISPLAY: unhandled display length\n");
-	}
+	if (fmt == FMT_INSTRUCT)
+		__display_storage_instruct(sys, guest_addr, host_addr, mlen);
+	else
+		__display_storage_numeric(sys, guest_addr, host_addr, mlen);
 
 	return 0;
 }
