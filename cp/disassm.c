@@ -890,8 +890,8 @@ static struct disassm_instruction l1[256] = {		/* xx */
 	DA_INST		(0xFD, SS2, DP),
 };
 
-static int da_snprintf(unsigned char *bytes, char *buf, int buflen,
-		       unsigned char opcode, struct disassm_instruction *table)
+static int da_snprintf(u8 *bytes, char *buf, int buflen, u8 opcode, struct
+		       disassm_instruction *table)
 {
 #define IPFX "%-6s "
 
@@ -922,6 +922,11 @@ static int da_snprintf(unsigned char *bytes, char *buf, int buflen,
 					da_snprintf(bytes, buf, buflen, subop, inst->u.ptr);
 				break;
 			}
+		case IF_DIAG:
+			snprintf(buf, buflen, IPFX "X'%06X'",
+				 inst->u.name,
+				 *((u32*)(bytes)) & 0xffffff);		/* I  */
+			break;
 		case IF_E:
 			snprintf(buf, buflen, IPFX,
 				 inst->u.name);
@@ -936,141 +941,139 @@ static int da_snprintf(unsigned char *bytes, char *buf, int buflen,
 			snprintf(buf, buflen, IPFX "%s%d,%d",
 				 inst->u.name,
 				 (inst->fmt == IF_RI1 ? "R" : ""),	/* reg/mask */
-				 *(bytes+1) >> 4,			/* R1/M1 */
-				 *((unsigned short*)(bytes+2)));	/* I2 */
+				 bytes[1] >> 4,				/* R1/M1 */
+				 *((u16*)(bytes+2)));			/* I2 */
 			break;
 		case IF_RIL1:
 		case IF_RIL2:
 			snprintf(buf, buflen, IPFX "%s%d,%d",
 				 inst->u.name,
 				 (inst->fmt == IF_RIL1 ? "R" : ""),	/* reg/mask */
-				 *(bytes+1) >> 4,			/* R1/M1 */
-				 *((int*)(bytes+2)));			/* I2 */
+				 bytes[1] >> 4,				/* R1/M1 */
+				 *((u32*)(bytes+2)));			/* I2 */
 			break;
 		case IF_RR:
 		case IF_RR_MASK:
 			snprintf(buf, buflen, IPFX "%s%d,R%d",
 				 inst->u.name,
 				 inst->fmt == IF_RR_MASK ? "" : "R",
-				 *(bytes+1) >> 4,			/* R1 */
-				 *(bytes+1) & 0xf);			/* R2 */
+				 bytes[1] >> 4,				/* R1 */
+				 bytes[1] & 0xf);			/* R2 */
 			break;
 		case IF_RRE:
 			snprintf(buf, buflen, IPFX "R%d,R%d",
 				 inst->u.name,
-				 *(bytes+3) >> 4,			/* R1 */
-				 *(bytes+3) & 0xf);			/* R2 */
+				 bytes[3] >> 4,				/* R1 */
+				 bytes[3] & 0xf);			/* R2 */
 			break;
 		case IF_RS1:
 		case IF_RS2:
 			snprintf(buf, buflen, IPFX "R%d,%s%d,%d(R%d)",
 				 inst->u.name,
-				 *(bytes+1) >> 4,			/* R1 */
+				 bytes[1] >> 4,				/* R1 */
 				 (inst->fmt == IF_RS1 ? "R" : ""),	/* reg/mask */
-				 *(bytes+1) & 0xf,			/* R3/M3 */
-				 *((unsigned short*)(bytes+2)) & 0x0fff,/* D2 */
-				 *(bytes+2) >> 4);			/* B2 */
+				 bytes[1] & 0xf,			/* R3/M3 */
+				 *((u16*)(bytes+2)) & 0x0fff,		/* D2 */
+				 bytes[2] >> 4);			/* B2 */
 			break;
 		case IF_RSI:
 			snprintf(buf, buflen, IPFX "R%d,R%d,%d",
 				 inst->u.name,
-				 *(bytes+1) >> 4,			/* R1 */
-				 *(bytes+1) & 0xf,			/* R3 */
-				 *((unsigned short*)(bytes+2)));	/* I2 */
+				 bytes[1] >> 4,				/* R1 */
+				 bytes[1] & 0xf,			/* R3 */
+				 *((u16*)(bytes+2)));			/* I2 */
 			break;
 		case IF_RSY1:
 		case IF_RSY2:
 			snprintf(buf, buflen, IPFX "R%d,%s%d,%d(R%d)",
 				 inst->u.name,
-				 *(bytes+1) >> 4,			/* R1 */
+				 bytes[1] >> 4,				/* R1 */
 				 (inst->fmt == IF_RSY1 ? "R" : ""),	/* reg/mask */
-				 *(bytes+1) & 0xf,			/* R3/M3 */
-				 ((unsigned int)*((unsigned short*)(bytes+2)) & 0x0fff) +
-				 (((unsigned int)*((unsigned char*)(bytes+4))) << 12),
-									/* D2 */
-				 *(bytes+2) >> 4);			/* B2 */
+				 bytes[1] & 0xf,			/* R3/M3 */
+				 ((u32)*((u16*)(bytes+2)) & 0x0fff) +
+				 (((u32)*(bytes+4)) << 12),		/* D2 */
+				 bytes[2] >> 4);			/* B2 */
 			break;
 		case IF_RX:
 		case IF_RX_MASK:
 			snprintf(buf, buflen, IPFX "%s%d,%d(R%d,R%d)",
 				 inst->u.name,
 				 inst->fmt == IF_RX_MASK ? "" : "R",
-				 *(bytes+1) >> 4,			/* R1 */
-				 *((unsigned short*)(bytes+2)) & 0x0fff,/* D2 */
-				 *(bytes+1) & 0xf,			/* X2 */
-				 *(bytes+2) >> 4);			/* B2 */
+				 bytes[1] >> 4,				/* R1 */
+				 *((u16*)(bytes+2)) & 0x0fff,		/* D2 */
+				 bytes[1] & 0xf,			/* X2 */
+				 bytes[2] >> 4);			/* B2 */
 			break;
 		case IF_RXY:
 			snprintf(buf, buflen, IPFX "R%d,%d(R%d,R%d)",
 				 inst->u.name,
-				 *(bytes+1) >> 4,			/* R1 */
-				 ((unsigned int)*((unsigned short*)(bytes+2)) & 0x0fff) +
-				 (((unsigned int)*((unsigned char*)(bytes+4))) << 12),
-									/* D2 */
-				 *(bytes+1) & 0xf,			/* X2 */
-				 *(bytes+2) >> 4);			/* B2 */
+				 bytes[1] >> 4,				/* R1 */
+				 ((u32)*((u16*)(bytes+2)) & 0x0fff) +
+				 (((u32)*(bytes+4)) << 12),		/* D2 */
+				 bytes[1] & 0xf,			/* X2 */
+				 bytes[2] >> 4);			/* B2 */
 			break;
 		case IF_S:
 			snprintf(buf, buflen, IPFX "%d(R%d)",
 				 inst->u.name,
-				 *((unsigned short*)(bytes+2)) & 0x0fff,/* D2 */
-				 *(bytes+2) >> 4);			/* B2 */
+				 *((u16*)(bytes+2)) & 0x0fff,		/* D2 */
+				 bytes[2] >> 4);			/* B2 */
 			break;
 		case IF_SI:
 			snprintf(buf, buflen, IPFX "%d(R%d),%d",
 				 inst->u.name,
-				 *(bytes+2) >> 4,			/* B1 */
-				 *((unsigned short*)(bytes+2)) & 0x0fff,/* D1 */
-				 *(bytes+1));				/* I2 */
+				 bytes[2] >> 4,				/* B1 */
+				 *((u16*)(bytes+2)) & 0x0fff,		/* D1 */
+				 bytes[1]);				/* I2 */
 			break;
 		case IF_SS1:
 			snprintf(buf, buflen, IPFX "%d(%d,R%d),%d(R%d)",
 				 inst->u.name,
-				 *((unsigned short*)(bytes+2)) & 0x0fff,/* D1 */
-				 *(bytes+1)+1,				/* L  */
-				 *(bytes+2) >> 4,			/* B1 */
-				 *((unsigned short*)(bytes+4)) & 0x0fff,/* D2 */
-				 *(bytes+4) >> 4);			/* B2 */
+				 *((u16*)(bytes+2)) & 0x0fff,		/* D1 */
+				 bytes[1]+1,				/* L  */
+				 bytes[2] >> 4,				/* B1 */
+				 *((u16*)(bytes+4)) & 0x0fff,		/* D2 */
+				 bytes[4] >> 4);			/* B2 */
 			break;
 		case IF_SS2:
 			snprintf(buf, buflen, IPFX "%d(%d,R%d),%d(%d,R%d)",
 				 inst->u.name,
-				 *((unsigned short*)(bytes+2)) & 0x0fff,/* D1 */
-				 (*(bytes+1) >> 4) + 1,			/* L1 */
-				 *(bytes+2) >> 4,			/* B1 */
-				 *((unsigned short*)(bytes+4)) & 0x0fff,/* D2 */
-				 (*(bytes+1) & 0xf) + 1,		/* L2 */
-				 *(bytes+4) >> 4);			/* B2 */
+				 *((u16*)(bytes+2)) & 0x0fff,		/* D1 */
+				 (bytes[1] >> 4) + 1,			/* L1 */
+				 bytes[2] >> 4,				/* B1 */
+				 *((u16*)(bytes+4)) & 0x0fff,		/* D2 */
+				 (bytes[1] & 0xf) + 1,			/* L2 */
+				 bytes[4] >> 4);			/* B2 */
 			break;
 		case IF_SS3:
 			snprintf(buf, buflen, IPFX "%d(%d,R%d),%d(R%d),%d",
 				 inst->u.name,
-				 *((unsigned short*)(bytes+2)) & 0x0fff,/* D1 */
-				 (*(bytes+1) >> 4) + 1,			/* L1 */
-				 *(bytes+2) >> 4,			/* B1 */
-				 *((unsigned short*)(bytes+4)) & 0x0fff,/* D2 */
-				 *(bytes+4) >> 4,			/* B2 */
-				 *(bytes+1) & 0xf);			/* I3 */
+				 *((u16*)(bytes+2)) & 0x0fff,		/* D1 */
+				 (bytes[1] >> 4) + 1,			/* L1 */
+				 bytes[2] >> 4,				/* B1 */
+				 *((u16*)(bytes+4)) & 0x0fff,		/* D2 */
+				 bytes[4] >> 4,				/* B2 */
+				 bytes[1] & 0xf);			/* I3 */
 			break;
 		case IF_SS4:
 			snprintf(buf, buflen, IPFX "%d(%d,R%d),%d(R%d),R%d",
 				 inst->u.name,
-				 *((unsigned short*)(bytes+2)) & 0x0fff,/* D1 */
-				 (*(bytes+1) >> 4) + 1,			/* L1 */
-				 *(bytes+2) >> 4,			/* B1 */
-				 *((unsigned short*)(bytes+4)) & 0x0fff,/* D2 */
-				 *(bytes+4) >> 4,			/* B2 */
-				 *(bytes+1) & 0xf);			/* R3 */
+				 *((u16*)(bytes+2)) & 0x0fff,		/* D1 */
+				 (bytes[1] >> 4) + 1,			/* L1 */
+				 bytes[2] >> 4,				/* B1 */
+				 *((u16*)(bytes+4)) & 0x0fff,		/* D2 */
+				 bytes[4] >> 4,				/* B2 */
+				 bytes[1] & 0xf);			/* R3 */
 			break;
 		case IF_SS5:
 			snprintf(buf, buflen, IPFX "R%d,R%d,%d(R%d),%d(R%d)",
 				 inst->u.name,
-				 (*(bytes+1) >> 4) + 1,			/* R1 */
-				 *(bytes+1) & 0xf,			/* R3 */
-				 *((unsigned short*)(bytes+2)) & 0x0fff,/* D2 */
-				 *(bytes+2) >> 4,			/* B2 */
-				 *((unsigned short*)(bytes+4)) & 0x0fff,/* D4 */
-				 *(bytes+4) >> 4);			/* B4 */
+				 bytes[1] >> 4,				/* R1 */
+				 bytes[1] & 0xf,			/* R3 */
+				 *((u16*)(bytes+2)) & 0x0fff,		/* D2 */
+				 bytes[2] >> 4,				/* B2 */
+				 *((u16*)(bytes+4)) & 0x0fff,		/* D4 */
+				 bytes[4] >> 4);			/* B4 */
 			break;
 		default:
 			snprintf(buf, buflen, "%s ???", inst->u.name);
@@ -1081,7 +1084,7 @@ static int da_snprintf(unsigned char *bytes, char *buf, int buflen,
 	return 2 * (ilc >= 2 ? ilc : ilc + 1);
 }
 
-int disassm(unsigned char *bytes, char *buf, int buflen)
+int disassm(u8 *bytes, char *buf, int buflen)
 {
 	return da_snprintf(bytes, buf, buflen, *bytes, l1);
 }

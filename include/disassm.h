@@ -64,6 +64,6 @@ struct disassm_instruction {
 #define DA_INST_TBL(idx,itbl,ilen,iloc)	[idx] = { .fmt = IF_VAR,	.u.ptr = (itbl), \
 						  .len = (ilen),	.loc = (iloc), }
 
-extern int disassm(unsigned char *bytes, char *buf, int buflen);
+extern int disassm(u8 *bytes, char *buf, int buflen);
 
 #endif
