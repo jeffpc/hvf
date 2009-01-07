@@ -83,6 +83,7 @@ void start(u64 __memsize)
 	u64 first_free_page;
 	u64 struct_page_bytes;
 	struct psw psw;
+	struct console *opcon; /* operator's console */
 
 	/*
 	 * ticks starts at 0
@@ -182,29 +183,29 @@ void start(u64 __memsize)
 	/*
 	 * Register the console async task
 	 */
-	start_consoles();
+	opcon = start_consoles();
 
-	printf("HVF version " VERSION "\n");
-	printf(" Memory:\n");
-	printf("    %d kB/page\n", PAGE_SIZE);
-	printf("    %llu kB\n", (unsigned long long) memsize >> 10);
-	printf("    %llu pages\n", (unsigned long long) memsize >> PAGE_SHIFT);
-	printf("    PSA for each CPU     0..1024 kB\n");
-	printf("    nucleus              1024..%llu kB\n",
+	con_printf(opcon, "HVF version " VERSION "\n");
+	con_printf(opcon, " Memory:\n");
+	con_printf(opcon, "    %d kB/page\n", PAGE_SIZE);
+	con_printf(opcon, "    %llu kB\n", (unsigned long long) memsize >> 10);
+	con_printf(opcon, "    %llu pages\n", (unsigned long long) memsize >> PAGE_SHIFT);
+	con_printf(opcon, "    PSA for each CPU     0..1024 kB\n");
+	con_printf(opcon, "    nucleus              1024..%llu kB\n",
 			(unsigned long long) ((u64)PAGE_INFO_BASE) >> 10);
-	printf("    struct page array    %llu..%llu kB\n",
+	con_printf(opcon, "    struct page array    %llu..%llu kB\n",
 			(unsigned long long) ((u64)PAGE_INFO_BASE) >> 10,
 			(unsigned long long) first_free_page >> 10);
-	printf("    generic pages        %llu..%llu kB\n",
+	con_printf(opcon, "    generic pages        %llu..%llu kB\n",
 			(unsigned long long) first_free_page >> 10,
 			(unsigned long long) memsize >> 10);
-	printf(" Devices:\n");
-	list_devices();
-	printf(" Scheduler:\n");
-	printf("    no task max\n");
+	con_printf(opcon, " Devices:\n");
+	list_devices(opcon);
+	con_printf(opcon, " Scheduler:\n");
+	con_printf(opcon, "    no task max\n");
 
 	get_parsed_tod(&ipltime);
-	spawn_oper_cp();
+	spawn_oper_cp(opcon);
 
 	/*
 	 * THIS IS WHERE THE IDLE TASK BEGINS

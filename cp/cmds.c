@@ -8,7 +8,7 @@ struct cpcmd {
 	const char *name;
 
 	/* handle function pointer */
-	int (*fnx)(struct user *u, char *cmd, int len);
+	int (*fnx)(struct virt_sys *sys, char *cmd, int len);
 
 	/* sub-command handler table */
 	struct cpcmd *sub;
@@ -50,7 +50,7 @@ static struct cpcmd commands[] = {
 	{NULL, NULL, NULL},
 };
 
-static int __invoke_cp_cmd(struct cpcmd *t, struct user *u, char *cmd, int len)
+static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int len)
 {
 	int i, ret;
 
@@ -84,17 +84,17 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct user *u, char *cmd, int len)
 			continue;
 
 		if (t[i].sub) {
-			ret = __invoke_cp_cmd(t[i].sub, u, cmd + match_len, len - match_len);
+			ret = __invoke_cp_cmd(t[i].sub, sys, cmd + match_len, len - match_len);
 			return (ret == -ENOENT) ? -ESUBENOENT : ret;
 		}
 
-		return t[i].fnx(u, cmd + match_len, len - match_len);
+		return t[i].fnx(sys, cmd + match_len, len - match_len);
 	}
 
 	return -ENOENT;
 }
 
-int invoke_cp_cmd(struct user *u, char *cmd, int len)
+int invoke_cp_cmd(struct virt_sys *sys, char *cmd, int len)
 {
-	return __invoke_cp_cmd(commands, u, cmd, len);
+	return __invoke_cp_cmd(commands, sys, cmd, len);
 }

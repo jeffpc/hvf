@@ -1,4 +1,4 @@
-static int cmd_store_storage(struct user *u, char *cmd, int len)
+static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 {
 	int ret;
 	u64 guest_addr, host_addr;
@@ -14,7 +14,7 @@ static int cmd_store_storage(struct user *u, char *cmd, int len)
 
 	ret = parse_addrspec(&guest_addr, cmd, len);
 	if (ret) {
-		con_printf(u->con, "DISPLAY: Invalid addr-spec '%s'\n", cmd);
+		con_printf(sys->con, "DISPLAY: Invalid addr-spec '%s'\n", cmd);
 		return ret;
 	}
 
@@ -24,23 +24,23 @@ static int cmd_store_storage(struct user *u, char *cmd, int len)
 	guest_addr &= ~((u64) 3ULL);
 
 	/* walk the page tables to find the real page frame */
-	ret = virt2phy(&current->guest->as, guest_addr, &host_addr);
+	ret = virt2phy(&sys->as, guest_addr, &host_addr);
 	if (ret) {
-		con_printf(u->con, "DISPLAY: Specified address is not part of "
+		con_printf(sys->con, "DISPLAY: Specified address is not part of "
 			   "guest configuration\n");
 		return ret;
 	}
 
 	*((u32*) host_addr) = (u32) val;
 
-	con_printf(u->con, "Store complete.\n");
+	con_printf(sys->con, "Store complete.\n");
 
 	return 0;
 }
 
-static int cmd_store_gpr(struct user *u, char *cmd, int len)
+static int cmd_store_gpr(struct virt_sys *sys, char *cmd, int len)
 {
-	u64 *ptr = (u64*) &current->guest->regs.gpr;
+	u64 *ptr = (u64*) &sys->task->cpu->regs.gpr;
 	u64 val, gpr;
 
 	cmd = __extract_dec(cmd, &gpr);
@@ -57,14 +57,14 @@ static int cmd_store_gpr(struct user *u, char *cmd, int len)
 
 	ptr[gpr] = val;
 
-	con_printf(u->con, "Store complete.\n");
+	con_printf(sys->con, "Store complete.\n");
 
 	return 0;
 }
 
-static int cmd_store_fpr(struct user *u, char *cmd, int len)
+static int cmd_store_fpr(struct virt_sys *sys, char *cmd, int len)
 {
-	u64 *ptr = (u64*) &current->guest->regs.fpr;
+	u64 *ptr = (u64*) &sys->task->cpu->regs.fpr;
 	u64 val, fpr;
 
 	cmd = __extract_dec(cmd, &fpr);
@@ -81,12 +81,12 @@ static int cmd_store_fpr(struct user *u, char *cmd, int len)
 
 	ptr[fpr] = val;
 
-	con_printf(u->con, "Store complete.\n");
+	con_printf(sys->con, "Store complete.\n");
 
 	return 0;
 }
 
-static int cmd_store_fpcr(struct user *u, char *cmd, int len)
+static int cmd_store_fpcr(struct virt_sys *sys, char *cmd, int len)
 {
 	u64 val;
 
@@ -96,16 +96,16 @@ static int cmd_store_fpcr(struct user *u, char *cmd, int len)
 	if (val > 0xffffffffULL)
 		return -EINVAL;
 
-	current->guest->regs.fpcr = (u32) val;
+	sys->task->cpu->regs.fpcr = (u32) val;
 
-	con_printf(u->con, "Store complete.\n");
+	con_printf(sys->con, "Store complete.\n");
 
 	return 0;
 }
 
-static int cmd_store_cr(struct user *u, char *cmd, int len)
+static int cmd_store_cr(struct virt_sys *sys, char *cmd, int len)
 {
-	u64 *ptr = (u64*) &current->guest->sie_cb.gcr;
+	u64 *ptr = (u64*) &sys->task->cpu->sie_cb.gcr;
 	u64 val, cr;
 
 	cmd = __extract_dec(cmd, &cr);
@@ -122,14 +122,14 @@ static int cmd_store_cr(struct user *u, char *cmd, int len)
 
 	ptr[cr] = val;
 
-	con_printf(u->con, "Store complete.\n");
+	con_printf(sys->con, "Store complete.\n");
 
 	return 0;
 }
 
-static int cmd_store_ar(struct user *u, char *cmd, int len)
+static int cmd_store_ar(struct virt_sys *sys, char *cmd, int len)
 {
-	u32 *ptr = (u32*) &current->guest->regs.ar;
+	u32 *ptr = (u32*) &sys->task->cpu->regs.ar;
 	u64 val, ar;
 
 	cmd = __extract_dec(cmd, &ar);
@@ -148,14 +148,14 @@ static int cmd_store_ar(struct user *u, char *cmd, int len)
 
 	ptr[ar] = val;
 
-	con_printf(u->con, "Store complete.\n");
+	con_printf(sys->con, "Store complete.\n");
 
 	return 0;
 }
 
-static int cmd_store_psw(struct user *u, char *cmd, int len)
+static int cmd_store_psw(struct virt_sys *sys, char *cmd, int len)
 {
-	u32 *ptr = (u32*) &current->guest->sie_cb.gpsw;
+	u32 *ptr = (u32*) &sys->task->cpu->sie_cb.gpsw;
 
 	u64 new_words[4] = {0, 0, 0, 0};
 	int cnt;
@@ -194,7 +194,7 @@ static int cmd_store_psw(struct user *u, char *cmd, int len)
 			return -EINVAL;
 	}
 
-	con_printf(u->con, "Store complete.\n");
+	con_printf(sys->con, "Store complete.\n");
 	return 0;
 }
 

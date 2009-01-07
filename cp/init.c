@@ -9,41 +9,41 @@
 #include <clock.h>
 #include <ebcdic.h>
 
-static int __alloc_guest_storage(struct user *user)
+static int __alloc_guest_storage(struct virt_sys *sys)
 {
-	u64 pages = user->storage_size >> PAGE_SHIFT;
+	u64 pages = sys->directory->storage_size >> PAGE_SHIFT;
 	struct page *p;
 
-	INIT_LIST_HEAD(&current->guest_pages);
+	INIT_LIST_HEAD(&sys->guest_pages);
 
 	while (pages) {
 		p = alloc_pages(0, ZONE_NORMAL);
 		if (!p)
 			continue; /* FIXME: sleep? */
 
-		list_add(&p->guest, &current->guest_pages);
+		list_add(&p->guest, &sys->guest_pages);
 
 		pages--;
 
-		dat_insert_page(&current->guest->as, (u64) page_to_addr(p),
+		dat_insert_page(&sys->as, (u64) page_to_addr(p),
 				pages << PAGE_SHIFT);
 	}
 
 	return 0;
 }
 
-static void process_cmd(struct user *user)
+static void process_cmd(struct virt_sys *sys)
 {
 	u8 cmd[128];
 	int ret;
 
-	ret = con_read(user->con, cmd, 128);
+	ret = con_read(sys->con, cmd, 128);
 
 	if (ret == -1)
 		return; /* no lines to read */
 
 	if (!ret) {
-		con_printf(user->con, "CP\n");
+		con_printf(sys->con, "CP\n");
 		return; /* empty line */
 	}
 
@@ -52,54 +52,57 @@ static void process_cmd(struct user *user)
 	/*
 	 * we got a command to process!
 	 */
-	ret = invoke_cp_cmd(user, (char*) cmd, ret);
+	ret = invoke_cp_cmd(sys, (char*) cmd, ret);
 	switch (ret) {
 		case 0:
 			/* all fine */
 			break;
 		case -ENOENT:
-			con_printf(user->con, "Invalid CP command: %s\n", cmd);
+			con_printf(sys->con, "Invalid CP command: %s\n", cmd);
 			break;
 		case -ESUBENOENT:
-			con_printf(user->con, "Invalid CP sub-command: %s\n", cmd);
+			con_printf(sys->con, "Invalid CP sub-command: %s\n", cmd);
 			break;
 		case -EINVAL:
-			con_printf(user->con, "Operand missing or invalid\n");
+			con_printf(sys->con, "Operand missing or invalid\n");
 			break;
 		default:
-			con_printf(user->con, "RC=%d\n", ret);
+			con_printf(sys->con, "RC=%d\n", ret);
 			break;
 	}
 }
 
 static int cp_init(void *data)
 {
-	struct user *user = data;
+	struct virt_sys *sys = data;
+	struct virt_cpu *cpu;
 	struct datetime dt;
 	struct page *page;
 
 	page = alloc_pages(0, ZONE_NORMAL);
 	BUG_ON(!page);
 
-	current->guest = page_to_addr(page);
-	memset(current->guest, 0, PAGE_SIZE);
+	cpu = page_to_addr(page);
+	sys->task->cpu = cpu;
 
-	__alloc_guest_storage(user);
+	memset(cpu, 0, PAGE_SIZE);
 
-	memset(&current->guest->sie_cb, 0, sizeof(struct sie_cb));
-	current->guest->sie_cb.gmsor = 0;
-	current->guest->sie_cb.gmslm = user->storage_size;
-	current->guest->sie_cb.gbea = 1;
-	current->guest->sie_cb.ecb  = 2;
-	current->guest->sie_cb.eca  = 0xC1002001U;
+	__alloc_guest_storage(sys);
+
+	memset(&cpu->sie_cb, 0, sizeof(struct sie_cb));
+	cpu->sie_cb.gmsor = 0;
+	cpu->sie_cb.gmslm = sys->directory->storage_size;
+	cpu->sie_cb.gbea = 1;
+	cpu->sie_cb.ecb  = 2;
+	cpu->sie_cb.eca  = 0xC1002001U;
 	/*
 	 * TODO: What about ->scaoh and ->scaol?
 	 */
 
-	guest_power_on_reset(user);
+	guest_power_on_reset(sys);
 
 	get_parsed_tod(&dt);
-	con_printf(user->con, "\nLOGON AT %02d:%02d:%02d UTC %04d-%02d-%02d\n",
+	con_printf(sys->con, "\nLOGON AT %02d:%02d:%02d UTC %04d-%02d-%02d\n",
 			dt.th, dt.tm, dt.ts, dt.dy, dt.dm, dt.dd);
 
 	for (;;) {
@@ -112,10 +115,10 @@ static int cp_init(void *data)
 		 *   - else, schedule()
 		 */
 
-		process_cmd(user);
+		process_cmd(sys);
 
-		if (current->guest->state == GUEST_OPERATING)
-			run_guest(user);
+		if (cpu->state == GUEST_OPERATING)
+			run_guest(sys);
 		else
 			schedule();
 	}
@@ -126,34 +129,39 @@ static int cp_init(void *data)
  */
 static int cp_cmd_intercept_gen(void *data)
 {
-	struct user *user = data;
+	struct virt_sys *sys = data;
 
 	for(;;) {
 		schedule();
 
-		if (!user->task->guest ||
-		    user->task->guest->state == GUEST_STOPPED)
+		if (!sys->task->cpu ||
+		    sys->task->cpu->state == GUEST_STOPPED)
 			continue;
 
-		if (!con_read_pending(user->con))
+		if (!con_read_pending(sys->con))
 			continue;
 
 		/*
 		 * There's a read pending. Generate an interception.
 		 */
-		atomic_set_mask(CPUSTAT_STOP_INT, &user->task->guest->sie_cb.cpuflags);
+		atomic_set_mask(CPUSTAT_STOP_INT, &sys->task->cpu->sie_cb.cpuflags);
 	}
 }
 
-void spawn_oper_cp()
+void spawn_oper_cp(struct console *con)
 {
-	struct user *u;
+	struct virt_sys *sys;
 
-	u = find_user_by_id("operator");
-	BUG_ON(IS_ERR(u));
+	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
+	BUG_ON(!sys);
 
-	u->task = create_task(cp_init, u);
-	BUG_ON(IS_ERR(u->task));
+	sys->con = con;
 
-	BUG_ON(IS_ERR(create_task(cp_cmd_intercept_gen, u)));
+	sys->directory = find_user_by_id("operator");
+	BUG_ON(IS_ERR(sys->directory));
+
+	sys->task = create_task(cp_init, sys);
+	BUG_ON(IS_ERR(sys->task));
+
+	BUG_ON(IS_ERR(create_task(cp_cmd_intercept_gen, sys)));
 }

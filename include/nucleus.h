@@ -81,8 +81,6 @@ extern int snprintf(char *buf, int len, const char *fmt, ...)
         __attribute__ ((format (printf, 3, 4)));
 extern int con_printf(struct console *con, const char *fmt, ...)
         __attribute__ ((format (printf, 2, 3)));
-extern int printf(const char *fmt, ...)
-        __attribute__ ((format (printf, 1, 2)));
 extern int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
         __attribute__ ((format (printf, 3, 0)));
 

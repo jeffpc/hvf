@@ -62,8 +62,10 @@
  * Reset TODO:
  *  - handle Captured-z/Architecture-PSW register
  */
-static void __perform_cpu_reset(int flags)
+static void __perform_cpu_reset(struct virt_sys *sys, int flags)
 {
+	struct virt_cpu *cpu = sys->task->cpu;
+
 	if (flags & RESET_CPU) {
 		if (flags & SET_ESA390) {
 			/* FIXME: set the arch mode to ESA/390 */
@@ -77,14 +79,14 @@ static void __perform_cpu_reset(int flags)
 		 *  - MCHECK (floating are NOT cleared)
 		 */
 
-		current->guest->state = GUEST_STOPPED;
+		cpu->state = GUEST_STOPPED;
 	}
 
 	if (flags & RESET_PSW)
-		memset(&current->guest->sie_cb.gpsw, 0, sizeof(struct psw));
+		memset(&cpu->sie_cb.gpsw, 0, sizeof(struct psw));
 
 	if (flags & RESET_PREFIX)
-		current->guest->sie_cb.prefix = 0;
+		cpu->sie_cb.prefix = 0;
 
 	if (flags & RESET_CPU_TIMER) {
 		/* FIXME */
@@ -99,9 +101,9 @@ static void __perform_cpu_reset(int flags)
 	}
 
 	if (flags & RESET_CR) {
-		memset(current->guest->sie_cb.gcr, 0, 16*sizeof(u64));
-		current->guest->sie_cb.gcr[0]  = 0xE0UL;
-		current->guest->sie_cb.gcr[14] = 0xC2000000UL;
+		memset(cpu->sie_cb.gcr, 0, 16*sizeof(u64));
+		cpu->sie_cb.gcr[0]  = 0xE0UL;
+		cpu->sie_cb.gcr[14] = 0xC2000000UL;
 	}
 
 	if (flags & RESET_BREAK_EV_ADDR) {
@@ -109,16 +111,16 @@ static void __perform_cpu_reset(int flags)
 	}
 
 	if (flags & RESET_FPCR)
-		current->guest->regs.fpcr = 0;
+		cpu->regs.fpcr = 0;
 
 	if (flags & RESET_AR)
-		memset(current->guest->regs.ar, 0, 16*sizeof(u32));
+		memset(cpu->regs.ar, 0, 16*sizeof(u32));
 
 	if (flags & RESET_GPR)
-		memset(current->guest->regs.gpr, 0, 16*sizeof(u64));
+		memset(cpu->regs.gpr, 0, 16*sizeof(u64));
 
 	if (flags & RESET_FPR)
-		memset(current->guest->regs.fpr, 0, 16*sizeof(u64));
+		memset(cpu->regs.fpr, 0, 16*sizeof(u64));
 
 	if (flags & RESET_STORAGE_KEYS) {
 	}
@@ -126,7 +128,7 @@ static void __perform_cpu_reset(int flags)
 	if (flags & RESET_STORAGE) {
 		struct page *p;
 
-		list_for_each_entry(p, &current->guest_pages, guest)
+		list_for_each_entry(p, &sys->guest_pages, guest)
 			memset(page_to_addr(p), 0, PAGE_SIZE);
 	}
 
@@ -150,7 +152,7 @@ static void __perform_cpu_reset(int flags)
 	}
 }
 
-static void __perform_noncpu_reset(int flags)
+static void __perform_noncpu_reset(struct virt_sys *sys, int flags)
 {
 	if (flags & RESET_FLOATING_INTERRUPTIONS) {
 	}
@@ -161,56 +163,56 @@ static void __perform_noncpu_reset(int flags)
 
 /**************/
 
-void guest_power_on_reset(struct user *user)
+void guest_power_on_reset(struct virt_sys *sys)
 {
-	__perform_cpu_reset(POWER_ON_RESET_FLAGS);
-	__perform_noncpu_reset(POWER_ON_RESET_FLAGS);
+	__perform_cpu_reset(sys, POWER_ON_RESET_FLAGS);
+	__perform_noncpu_reset(sys, POWER_ON_RESET_FLAGS);
 }
 
-void guest_system_reset_normal(struct user *user)
+void guest_system_reset_normal(struct virt_sys *sys)
 {
-	__perform_cpu_reset(CPU_RESET_FLAGS);
+	__perform_cpu_reset(sys, CPU_RESET_FLAGS);
 
 	/*
 	 * TODO: once we have SMP guests, all other cpus should get a
 	 * CPU_RESET_FLAGS as well.
 	 */
 
-	__perform_noncpu_reset(SUBSYSTEM_RESET_FLAGS);
+	__perform_noncpu_reset(sys, SUBSYSTEM_RESET_FLAGS);
 }
 
-void guest_system_reset_clear(struct user *user)
+void guest_system_reset_clear(struct virt_sys *sys)
 {
-	__perform_cpu_reset(CLEAR_RESET_FLAGS);
+	__perform_cpu_reset(sys, CLEAR_RESET_FLAGS);
 
 	/*
 	 * TODO: once we have SMP guests, all other cpus should get a
 	 * CLEAR_RESET_FLAGS as well.
 	 */
 
-	__perform_noncpu_reset(CLEAR_RESET_FLAGS);
+	__perform_noncpu_reset(sys, CLEAR_RESET_FLAGS);
 }
 
-void guest_load_normal(struct user *user)
+void guest_load_normal(struct virt_sys *sys)
 {
-	__perform_cpu_reset(INIT_CPU_RESET_FLAGS);
+	__perform_cpu_reset(sys, INIT_CPU_RESET_FLAGS);
 
 	/*
 	 * TODO: once we have SMP guests, all other cpus should get a
 	 * CPU_RESET_FLAGS.
 	 */
 
-	__perform_noncpu_reset(SUBSYSTEM_RESET_FLAGS);
+	__perform_noncpu_reset(sys, SUBSYSTEM_RESET_FLAGS);
 }
 
-void guest_load_clear(struct user *user)
+void guest_load_clear(struct virt_sys *sys)
 {
-	__perform_cpu_reset(CLEAR_RESET_FLAGS);
+	__perform_cpu_reset(sys, CLEAR_RESET_FLAGS);
 
 	/*
 	 * TODO: once we have SMP guests, all other cpus should get a
 	 * CLEAR_RESET_FLAGS as well.
 	 */
 
-	__perform_noncpu_reset(CLEAR_RESET_FLAGS);
+	__perform_noncpu_reset(sys, CLEAR_RESET_FLAGS);
 }

@@ -255,21 +255,20 @@ int console_interrupt(struct device *dev, struct irb *irb)
 	return err;
 }
 
-void start_consoles()
+struct console* start_consoles()
 {
-	struct user *u;
+	struct console *op;
 
 	/*
 	 * For now, we only start the operator console
 	 */
 
-	u = find_user_by_id("operator");
-	BUG_ON(IS_ERR(u));
-
 	BUG_ON(list_empty(&consoles));
-	u->con = list_first_entry(&consoles, struct console, consoles);
+	op = list_first_entry(&consoles, struct console, consoles);
 
-	create_task(console_flusher, u->con);
+	create_task(console_flusher, op);
+
+	return op;
 }
 
 int con_read_pending(struct console *con)

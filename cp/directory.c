@@ -4,7 +4,6 @@
 static struct user directory[] = {
 	{
 		.userid = "operator",
-		.con = NULL,
 		.storage_size = 17 * 1024 * 1024,
 		.devices = {
 			{
@@ -51,7 +50,6 @@ static struct user directory[] = {
 	/* a NULL record to mark the end of the directory */
 	{
 		.userid = NULL,
-		.con = NULL,
 	}
 };
 

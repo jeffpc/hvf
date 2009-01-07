@@ -66,7 +66,7 @@ struct regs {
 /*
  * These states mirror those described in chapter 4 of SA22-7832-06
  */
-enum guest_cpustate {
+enum virt_cpustate {
 	GUEST_STOPPED = 0,
 	GUEST_OPERATING,
 	GUEST_LOAD,
@@ -75,14 +75,13 @@ enum guest_cpustate {
 
 #include <sie.h>
 
-struct guest_state {
+struct virt_cpu {
 	/* the SIE control block is picky about alignment */
 	struct sie_cb sie_cb;
 
 	struct guest_regs regs;
 
-	struct address_space as;
-	enum guest_cpustate state;
+	enum virt_cpustate state;
 };
 
 /*
@@ -96,10 +95,20 @@ struct task {
 
 	u64 slice_end_time;		/* end of slice time (ticks) */
 
-	struct guest_state *guest;	/* guest state */
-	struct list_head guest_pages;	/* list of guest pages */
+	struct virt_cpu *cpu;		/* guest cpu */
 
 	int state;			/* state */
+};
+
+struct virt_sys {
+	struct task *task;		/* the virtual CPU task */
+	struct user *directory;		/* the directory information */
+
+	struct console *con;		/* the login console */
+
+	struct list_head guest_pages;	/* list of guest pages */
+
+	struct address_space as;	/* the guest storage */
 };
 
 extern void init_sched();		/* initialize the scheduler */

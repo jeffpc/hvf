@@ -44,19 +44,3 @@ int con_printf(struct console *con, const char *fmt, ...)
 
 	return r;
 }
-
-int printf(const char *fmt, ...)
-{
-	struct user *user;
-	va_list args;
-	int r;
-
-	user = find_user_by_id("operator");
-	BUG_ON(IS_ERR(user));
-
-	va_start(args, fmt);
-	r = vprintf(user->con, fmt, args);
-	va_end(args);
-
-	return r;
-}

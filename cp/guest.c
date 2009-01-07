@@ -7,7 +7,7 @@
  * FIXME:
  * - issue any pending interruptions
  */
-void run_guest(struct user *user)
+void run_guest(struct virt_sys *sys)
 {
 	u64 save_gpr[16];
 
@@ -18,7 +18,7 @@ void run_guest(struct user *user)
 	/*
 	 * load guest's address space into the host's PASCE
 	 */
-	load_as(&current->guest->as);
+	load_as(&sys->as);
 
 	/*
 	 * FIXME: load FPRs & FPCR
@@ -48,9 +48,9 @@ void run_guest(struct user *user)
 	: /* output */
 	  "+m" (save_gpr)
 	: /* input */
-	  "a" (current->guest),
-	  "J" (offsetof(struct guest_state, regs.gpr)),
-	  "J" (offsetof(struct guest_state, sie_cb))
+	  "a" (sys->task->cpu),
+	  "J" (offsetof(struct virt_cpu, regs.gpr)),
+	  "J" (offsetof(struct virt_cpu, sie_cb))
 	: /* clobbered */
 	  "memory"
 	);
@@ -59,5 +59,5 @@ void run_guest(struct user *user)
 	 * FIXME: store FPRs & FPCR
 	 */
 
-	handle_interception(user);
+	handle_interception(sys);
 }

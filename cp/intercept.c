@@ -3,85 +3,85 @@
 #include <dat.h>
 #include <cp.h>
 
-static int handle_noop(struct user *user)
+static int handle_noop(struct virt_sys *sys)
 {
 	return 0;
 }
 
-static int handle_program(struct user *user)
+static int handle_program(struct virt_sys *sys)
 {
-	con_printf(user->con, "INTRCPT: PROG\n");
-	current->guest->state = GUEST_STOPPED;
+	con_printf(sys->con, "INTRCPT: PROG\n");
+	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
-static int handle_instruction_and_program(struct user *user)
+static int handle_instruction_and_program(struct virt_sys *sys)
 {
-	con_printf(user->con, "INTRCPT: INST+PROG\n");
-	current->guest->state = GUEST_STOPPED;
+	con_printf(sys->con, "INTRCPT: INST+PROG\n");
+	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
-static int handle_ext_req(struct user *user)
+static int handle_ext_req(struct virt_sys *sys)
 {
-	con_printf(user->con, "INTRCPT: EXT REQ\n");
-	current->guest->state = GUEST_STOPPED;
+	con_printf(sys->con, "INTRCPT: EXT REQ\n");
+	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
-static int handle_ext_int(struct user *user)
+static int handle_ext_int(struct virt_sys *sys)
 {
-	con_printf(user->con, "INTRCPT: EXT INT\n");
-	current->guest->state = GUEST_STOPPED;
+	con_printf(sys->con, "INTRCPT: EXT INT\n");
+	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
-static int handle_io_req(struct user *user)
+static int handle_io_req(struct virt_sys *sys)
 {
-	con_printf(user->con, "INTRCPT: IO REQ\n");
-	current->guest->state = GUEST_STOPPED;
+	con_printf(sys->con, "INTRCPT: IO REQ\n");
+	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
-static int handle_wait(struct user *user)
+static int handle_wait(struct virt_sys *sys)
 {
-	con_printf(user->con, "INTRCPT: WAIT\n");
-	current->guest->state = GUEST_STOPPED;
+	con_printf(sys->con, "INTRCPT: WAIT\n");
+	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
-static int handle_validity(struct user *user)
+static int handle_validity(struct virt_sys *sys)
 {
-	con_printf(user->con, "INTRCPT: VALIDITY\n");
-	current->guest->state = GUEST_STOPPED;
+	con_printf(sys->con, "INTRCPT: VALIDITY\n");
+	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
-static int handle_stop(struct user *user)
+static int handle_stop(struct virt_sys *sys)
 {
-	current->guest->state = GUEST_STOPPED;
-	atomic_clear_mask(CPUSTAT_STOP_INT, &current->guest->sie_cb.cpuflags);
+	sys->task->cpu->state = GUEST_STOPPED;
+	atomic_clear_mask(CPUSTAT_STOP_INT, &sys->task->cpu->sie_cb.cpuflags);
 	return 0;
 }
 
-static int handle_oper_except(struct user *user)
+static int handle_oper_except(struct virt_sys *sys)
 {
-	con_printf(user->con, "INTRCPT: OPER EXCEPT\n");
-	current->guest->state = GUEST_STOPPED;
+	con_printf(sys->con, "INTRCPT: OPER EXCEPT\n");
+	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
-static int handle_exp_run(struct user *user)
+static int handle_exp_run(struct virt_sys *sys)
 {
-	con_printf(user->con, "INTRCPT: EXP RUN\n");
-	current->guest->state = GUEST_STOPPED;
+	con_printf(sys->con, "INTRCPT: EXP RUN\n");
+	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
-static int handle_exp_timer(struct user *user)
+static int handle_exp_timer(struct virt_sys *sys)
 {
-	con_printf(user->con, "INTRCPT: EXP TIMER\n");
-	current->guest->state = GUEST_STOPPED;
+	con_printf(sys->con, "INTRCPT: EXP TIMER\n");
+	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
@@ -101,18 +101,19 @@ static const intercept_handler_t intercept_funcs[0x4c >> 2] = {
 	[0x48 >> 2] = handle_exp_timer,
 };
 
-void handle_interception(struct user *user)
+void handle_interception(struct virt_sys *sys)
 {
+	struct virt_cpu *cpu = sys->task->cpu;
 	intercept_handler_t h;
 	int err = -EINVAL;
 
-	h = intercept_funcs[current->guest->sie_cb.icptcode >> 2];
+	h = intercept_funcs[cpu->sie_cb.icptcode >> 2];
 	if (h)
-		err = h(user);
+		err = h(sys);
 
 	if (err) {
-		current->guest->state = GUEST_STOPPED;
-		con_printf(user->con, "Unknown/mis-handled intercept code %02x, err = %d\n",
-			   current->guest->sie_cb.icptcode, err);
+		cpu->state = GUEST_STOPPED;
+		con_printf(sys->con, "Unknown/mis-handled intercept code %02x, err = %d\n",
+			   cpu->sie_cb.icptcode, err);
 	}
 }
