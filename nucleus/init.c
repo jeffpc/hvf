@@ -185,26 +185,13 @@ void start(u64 __memsize)
 	 */
 	opcon = start_consoles();
 
-	con_printf(opcon, "HVF version " VERSION "\n");
-	con_printf(opcon, " Memory:\n");
-	con_printf(opcon, "    %d kB/page\n", PAGE_SIZE);
-	con_printf(opcon, "    %llu kB\n", (unsigned long long) memsize >> 10);
-	con_printf(opcon, "    %llu pages\n", (unsigned long long) memsize >> PAGE_SHIFT);
-	con_printf(opcon, "    PSA for each CPU     0..1024 kB\n");
-	con_printf(opcon, "    nucleus              1024..%llu kB\n",
-			(unsigned long long) ((u64)PAGE_INFO_BASE) >> 10);
-	con_printf(opcon, "    struct page array    %llu..%llu kB\n",
-			(unsigned long long) ((u64)PAGE_INFO_BASE) >> 10,
-			(unsigned long long) first_free_page >> 10);
-	con_printf(opcon, "    generic pages        %llu..%llu kB\n",
-			(unsigned long long) first_free_page >> 10,
-			(unsigned long long) memsize >> 10);
-	con_printf(opcon, " Devices:\n");
-	list_devices(opcon);
-	con_printf(opcon, " Scheduler:\n");
-	con_printf(opcon, "    no task max\n");
-
 	get_parsed_tod(&ipltime);
+
+	con_printf(opcon, "HVF VERSION " VERSION "\n\n");
+	con_printf(opcon, "NOW %02d:%02d:%02d UTC %04d-%02d-%02d\n\n",
+		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
+		   ipltime.dm, ipltime.dd);
+
 	spawn_oper_cp(opcon);
 
 	/*

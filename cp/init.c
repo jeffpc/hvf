@@ -102,8 +102,8 @@ static int cp_init(void *data)
 	guest_power_on_reset(sys);
 
 	get_parsed_tod(&dt);
-	con_printf(sys->con, "\nLOGON AT %02d:%02d:%02d UTC %04d-%02d-%02d\n",
-			dt.th, dt.tm, dt.ts, dt.dy, dt.dm, dt.dd);
+	con_printf(sys->con, "LOGON AT %02d:%02d:%02d UTC %04d-%02d-%02d\n",
+		   dt.th, dt.tm, dt.ts, dt.dy, dt.dm, dt.dd);
 
 	for (;;) {
 		/*
