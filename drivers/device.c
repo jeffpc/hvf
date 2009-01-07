@@ -294,14 +294,12 @@ void scan_devices()
 	free(dev);
 }
 
-void list_devices(struct console *con)
+void list_devices(struct console *con, void (*f)(struct console*, struct device*))
 {
 	struct device *dev;
 
-	list_for_each_entry(dev, &devices, devices) {
-		con_printf(con, "    %04x-%02d @ %04x (sch %05x)\n", dev->type,
-		       dev->model, dev->ccuu, dev->sch);
-	}
+	list_for_each_entry(dev, &devices, devices)
+		f(con, dev);
 }
 
 extern int register_driver_3215();

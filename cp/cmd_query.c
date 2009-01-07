@@ -10,6 +10,13 @@ static char *__guest_state_to_str(enum virt_cpustate st)
 	return "???";
 }
 
+static void display_rdev(struct console *con, struct device *dev)
+{
+	con_printf(con, "%-4s %04X %04X SCH = %05X\n",
+		   type2name(dev->type), dev->ccuu, dev->type,
+		   dev->sch);
+}
+
 static void display_vdev(struct console *con, struct vdev *vdev)
 {
 	switch (vdev->type) {
@@ -73,6 +80,12 @@ static int cmd_query(struct virt_sys *sys, char *cmd, int len)
 
 		for(i=0; sys->directory->devices[i].type != VDEV_INVAL; i++)
 			display_vdev(sys->con, &sys->directory->devices[i]);
+
+	} else if (!strcasecmp(cmd, "REAL")) {
+		con_printf(sys->con, "CPU RUNNING\n");
+		con_printf(sys->con, "STORAGE = %lluM\n", memsize >> 20);
+
+		list_devices(sys->con, display_rdev);
 
 	} else
 		con_printf(sys->con, "QUERY: Unknown variable '%s'\n", cmd);

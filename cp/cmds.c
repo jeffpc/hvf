@@ -1,5 +1,6 @@
 #include <directory.h>
 #include <dat.h>
+#include <mm.h>
 #include <sched.h>
 #include <disassm.h>
 #include <cp.h>
