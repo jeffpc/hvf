@@ -2,6 +2,7 @@
 #include <slab.h>
 #include <sched.h>
 #include <directory.h>
+#include <splash.h>
 
 /*
  * List of all consoles on the system
@@ -258,6 +259,7 @@ int console_interrupt(struct device *dev, struct irb *irb)
 struct console* start_consoles()
 {
 	struct console *op;
+	int i;
 
 	/*
 	 * For now, we only start the operator console
@@ -267,6 +269,9 @@ struct console* start_consoles()
 	op = list_first_entry(&consoles, struct console, consoles);
 
 	create_task(console_flusher, op);
+
+	for(i = 0; splash[i]; i++)
+		con_printf(op, splash[i]);
 
 	return op;
 }
