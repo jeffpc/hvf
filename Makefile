@@ -12,8 +12,10 @@ OBJCOPY=$(CROSS_COMPILE)objcopy
 # By default, be terse
 V=0
 
+DISPLAYVERSION=$(shell ./scripts/extract-version.sh)
+
 MAKEFLAGS += -rR --no-print-directory
-CFLAGS=-DVERSION=\"$(VERSION)\" -g -fno-strict-aliasing -fno-builtin -nostdinc -nostdlib -Wall -m64 -I include/ -O2
+CFLAGS=-DVERSION=\"$(DISPLAYVERSION)\" -g -fno-strict-aliasing -fno-builtin -nostdinc -nostdlib -Wall -m64 -I include/ -O2
 NUCLEUSCFLAGS=-include include/nucleus.h
 LDFLAGS=-m elf64_s390
 
