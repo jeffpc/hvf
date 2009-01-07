@@ -60,10 +60,9 @@ struct disassm_instruction {
 	char loc;		/* sub-opcode location offset in bits */
 };
 
-#define DA_INST_INV()			{ .fmt = IF_INV, }
-#define DA_INST(ifmt,iname)		{ .fmt = IF_##ifmt,	.u.name = #iname, }
-#define DA_INST_TBL(itbl,ilen,iloc)	{ .fmt = IF_VAR,	.u.ptr = (itbl), \
-					  .len = (ilen),	.loc = (iloc), }
+#define DA_INST(idx,ifmt,iname)		[idx] = { .fmt = IF_##ifmt,	.u.name = #iname, }
+#define DA_INST_TBL(idx,itbl,ilen,iloc)	[idx] = { .fmt = IF_VAR,	.u.ptr = (itbl), \
+						  .len = (ilen),	.loc = (iloc), }
 
 extern int disassm(unsigned char *bytes, char *buf, int buflen);
 
