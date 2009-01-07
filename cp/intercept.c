@@ -3,17 +3,8 @@
 #include <dat.h>
 #include <cp.h>
 
-typedef int (*intercept_handler_t)(struct user *user);
-
 static int handle_noop(struct user *user)
 {
-	return 0;
-}
-
-static int handle_instruction(struct user *user)
-{
-	con_printf(user->con, "INTRCPT: INST\n");
-	current->guest->state = GUEST_STOPPED;
 	return 0;
 }
 

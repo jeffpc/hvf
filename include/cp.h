@@ -21,4 +21,9 @@ extern void guest_load_clear(struct user *user);
 extern void run_guest(struct user *user);
 extern void handle_interception(struct user *user);
 
+extern int handle_instruction(struct user *user);
+extern int handle_instruction_priv(struct user *user);
+
+typedef int (*intercept_handler_t)(struct user *user);
+
 #endif
