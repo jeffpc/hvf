@@ -82,6 +82,7 @@ static void __display_storage_numeric(struct virt_sys *sys, u64 guest_addr,
 				      u64 host_addr, u64 mlen)
 {
 	u32 *ptr;
+	int this_len;
 
 	if (mlen > 4)
 		mlen = (mlen >> 2) + !!(mlen & 0x3);
@@ -93,15 +94,19 @@ static void __display_storage_numeric(struct virt_sys *sys, u64 guest_addr,
 	ptr = (u32*)(host_addr & ~((u64) 0x3));
 
 	while(mlen) {
-		/* load the dword at the address, and shift it to the LSB part */
+		this_len = (mlen > 4) ? 4 : mlen;
 
-		switch (mlen) {
+		if ((PAGE_SIZE-(guest_addr & PAGE_MASK)) < (4*this_len))
+				goto page_boundary;
+
+		switch (this_len) {
 			case 1:
 				con_printf(sys->con, "R%016llX  %08X\n",
 					   guest_addr, ptr[0]);
 				mlen -= 1;
 				break;
 			case 2:
+
 				con_printf(sys->con, "R%016llX  %08X %08X\n",
 					   guest_addr, ptr[0], ptr[1]);
 				mlen -= 2;
@@ -112,7 +117,7 @@ static void __display_storage_numeric(struct virt_sys *sys, u64 guest_addr,
 					   ptr[1], ptr[2]);
 				mlen -= 3;
 				break;
-			default:
+			case 4:
 				con_printf(sys->con, "R%016llX  %08X %08X "
 					   "%08X %08X\n", guest_addr,
 					   ptr[0], ptr[1], ptr[2], ptr[3]);
@@ -123,11 +128,14 @@ static void __display_storage_numeric(struct virt_sys *sys, u64 guest_addr,
 		guest_addr += 16;
 		ptr += 4;
 
-		if (guest_addr & PAGE_MASK) {
-			con_printf(sys->con, "FIXME: would cross page boundary. halting output\n");
-			break;
-		}
+		if (((guest_addr & PAGE_MASK) < 16) && mlen)
+			goto page_boundary;
 	}
+
+	return;
+
+page_boundary:
+	con_printf(sys->con, "FIXME: would cross page boundary. halting output\n");
 }
 
 /*
