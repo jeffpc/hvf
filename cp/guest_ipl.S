@@ -83,12 +83,6 @@ GUEST_IPL_CODE:
 # Data begins here                                                            #
 ###############################################################################
 
-.equ	SCHID,(.-GUEST_IPL_CODE)
-	.long	0
-
-.equ	DEVID,(.-GUEST_IPL_CODE)
-	.long	0
-
 .equ	DISABLEDWAIT,(.-GUEST_IPL_CODE)
 	.long	0x000c0000
 	.long	0x80000000			# disabled wait PSW; signal
