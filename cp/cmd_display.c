@@ -168,15 +168,15 @@ static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 	ret = parse_addrspec(&guest_addr, &mlen, cmd);
 	if (ret) {
 		con_printf(sys->con, "DISPLAY: Invalid addr-spec '%s'\n", cmd);
-		return ret;
+		return 0;
 	}
 
 	/* walk the page tables to find the real page frame */
 	ret = virt2phy(&sys->as, guest_addr, &host_addr);
 	if (ret) {
 		con_printf(sys->con, "DISPLAY: Specified address is not part of "
-			   "guest configuration\n");
-		return ret;
+			   "guest configuration (RC=%d,%d)\n", -EFAULT, ret);
+		return 0;
 	}
 
 	if (fmt == FMT_INSTRUCT)
