@@ -145,7 +145,8 @@ int virt2phy(struct address_space *as, u64 virt, u64 *phy)
 	return -EFAULT;
 
 walk_segment:
-	BUG_ON(DAT_RX(virt));
+	if (DAT_RX(virt))
+		return -EFAULT;
 
 	segment = &segment[DAT_SX(virt)];
 
