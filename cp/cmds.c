@@ -28,6 +28,12 @@ static char* type2name(u16 type)
 		case 0x3390:	return "DASD";
 		case 0x3505:	return "RDR";
 		case 0x3525:	return "PUN";
+
+		/* various tape drives */
+		case 0x3480:
+		case 0x3490:
+		case 0x3590:	return "TAPE";
+
 		default:	return "????";
 	}
 }
