@@ -139,7 +139,13 @@ page_boundary:
 }
 
 /*
- * display a word of guest storage
+ *!!! DISPLAY STORAGE
+ *!p                       .-N-.
+ *!p >>--DISPLAY--STORAGE--+---+-addr-.----------.---------------------------------><
+ *!p                       '-I-'      '-.-length-'
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays a portion of guest's storage.
  */
 static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 {
@@ -187,6 +193,13 @@ static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! DISPLAY SIECB
+ *!p >>--DISPLAY--SIECB------------------------------------------------------------><
+ *!! AUTH A
+ *!! PURPOSE
+ *! Displays hexdump of the guest's SIE control block.
+ */
 static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
 {
 	u32 *val;
@@ -202,6 +215,13 @@ static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! DISPLAY GPR
+ *!p >>--DISPLAY--GPR--------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the guest's general purpose registers
+ */
 static int cmd_display_gpr(struct virt_sys *sys, char *cmd, int len)
 {
 	con_printf(sys->con, "GR  0 = %016llx %016llx\n",
@@ -231,12 +251,26 @@ static int cmd_display_gpr(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! DISPLAY FPCR
+ *!p >>--DISPLAY--FPCR-------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the guest's floating point control register
+ */
 static int cmd_display_fpcr(struct virt_sys *sys, char *cmd, int len)
 {
 	con_printf(sys->con, "FPCR  = %08x\n", sys->task->cpu->regs.fpcr);
 	return 0;
 }
 
+/*
+ *!!! DISPLAY FPR
+ *!p >>--DISPLAY--FPR--------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the guest's floating point registers
+ */
 static int cmd_display_fpr(struct virt_sys *sys, char *cmd, int len)
 {
 	con_printf(sys->con, "FR  0 = %016llx %016llx\n",
@@ -266,6 +300,13 @@ static int cmd_display_fpr(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! DISPLAY CR
+ *!p >>--DISPLAY--CR---------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the guest's control registers
+ */
 static int cmd_display_cr(struct virt_sys *sys, char *cmd, int len)
 {
 	con_printf(sys->con, "CR  0 = %016llx %016llx\n",
@@ -295,6 +336,13 @@ static int cmd_display_cr(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! DISPLAY AR
+ *!p >>--DISPLAY--AR---------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the guest's access registers
+ */
 static int cmd_display_ar(struct virt_sys *sys, char *cmd, int len)
 {
 	con_printf(sys->con, "AR  0 = %08x %08x\n",
@@ -324,6 +372,13 @@ static int cmd_display_ar(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! DISPLAY PSW
+ *!p >>--DISPLAY--PSW--------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the guest's PSW
+ */
 static int cmd_display_psw(struct virt_sys *sys, char *cmd, int len)
 {
 	u32 *ptr = (u32*) &sys->task->cpu->sie_cb.gpsw;

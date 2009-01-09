@@ -56,6 +56,31 @@ static void display_vdev(struct console *con, struct vdev *vdev)
 	}
 }
 
+/*
+ *!!! QUERY CPLEVEL
+ *!p >>--QUERY--CPLEVEL------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the HVF version and time of IPL
+ *
+ *!!! QUERY TIME
+ *!p >>--QUERY--TIME---------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the current time
+ *
+ *!!! QUERY VIRTUAL
+ *!p >>--QUERY--VIRTUAL------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Lists all of the guest's virtual devices
+ *
+ *!!! QUERY REAL
+ *!p >>--QUERY--REAL---------------------------------------------------------------><
+ *!! AUTH A
+ *!! PURPOSE
+ *! Lists all of the host's real devices
+ */
 static int cmd_query(struct virt_sys *sys, char *cmd, int len)
 {
 	if (!strcasecmp(cmd, "CPLEVEL")) {

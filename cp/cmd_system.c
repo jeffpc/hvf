@@ -1,6 +1,15 @@
 extern u32 GUEST_IPL_CODE[];
 extern u32 GUEST_IPL_REGSAVE[];
 
+/*
+ *!!! IPL
+ *!p >>--IPL-----------------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Perform a ...
+ *!! NOTES
+ *! Not yet implemented.
+ */
 static int cmd_ipl(struct virt_sys *sys, char *cmd, int len)
 {
 	u64 host_addr;
@@ -55,6 +64,34 @@ fail:
 	return ret;
 }
 
+/*!!! SYSTEM CLEAR
+ *!p >>--SYSTEM--CLEAR-------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Identical to reset-clear button on a real mainframe.
+ *
+ *!!! SYSTEM RESET
+ *!p >>--SYSTEM--RESET-------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Identical to reset-normal button on a real mainframe.
+ *
+ *!!! SYSTEM RESTART
+ *!p >>--SYSTEM--RESTART-----------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Perform a restart operation.
+ *!! NOTES
+ *! Not yet implemented.
+ *
+ *!!! SYSTEM STORE
+ *!p >>--SYSTEM--STORE-------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Perform a ...
+ *!! NOTES
+ *! Not yet implemented.
+ */
 static int cmd_system(struct virt_sys *sys, char *cmd, int len)
 {
 	if (!strcasecmp(cmd, "CLEAR")) {

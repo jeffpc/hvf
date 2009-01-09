@@ -36,6 +36,9 @@ all: build hvf
 hvf: $(patsubst %/,%/built-in.o,$(TOP_DIRS))
 	$(call link-hvf,$^,$@)
 
+docs:
+	./scripts/gen-docs.sh
+
 clean:
 	@$(MAKE) DIR=nucleus/ cleanup V=$V
 	@$(MAKE) DIR=mm/ cleanup V=$V
@@ -44,6 +47,7 @@ clean:
 	@$(MAKE) DIR=cp/ cleanup V=$V
 	$(call clean,hvf)
 	$(call clean,loader_*.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl_tape.S ipl/ipl_rdr_ccws.S)
+	$(call rclean,Documentation/commands)
 
 mrproper: clean
 	$(call clean,cscope.out ctags)

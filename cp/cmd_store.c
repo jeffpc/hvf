@@ -38,6 +38,13 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! STORE GPR
+ *!p >>--STORE--GPR--gpr--value----------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Sets a guest's general purpose register to the specified value
+ */
 static int cmd_store_gpr(struct virt_sys *sys, char *cmd, int len)
 {
 	u64 *ptr = (u64*) &sys->task->cpu->regs.gpr;
@@ -62,6 +69,13 @@ static int cmd_store_gpr(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! STORE FPR
+ *!p >>--STORE--FPR--fpr--value----------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Sets a guest's floating point register to the specified value
+ */
 static int cmd_store_fpr(struct virt_sys *sys, char *cmd, int len)
 {
 	u64 *ptr = (u64*) &sys->task->cpu->regs.fpr;
@@ -86,6 +100,13 @@ static int cmd_store_fpr(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! STORE FPCR
+ *!p >>--STORE--FPCR--value--------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Sets a guest's floating point control register to the specified value
+ */
 static int cmd_store_fpcr(struct virt_sys *sys, char *cmd, int len)
 {
 	u64 val;
@@ -103,6 +124,13 @@ static int cmd_store_fpcr(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! STORE CR
+ *!p >>--STORE--CR--cr--value------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Sets a guest's control register to the specified value
+ */
 static int cmd_store_cr(struct virt_sys *sys, char *cmd, int len)
 {
 	u64 *ptr = (u64*) &sys->task->cpu->sie_cb.gcr;
@@ -127,6 +155,13 @@ static int cmd_store_cr(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! STORE AR
+ *!p >>--STORE--AR--ar--value------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Sets a guest's access register to the specified value
+ */
 static int cmd_store_ar(struct virt_sys *sys, char *cmd, int len)
 {
 	u32 *ptr = (u32*) &sys->task->cpu->regs.ar;
@@ -153,6 +188,28 @@ static int cmd_store_ar(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! STORE PSW
+ *!p >>--STORE--PSW--val1-.--------------------------.-----------------------------><
+ *!p                      '-val2--.----------------.-'
+ *!p                              '-val3--.------.-'
+ *!p                                      '-val4-'
+ *!! AUTH G
+ *!! PURPOSE
+ *! Sets a guest's PSW to the specified value
+ *!
+ *! If only one val1 is specified, PSW bits 96-127 are set to it.
+ *!
+ *! If val1 and val2 are specified, PSW bits 64-95 are set to val1, and bits
+ *! 96-127 are set to val2.
+ *!
+ *! If val1, val2, and val3 are specified, PSW bits 32-63 are set to val1,
+ *! bits 64-95 are set to val2, and bits 96-127 are set to val3.
+ *!
+ *! If val1, val2, val3, and val4 are specified, PSW bits 0-31 are set to
+ *! val1, bits 32-63 are set to val2, bits 64-95 are set to val3, and
+ *! bits 96-127 are set to val4.
+ */
 static int cmd_store_psw(struct virt_sys *sys, char *cmd, int len)
 {
 	u32 *ptr = (u32*) &sys->task->cpu->sie_cb.gpsw;

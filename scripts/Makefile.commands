@@ -12,6 +12,7 @@ cmd-genipl-tape=bash scripts/gen_tape_ipl_s.sh $(1) $(2)
 cmd-concat=cat $(1) > $(2)
 cmd-pad=bash scripts/pad.sh $(1) $(2)
 cmd-clean=rm -f $(1)
+cmd-rclean=rm -rf $(1)
 cmd-cscope=cscope -R -b
 
 ifeq ($V,1)
@@ -29,6 +30,7 @@ genipl-tape=$(cmd-genipl-tape)
 concat=$(cmd-concat)
 pad=$(cmd-pad)
 clean=$(cmd-clean)
+rclean=$(cmd-rclean)
 cscope=$(cmd-cscope)
 else
 c-to-o=@echo "  [CC]      $(2)"; $(cmd-c-to-o)
@@ -45,6 +47,7 @@ genipl-tape=@echo "  [GENTAPE] $2"; $(cmd-genipl-tape)
 concat=@echo "  [CONCAT]  $2"; $(cmd-concat)
 pad=@echo "  [PAD]     $1 (multiple of $2 bytes)"; $(cmd-pad)
 clean=@echo "  [CLEAN]   $1"; $(cmd-clean)
+rclean=@echo "  [CLEAN]   $1"; $(cmd-rclean)
 cscope=@echo "  [CSCOPE]  cscope.out"; $(cmd-cscope)
 endif
 
