@@ -1,3 +1,10 @@
+/*
+ *!!! STORE STORAGE
+ *!p >>--STORE--STORAGE--value--address--------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Sets a word in guest's storage at address to value
+ */
 static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 {
 	int ret;
