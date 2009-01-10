@@ -61,6 +61,7 @@ struct guest_regs {
 struct regs {
 	struct psw psw;
 	u64 gpr[16];
+	u64 cr1;
 };
 
 /*

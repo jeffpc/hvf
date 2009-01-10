@@ -84,4 +84,27 @@ extern void load_as(struct address_space *as);
 
 extern int virt2phy(struct address_space *as, u64 virt, u64 *phy);
 
+static inline void store_pasce(u64 *pasce)
+{
+	asm volatile(
+		"	stctg	1,1,0(%0)\n"
+	: /* output */
+	: /* input */
+	  "a" (pasce)
+	);
+}
+
+static inline void load_pasce(u64 pasce)
+{
+	if (!pasce)
+		return;
+
+	asm volatile(
+		"	lctlg	1,1,%0\n"
+	: /* output */
+	: /* input */
+	  "m" (pasce)
+	);
+}
+
 #endif

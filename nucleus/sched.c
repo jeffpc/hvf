@@ -166,6 +166,8 @@ run:
 	 */
 	memcpy(PSA_TMP_PSW, &next->regs.psw, sizeof(struct psw));
 
+	load_pasce(next->regs.cr1);
+
 	/*
 	 * Load the next task
 	 *
@@ -212,6 +214,8 @@ void __schedule(struct psw *old_psw)
 	 */
 	if (prev == &idle_task)
 		goto go;
+
+	store_pasce(&prev->regs.cr1);
 
 	/*
 	 * Add back on the queue
