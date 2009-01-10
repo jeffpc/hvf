@@ -56,6 +56,12 @@ static void display_vdev(struct console *con, struct vdev *vdev)
 	}
 }
 
+static void display_task(struct console *con, struct task *task)
+{
+	con_printf(con, "%*s %p %c\n", -TASK_NAME_LEN, task->name,
+		   task, (task->state == TASK_RUNNING ? 'R' : 'S'));
+}
+
 /*
  *!!! QUERY CPLEVEL
  *!p >>--QUERY--CPLEVEL------------------------------------------------------------><
@@ -80,6 +86,13 @@ static void display_vdev(struct console *con, struct vdev *vdev)
  *!! AUTH A
  *!! PURPOSE
  *! Lists all of the host's real devices
+ *
+ *!!! QUERY TASK
+ *!p >>--QUERY--TASK---------------------------------------------------------------><
+ *!! AUTH A
+ *!! PURPOSE
+ *! Lists all of the tasks running on the host. This includes guest virtual
+ *! cpu tasks, as well as system helper tasks.
  */
 static int cmd_query(struct virt_sys *sys, char *cmd, int len)
 {
@@ -111,6 +124,9 @@ static int cmd_query(struct virt_sys *sys, char *cmd, int len)
 		con_printf(sys->con, "STORAGE = %lluM\n", memsize >> 20);
 
 		list_devices(sys->con, display_rdev);
+
+	} else if (!strcasecmp(cmd, "TASK")) {
+		list_tasks(sys->con, display_task);
 
 	} else
 		con_printf(sys->con, "QUERY: Unknown variable '%s'\n", cmd);
