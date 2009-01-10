@@ -216,6 +216,7 @@ void __schedule(struct psw *old_psw)
 	/*
 	 * Add back on the queue
 	 */
+	prev->state = TASK_SLEEPING;
 	list_add_tail(&prev->run_queue, &runnable);
 
 	/*
