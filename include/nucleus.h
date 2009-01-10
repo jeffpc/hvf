@@ -47,6 +47,7 @@ extern size_t strnlen(const char *s, size_t count);
 extern int strcmp(const char *cs, const char *ct);
 extern int strncmp(const char *cs, const char *ct, int len);
 extern int strcasecmp(const char *s1, const char *s2);
+extern char *strncpy(char *dest, const char *src, size_t count);
 
 static inline unsigned char toupper(unsigned char c)
 {
