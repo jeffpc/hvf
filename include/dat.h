@@ -107,4 +107,28 @@ static inline void load_pasce(u64 pasce)
 	);
 }
 
+/* get host real address from guest real, using the currently loaded ASCE */
+static inline int virt2phy_current(u64 virt, u64 *phy)
+{
+	u64 result;
+	int cc;
+
+	asm volatile(
+		"	lrag	%0,0(%%r0,%2)\n"
+		"	ipm	%1\n"
+		"	srl	%1,28\n"
+	: /* output */
+	  "=d" (result),
+	  "=d" (cc)
+	: /* input */
+	  "d" (virt)
+	);
+
+	if (cc != 0)
+		return -EFAULT;
+
+	*phy = result;
+	return 0;
+}
+
 #endif
