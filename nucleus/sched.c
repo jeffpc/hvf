@@ -93,10 +93,11 @@ static void init_idle_task()
 
 /**
  * create_task - create a new task
+ * @name:	name for the task
  * @f:		function pointer to where thread of execution should begin
  * @data:	arbitrary data to pass to the task
  */
-struct task* create_task(int (*f)(void *), void *data)
+struct task* create_task(char *name, int (*f)(void *), void *data)
 {
 	struct page *page;
 	struct task *task;
@@ -113,6 +114,8 @@ struct task* create_task(int (*f)(void *), void *data)
 	 * Set up task's state
 	 */
 	__init_task(task, f, data, page_to_addr(page));
+
+	strncpy(task->name, name, TASK_NAME_LEN);
 
 	/*
 	 * Add the task to the scheduler lists
@@ -278,3 +281,11 @@ void init_sched()
 	set_timer();
 }
 
+void list_tasks(struct console *con,
+		void (*f)(struct console *, struct task*))
+{
+	struct task *t;
+
+	list_for_each_entry(t, &processes, proc_list)
+		f(con, t);
+}

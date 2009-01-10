@@ -160,8 +160,8 @@ void spawn_oper_cp(struct console *con)
 	sys->directory = find_user_by_id("operator");
 	BUG_ON(IS_ERR(sys->directory));
 
-	sys->task = create_task(cp_init, sys);
+	sys->task = create_task("operator-vcpu0", cp_init, sys);
 	BUG_ON(IS_ERR(sys->task));
 
-	BUG_ON(IS_ERR(create_task(cp_cmd_intercept_gen, sys)));
+	BUG_ON(IS_ERR(create_task("*-cmd_intercept", cp_cmd_intercept_gen, sys)));
 }

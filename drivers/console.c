@@ -258,6 +258,7 @@ int console_interrupt(struct device *dev, struct irb *irb)
 
 struct console* start_consoles()
 {
+	char name[TASK_NAME_LEN+1];
 	struct console *op;
 	int i;
 
@@ -268,7 +269,9 @@ struct console* start_consoles()
 	BUG_ON(list_empty(&consoles));
 	op = list_first_entry(&consoles, struct console, consoles);
 
-	create_task(console_flusher, op);
+	snprintf(name, TASK_NAME_LEN, "%05X-conflsh", op->dev->sch);
+
+	create_task(name, console_flusher, op);
 
 	for(i = 0; splash[i]; i++)
 		con_printf(op, splash[i]);

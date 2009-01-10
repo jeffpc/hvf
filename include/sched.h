@@ -84,6 +84,8 @@ struct virt_cpu {
 	enum virt_cpustate state;
 };
 
+#define TASK_NAME_LEN		16
+
 /*
  * This structure describes a running process.
  */
@@ -98,6 +100,8 @@ struct task {
 	struct virt_cpu *cpu;		/* guest cpu */
 
 	int state;			/* state */
+
+	char name[TASK_NAME_LEN+1];	/* task name */
 };
 
 struct virt_sys {
@@ -112,11 +116,14 @@ struct virt_sys {
 };
 
 extern void init_sched();		/* initialize the scheduler */
-extern struct task* create_task(int (*f)(void*), void*);
+extern struct task* create_task(char *name, int (*f)(void*), void*);
 					/* create a new task */
 extern void schedule();			/* yield the cpu */
 extern void __schedule(struct psw *);	/* scheduler helper - use with caution */
 extern void __schedule_svc();
+
+extern void list_tasks(struct console *con,
+		       void (*f)(struct console *, struct task*));
 
 /**
  * current - the current task's task struct
