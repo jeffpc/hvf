@@ -89,6 +89,11 @@ static int cp_init(void *data)
 
 	__alloc_guest_storage(sys);
 
+	/*
+	 * load guest's address space into the host's PASCE
+	 */
+	load_as(&sys->as);
+
 	memset(&cpu->sie_cb, 0, sizeof(struct sie_cb));
 	cpu->sie_cb.gmsor = 0;
 	cpu->sie_cb.gmslm = sys->directory->storage_size;

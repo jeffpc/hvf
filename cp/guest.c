@@ -16,11 +16,6 @@ void run_guest(struct virt_sys *sys)
 	 */
 
 	/*
-	 * load guest's address space into the host's PASCE
-	 */
-	load_as(&sys->as);
-
-	/*
 	 * FIXME: load FPRs & FPCR
 	 */
 
