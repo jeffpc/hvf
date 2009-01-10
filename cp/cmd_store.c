@@ -31,7 +31,7 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 	guest_addr &= ~((u64) 3ULL);
 
 	/* walk the page tables to find the real page frame */
-	ret = virt2phy(&sys->as, guest_addr, &host_addr);
+	ret = virt2phy_current(guest_addr, &host_addr);
 	if (ret) {
 		con_printf(sys->con, "DISPLAY: Specified address is not part of "
 			   "guest configuration\n");

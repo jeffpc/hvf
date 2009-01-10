@@ -29,7 +29,7 @@ static int cmd_ipl(struct virt_sys *sys, char *cmd, int len)
 
 	sys->task->cpu->state = GUEST_LOAD;
 
-	ret = virt2phy(&sys->as, GUEST_IPL_BASE, &host_addr);
+	ret = virt2phy_current(GUEST_IPL_BASE, &host_addr);
 	if (ret)
 		goto fail;
 
