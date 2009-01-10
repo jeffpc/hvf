@@ -30,7 +30,7 @@ int init_slab()
 	if (!generic[3])
 		goto out_err;
 
-	generic[4] = create_slab(256, 4);
+	generic[4] = create_slab(256, 8);
 	if (!generic[4])
 		goto out_err;
 
