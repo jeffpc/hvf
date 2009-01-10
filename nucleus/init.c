@@ -129,6 +129,9 @@ void start(u64 __memsize)
 	memcpy(SVC_INT_NEW_PSW, &new_svc_psw, sizeof(struct psw));
 	memcpy(PGM_INT_NEW_PSW, &new_pgm_psw, sizeof(struct psw));
 
+	/* Turn on Low-address Protection */
+	lap_on();
+
 	/*
 	 * Set up page table entries for the nucleus
 	 */
