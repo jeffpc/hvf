@@ -1,9 +1,10 @@
 pre v0.15:
-  - SIE
-    - virtualize devices (VDEV_DED)
+  - bug #91
+  - bug #98
 
 pre v0.16:
   - SIE
+    - virtualize devices (VDEV_DED)
     - virtualize console (VDEV_CONS)
     - virtualize spool (VDEV_SPOOL)
     - virtualize minidisks (VDEV_MDISK)
