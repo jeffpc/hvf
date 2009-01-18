@@ -28,7 +28,7 @@ struct page {
 /*
  * Externs
  */
-extern void init_pages();
+extern void init_pages(void);
 
 /*
  * Static inlines

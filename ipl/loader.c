@@ -14,20 +14,7 @@
 #error missing BLOCK_SIZE
 #endif
 
-#define TEMP_BASE	((unsigned char*) 0x400000) /* 4MB */
-
-typedef unsigned long u64;
-typedef signed long s64;
-
-typedef unsigned int u32;
-typedef signed int s32;
-
-typedef unsigned short u16;
-typedef signed short s16;
-
-typedef unsigned char u8;
-typedef signed char s8;
-
+#include <loader.h>
 #include <binfmt_elf.h>
 
 static unsigned char seek_ccw[8] __attribute__ ((aligned (8))) = {
@@ -176,16 +163,13 @@ unsigned char ORB[32] __attribute__ ((aligned (16))) = {
 	/*   0-31      0   <zero/reserved>                              */
 };
 
-#define memcpy(d,s,l)	__builtin_memcpy((d), (s), (l))
-#define memset(s,c,n)	__builtin_memset((s),(c),(n))
-
-/* 
+/*
  * halt the cpu
- * 
+ *
  * NOTE: we don't care about not clobbering registers as when this
  * code executes, the CPU will be stopped.
  */
-static inline void die()
+static inline void die(void)
 {
 	asm volatile(
 		"SR	%r1, %r1	# not used, but should be zero\n"
@@ -199,12 +183,6 @@ static inline void die()
 	for(;;);
 }
 
-/*
- * It is easier to write this thing in assembly...
- */
-extern void __do_io();
-extern void PGMHANDLER();
-
 static u64 pgm_new_psw[2] = {
 	0x0000000180000000ULL, (u64) &PGMHANDLER,
 };
@@ -212,7 +190,7 @@ static u64 pgm_new_psw[2] = {
 /*
  * determine amount of storage
  */
-static u64 sense_memsize()
+static u64 sense_memsize(void)
 {
 	u64 size;
 	int cc;
@@ -255,7 +233,7 @@ static u64 sense_memsize()
 /*
  * read the entire nucleus into into TEMP_BASE
  */
-static inline void readnucleus()
+static inline void readnucleus(void)
 {
 	register unsigned long base;
 

@@ -2,6 +2,8 @@
 # Copyright (c) 2007 Josef 'Jeff' Sipek
 #
 
+#include <loader.h>
+
 .text
 	.align	4
 .globl __do_io

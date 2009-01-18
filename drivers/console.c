@@ -256,7 +256,7 @@ int console_interrupt(struct device *dev, struct irb *irb)
 	return err;
 }
 
-struct console* start_consoles()
+struct console* start_consoles(void)
 {
 	char name[TASK_NAME_LEN+1];
 	struct console *op;

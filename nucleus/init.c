@@ -48,7 +48,7 @@ u8 *int_stack_ptr;
 /* the time HVF got IPLd */
 struct datetime ipltime;
 
-static void init_int_stack()
+static void init_int_stack(void)
 {
 	struct page *page;
 
@@ -58,7 +58,7 @@ static void init_int_stack()
 	int_stack_ptr = PAGE_SIZE + (u8*)page_to_addr(page);
 }
 
-static void idle_task_body()
+static void idle_task_body(void)
 {
 	/*
 	 * Warning: hack alert! The following overrides what __init_task

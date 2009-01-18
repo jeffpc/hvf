@@ -10,7 +10,7 @@ static struct device_type d3215 = {
 	.model		= 0,
 };
 
-int register_driver_3215()
+int register_driver_3215(void)
 {
 	return register_device_type(&d3215);
 }

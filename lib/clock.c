@@ -18,7 +18,7 @@ struct leap_sec_info {
 /*
  * List of TOD clocks for each of the leap seconds
  */
-struct leap_sec_info leap_secs[] = {
+static struct leap_sec_info leap_secs[] = {
 	{ 0xC3870CB9BB600000ULL, LS_YM2DATE(2009, 1, LS_LS  ), },
 	{ 0xBE251097973C0000ULL, LS_YM2DATE(2006, 1, LS_LS  ), },
 	{ 0xB1962F9305180000ULL, LS_YM2DATE(1999, 1, LS_LS  ), },

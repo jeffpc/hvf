@@ -116,12 +116,12 @@ struct virt_sys {
 	struct address_space as;	/* the guest storage */
 };
 
-extern void init_sched();		/* initialize the scheduler */
+extern void init_sched(void);		/* initialize the scheduler */
 extern struct task* create_task(char *name, int (*f)(void*), void*);
 					/* create a new task */
-extern void schedule();			/* yield the cpu */
+extern void schedule(void);		/* yield the cpu */
 extern void __schedule(struct psw *);	/* scheduler helper - use with caution */
-extern void __schedule_svc();
+extern void __schedule_svc(void);
 
 extern void list_tasks(struct console *con,
 		       void (*f)(struct console *, struct task*));
@@ -139,7 +139,7 @@ extern void list_tasks(struct console *con,
 static inline struct task *extract_task_ptr(void *stack)
 {
 	u8 *ptr;
-	
+
 	ptr = (u8*) (((u64) stack) & ~(PAGE_SIZE-1));
 	ptr += PAGE_SIZE - sizeof(void*);
 
@@ -149,7 +149,7 @@ static inline struct task *extract_task_ptr(void *stack)
 /**
  * extract_task - return the associated task struct
  */
-static inline struct task *extract_task()
+static inline struct task *extract_task(void)
 {
 	int unused;
 
@@ -164,7 +164,7 @@ static inline struct task *extract_task()
 static inline void set_task_ptr(void *stack, struct task *task)
 {
 	u8 *ptr;
-	
+
 	ptr = (u8*) (((u64) stack) & ~(PAGE_SIZE-1));
 	ptr += PAGE_SIZE - sizeof(void*);
 

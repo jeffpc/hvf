@@ -22,7 +22,7 @@ static void __init_page(struct page *page)
 /*
  * Initialize struct page for each available page
  */
-void init_pages()
+void init_pages(void)
 {
 	u64 pnum;
 

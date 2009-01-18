@@ -5,8 +5,8 @@
 #ifndef _LINUX_LIST_H
 #define _LINUX_LIST_H
 
-#define LIST_POISON1	((void*) 0x8585858585858585)
-#define LIST_POISON2	((void*) 0x8686868686868686)
+#define LIST_POISON1	((void*) 0x8585858585858585ULL)
+#define LIST_POISON2	((void*) 0x8686868686868686ULL)
 
 /*
  * Simple doubly linked list implementation.

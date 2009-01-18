@@ -216,7 +216,7 @@ static int do_sense_id(u32 sch, u16 dev_num, struct senseid_struct *buf)
 /*
  * Scan all subchannel ids, and register each device
  */
-void scan_devices()
+void scan_devices(void)
 {
 	struct schib schib;
 	struct device *dev = NULL;
@@ -302,9 +302,7 @@ void list_devices(struct console *con, void (*f)(struct console*, struct device*
 		f(con, dev);
 }
 
-extern int register_driver_3215();
-
-void register_drivers()
+void register_drivers(void)
 {
 	register_driver_3215();
 }

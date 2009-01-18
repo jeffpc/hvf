@@ -4,7 +4,7 @@
 extern u64 memsize;
 
 /* Turn Low-address protection on */
-static inline void lap_on()
+static inline void lap_on(void)
 {
 	u64 cr0;
 

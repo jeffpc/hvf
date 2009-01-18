@@ -29,7 +29,7 @@ struct io_op {
 
 #define MAX_IOS		128	/* max number of in-flight IO ops */
 
-extern void init_io();
+extern void init_io(void);
 extern int submit_io(struct io_op *oop, int flags);
 
 #endif

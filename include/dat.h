@@ -79,7 +79,7 @@ struct dat_pte {
 #define DAT_BX(addr)	(((u64)(addr))& 0xfff)
 
 extern int dat_insert_page(struct address_space *as, u64 phy, u64 virt);
-extern void setup_dat();
+extern void setup_dat(void);
 extern void load_as(struct address_space *as);
 
 extern int virt2phy(struct address_space *as, u64 virt, u64 *phy);

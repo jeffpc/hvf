@@ -54,7 +54,7 @@ extern void PGM_INT(void);
 #define local_int_restore(x) \
 	__asm__ __volatile__("ssm   0(%0)" : : "a" (&x), "m" (x) : "memory")
 
-extern void set_timer();
+extern void set_timer(void);
 
 /*
  * The Supervisor-Service call table
@@ -62,5 +62,13 @@ extern void set_timer();
 #define SVC_SCHEDULE		0
 #define NR_SVC			1
 extern u64 svc_table[NR_SVC];
+
+/* Interrupt handlers */
+extern void __pgm_int_handler(void);
+extern void __ext_int_handler(void);
+extern void __io_int_handler(void);
+
+/* Interrupt handler stack pointer */
+extern u8 *int_stack_ptr;
 
 #endif

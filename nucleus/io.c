@@ -88,7 +88,7 @@ out:
 /*
  * Initialize the channel I/O subsystem
  */
-void init_io()
+void init_io(void)
 {
 	u64 cr6;
 
@@ -162,7 +162,7 @@ static void __dev_initiated_io(struct device *dev, struct irb *irb)
 /*
  * I/O Interrupt handler (C portion)
  */
-void __io_int_handler()
+void __io_int_handler(void)
 {
 	unsigned long intmask;
 	struct io_op *ioop;

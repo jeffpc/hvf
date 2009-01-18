@@ -1,5 +1,7 @@
 .text
 
+#include <interrupt.h>
+
 #
 # IO Interrupt
 #

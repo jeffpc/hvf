@@ -12,7 +12,7 @@ static struct slab *generic[7];
 /*
  * Create slab caches for 16, 32, 64, 128, and 256 byte allocations
  */
-int init_slab()
+int init_slab(void)
 {
 	generic[0] = create_slab(16, 4);
 	if (!generic[0])
@@ -161,7 +161,7 @@ static inline void *__alloc_slab_obj_newpage(struct slab *slab, int type)
 	return new;
 }
 
-void *alloc_slab_obj(struct slab *passed_slab, int type)
+static void *alloc_slab_obj(struct slab *passed_slab, int type)
 {
 	struct slab *slab = passed_slab;
 	void *obj = NULL;
@@ -229,7 +229,7 @@ out:
 	return obj;
 }
 
-void free_slab_obj(void *ptr)
+static void free_slab_obj(void *ptr)
 {
 	struct slab *slab;
 	int objidx;

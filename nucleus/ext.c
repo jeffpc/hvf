@@ -6,7 +6,7 @@
  */
 volatile u64 ticks;
 
-void set_timer()
+void set_timer(void)
 {
 	u64 time = 1000 * 1000 * CLK_MICROSEC / HZ;
 
@@ -18,7 +18,7 @@ void set_timer()
 	);
 }
 
-void __ext_int_handler()
+void __ext_int_handler(void)
 {
 	if (*EXT_INT_CODE == 0x1005) {
 		/*

@@ -1,3 +1,5 @@
+#include <splash.h>
+
 char *splash[] = {
 	"                    HH        HH  VV        VV  FFFFFFFFFFFF\n",
 	"                    HH        HH  VV        VV  FFFFFFFFFFFF\n",

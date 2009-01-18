@@ -77,7 +77,7 @@ static void __init_task(struct task *task, void *f, void *data, void *stack)
  * struct is a global variable, all that is left for us to do is to
  * associate the current stack with idle_task.
  */
-static void init_idle_task()
+static void init_idle_task(void)
 {
 	u64 stack;
 
@@ -241,7 +241,7 @@ go:
 /**
  * __schedule_svc - wrapper for the supervisor-service call handler
  */
-void __schedule_svc()
+void __schedule_svc(void)
 {
 	__schedule(SVC_INT_OLD_PSW);
 }
@@ -249,7 +249,7 @@ void __schedule_svc()
 /**
  * schedule - used to explicitly yield the cpu
  */
-void schedule()
+void schedule(void)
 {
 	asm volatile(
 		"	svc	%0\n"
@@ -262,7 +262,7 @@ void schedule()
 /*
  * Initialize the schduler, and all associated structures
  */
-void init_sched()
+void init_sched(void)
 {
 	u64 cr0;
 

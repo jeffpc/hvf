@@ -99,7 +99,7 @@ walk_segment:
 	return 0;
 }
 
-void setup_dat()
+void setup_dat(void)
 {
 	/* nothing to do! */
 }

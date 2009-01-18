@@ -50,7 +50,7 @@ static int cmd_ipl(struct virt_sys *sys, char *cmd, int len)
 	sys->task->cpu->regs.gpr[2]  = GUEST_IPL_DEVNUM;
 	sys->task->cpu->regs.gpr[12] = GUEST_IPL_BASE;
 
-	*((u64*) &sys->task->cpu->sie_cb.gpsw) = 0x0008000080000000 |
+	*((u64*) &sys->task->cpu->sie_cb.gpsw) = 0x0008000080000000ULL |
 						 GUEST_IPL_BASE;
 
 	sys->task->cpu->state = GUEST_STOPPED;

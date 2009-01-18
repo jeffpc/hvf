@@ -15,9 +15,9 @@ struct slab {
 	u16 count;			/* number of objects in this page */
 	u16 used;			/* number of used objects */
 	u8 bitmap[0];			/* allocation bitmap */
-} __attribute((packed))__;
+} __attribute__((packed));
 
-extern int init_slab();
+extern int init_slab(void);
 
 extern struct slab *create_slab(u16 objsize, u8 align);
 extern void free_slab(struct slab *slab);

@@ -266,6 +266,6 @@ static inline int test_sch(u32 sch, struct irb *irb)
 	return 0;
 }
 
-extern void scan_devices();
+extern void scan_devices(void);
 
 #endif

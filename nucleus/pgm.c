@@ -9,7 +9,7 @@ static char abend_msg_buf[1024];
  * Try to write out a message to a special buffer to help debugging, and
  * then stop the CPU.
  */
-static void abend()
+static void abend(void)
 {
 	int ret;
 
@@ -55,7 +55,7 @@ static void abend()
 	for(;;);
 }
 
-void __pgm_int_handler()
+void __pgm_int_handler(void)
 {
 	abend();
 }
