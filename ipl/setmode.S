@@ -32,9 +32,7 @@
 	#
 	# Let's set the stack pointer to make gcc happy
 	#
-	# BEWARE! A standard stack frame is 160 bytes, but because we abuse
-	# the last 8 bytes of the page as a pointer to current, we have to
-	# subtract 168 here
+	# A standard stack frame is 160 bytes.
 	#
 	# NOTE: Once this thread of execution turns into the idle thread,
 	# the stack can be reused for something else. Since it's allocated
@@ -48,7 +46,7 @@
 	SR	%r15, %r15
 	LHI	%r15, 0x1
 	SLL	%r15, 20
-	AHI	%r15, -168
+	AHI	%r15, -160
 
 #
 # Padding to make the entire file 0x20 bytes
