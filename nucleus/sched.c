@@ -58,14 +58,7 @@ static void __init_task(struct task *task, void *f, void *data, void *stack)
 
 	task->regs.gpr[2]  = (u64) f;
 	task->regs.gpr[3]  = (u64) data;
-	task->regs.gpr[15] = ((u64) stack) + PAGE_SIZE - sizeof(void*) -
-			STACK_FRAME_SIZE;
-
-	/*
-	 * Last 8 bytes of the stack page contain a pointer to the task
-	 * structure
-	 */
-	set_task_ptr(stack, task);
+	task->regs.gpr[15] = ((u64) stack) + PAGE_SIZE - STACK_FRAME_SIZE;
 
 	task->state = TASK_SLEEPING;
 }
@@ -84,6 +77,7 @@ static void init_idle_task(void)
 	stack = ((u64) &stack) & ~(PAGE_SIZE-1);
 
 	__init_task(&idle_task, NULL, NULL, (void*) stack);
+	set_task_ptr(&idle_task);
 
 	/*
 	 * NOTE: The idle task is _not_ supposed to be on either of the
@@ -165,6 +159,7 @@ run:
 	 * lpswe, we have to place the new psw into PSA and use register 0
 	 */
 	memcpy(PSA_TMP_PSW, &next->regs.psw, sizeof(struct psw));
+	set_task_ptr(next);
 
 	load_pasce(next->regs.cr1);
 
@@ -198,7 +193,7 @@ void __schedule(struct psw *old_psw)
 	 * Save last process's state
 	 */
 
-	prev = extract_task_ptr((void*) PSA_INT_GPR[15]);
+	prev = current;
 	BUG_ON(!prev);
 
 	/*

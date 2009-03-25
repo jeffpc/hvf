@@ -131,44 +131,23 @@ extern void list_tasks(struct console *con,
  */
 #define current		extract_task()
 
-/**
- * extract_task_ptr - given an address anywhere on the stack, return the
- * associated task struct
- * @stack:	a pointer to anywhere in the stack
- */
-static inline struct task *extract_task_ptr(void *stack)
-{
-	u8 *ptr;
-
-	ptr = (u8*) (((u64) stack) & ~(PAGE_SIZE-1));
-	ptr += PAGE_SIZE - sizeof(void*);
-
-	return *((struct task **) ptr);
-}
+#define PSA_CURRENT	((struct task**) 0x290)
 
 /**
- * extract_task - return the associated task struct
+ * extract_task - return the current task struct
  */
 static inline struct task *extract_task(void)
 {
-	int unused;
-
-	return extract_task_ptr(&unused);
+	return *PSA_CURRENT;
 }
 
 /**
  * set_task_ptr - set the stack's task struct pointer
- * @stack:	a pointer to anywhere in the stack
- * @task:	task struct pointer to be associated with the stack
+ * @task:	task struct pointer to be made current
  */
-static inline void set_task_ptr(void *stack, struct task *task)
+static inline void set_task_ptr(struct task *task)
 {
-	u8 *ptr;
-
-	ptr = (u8*) (((u64) stack) & ~(PAGE_SIZE-1));
-	ptr += PAGE_SIZE - sizeof(void*);
-
-	*((struct task**)ptr) = task;
+	*PSA_CURRENT = task;
 }
 
 #endif
