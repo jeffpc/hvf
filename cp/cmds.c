@@ -1,4 +1,5 @@
 #include <directory.h>
+#include <vdevice.h>
 #include <dat.h>
 #include <mm.h>
 #include <sched.h>

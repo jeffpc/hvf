@@ -17,41 +17,42 @@ static void display_rdev(struct console *con, struct device *dev)
 		   dev->sch);
 }
 
-static void display_vdev(struct console *con, struct vdev *vdev)
+static void display_vdev(struct console *con, struct virt_device *vdev)
 {
-	switch (vdev->type) {
+	switch (vdev->vtype) {
 		case VDEV_CONS:
 			con_printf(con, "CONS %04X 3215 ON %s %04X SCH = %05X\n",
-				   vdev->vdev, type2name(con->dev->type),
-				   con->dev->ccuu, vdev->vsch);
+				   vdev->pmcw.dev_num,
+				   type2name(con->dev->type), // FIXME?
+				   con->dev->ccuu, vdev->sch);
 			break;
 		case VDEV_DED:
 			con_printf(con, "???? %04X SCH = %05X\n",
-				   vdev->vdev, vdev->vsch);
+				   vdev->pmcw.dev_num, vdev->sch);
 			break;
 		case VDEV_SPOOL:
 			con_printf(con, "%-4s %04X %04X SCH = %05X\n",
-				   type2name(vdev->u.spool.type),
-				   vdev->vdev, vdev->u.spool.type,
-				   vdev->vsch);
+				   type2name(vdev->type),
+				   vdev->pmcw.dev_num, vdev->type,
+				   vdev->sch);
 			break;
 		case VDEV_MDISK:
 			con_printf(con, "DASD %04X 3390 %6d CYL ON DASD %04X SCH = %05X\n",
-				   vdev->vdev,
-				   vdev->u.mdisk.cylcnt, /* cyl count */
-				   vdev->u.mdisk.rdev,   /* rdev */
-				   vdev->vsch);
+				   vdev->pmcw.dev_num,
+				   0, /* FIXME: cyl count */
+				   0, /* FIXME: rdev */
+				   vdev->sch);
 			break;
 		case VDEV_LINK:
 			con_printf(con, "LINK %04X TO %s %04X SCH = %05X\n",
-				   vdev->vdev,
-				   "????", /* userid */
-				   0xffff, /* user's vdev # */
-				   vdev->vsch);
+				   vdev->pmcw.dev_num,
+				   "????", /* FIXME: userid */
+				   0xffff, /* FIXME: user's vdev # */
+				   vdev->sch);
 			break;
 		default:
 			con_printf(con, "???? unknown device type (%04X, %05X)\n",
-				   vdev->vdev, vdev->vsch);
+				   vdev->pmcw.dev_num, vdev->sch);
 			break;
 	}
 }
@@ -111,13 +112,13 @@ static int cmd_query(struct virt_sys *sys, char *cmd, int len)
 			   dt.th, dt.tm, dt.ts, dt.dy, dt.dm, dt.dd);
 
 	} else if (!strcasecmp(cmd, "VIRTUAL")) {
-		int i;
+		struct virt_device *vdev;
 
 		con_printf(sys->con, "CPU %s\n", __guest_state_to_str(sys->task->cpu->state));
 		con_printf(sys->con, "STORAGE = %lluM\n", sys->directory->storage_size >> 20);
 
-		for(i=0; sys->directory->devices[i].type != VDEV_INVAL; i++)
-			display_vdev(sys->con, &sys->directory->devices[i]);
+		list_for_each_entry(vdev, &sys->virt_devs, devices)
+			display_vdev(sys->con, vdev);
 
 	} else if (!strcasecmp(cmd, "REAL")) {
 		con_printf(sys->con, "CPU RUNNING\n");

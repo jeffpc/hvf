@@ -8,6 +8,22 @@
 #include <cp.h>
 #include <clock.h>
 #include <ebcdic.h>
+#include <vdevice.h>
+
+static int __alloc_guest_devices(struct virt_sys *sys)
+{
+	int i;
+
+	INIT_LIST_HEAD(&sys->virt_devs);
+
+	for(i=0; sys->directory->devices[i].type != VDEV_INVAL; i++) {
+		if (alloc_virt_dev(sys, &sys->directory->devices[i],
+				   0x10000 + i))
+			BUG(); // FIXME: be nicer
+	}
+
+	return 0;
+}
 
 static int __alloc_guest_storage(struct virt_sys *sys)
 {
@@ -88,6 +104,7 @@ static int cp_init(void *data)
 	memset(cpu, 0, PAGE_SIZE);
 
 	__alloc_guest_storage(sys);
+	__alloc_guest_devices(sys);
 
 	/*
 	 * load guest's address space into the host's PASCE

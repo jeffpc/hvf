@@ -112,6 +112,7 @@ struct virt_sys {
 	struct console *con;		/* the login console */
 
 	struct list_head guest_pages;	/* list of guest pages */
+	struct list_head virt_devs;	/* list of guest virtual devs */
 
 	struct address_space as;	/* the guest storage */
 };

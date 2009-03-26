@@ -10,34 +10,29 @@ static struct user directory[] = {
 				/* CON */
 				.type = VDEV_CONS,
 				.vdev = 0x0009,
-				.vsch = 0x10000,
 			},
 			{
 				/* RDR */
 				.type = VDEV_SPOOL,
 				.vdev = 0x000C,
-				.vsch = 0x10001,
 				.u.spool = { .type = 0x3505, .model = 1, },
 			},
 			{
 				/* PUN */
 				.type = VDEV_SPOOL,
 				.vdev = 0x000D,
-				.vsch = 0x10002,
 				.u.spool = { .type = 0x3525, .model = 1, },
 			},
 			{
 				/* PRT */
 				.type = VDEV_SPOOL,
 				.vdev = 0x000E,
-				.vsch = 0x10003,
 				.u.spool = { .type = 0x1403, .model = 1, },
 			},
 			{
 				/* 191 DASD */
 				.type = VDEV_MDISK,
 				.vdev = 0x0191,
-				.vsch = 0x10004,
 				.u.mdisk = { .cyloff = 15, .cylcnt = 100, .rdev = 0x0192, },
 			},
 			{

@@ -1,1 +1,1 @@
-objs-drivers := device.o console.o 3215.o
+objs-drivers := device.o console.o 3215.o vdevice.o

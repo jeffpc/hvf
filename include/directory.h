@@ -3,7 +3,7 @@
 
 #include <console.h>
 
-enum vdevtype {
+enum directory_vdevtype {
 	VDEV_INVAL = 0,			/* invalid */
 	VDEV_CONS,			/* a console */
 	VDEV_DED,			/* dedicated real device */
@@ -12,10 +12,9 @@ enum vdevtype {
 	VDEV_LINK,			/* a link to another user's device */
 };
 
-struct vdev {
-	enum vdevtype type;		/* device type */
+struct directory_vdev {
+	enum directory_vdevtype type;	/* device type */
 	u16 vdev;			/* virtual dev # */
-	u32 vsch;			/* virtual sch # */
 
 	union {
 		/* VDEV_CONS */
@@ -53,7 +52,7 @@ struct user {
 	u64 storage_size;
 
 	/* FIXME: make this dynamically allocated */
-	struct vdev devices[6];
+	struct directory_vdev devices[6];
 };
 
 extern struct user *find_user_by_id(char *userid);
