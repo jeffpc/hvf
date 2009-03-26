@@ -388,6 +388,74 @@ static int cmd_display_psw(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+static void __do_display_schib(struct console *con, struct virt_device *vdev)
+{
+	con_printf(con, "%05X %04X %08X   %d  %02X %02X  %02X  %02X %02X "
+		        "---- %02X %02X %02X%02X%02X%02X %02X%02X%02X%02X\n",
+		   vdev->sch, vdev->pmcw.dev_num, vdev->pmcw.interrupt_param,
+		   vdev->pmcw.isc, ((vdev->pmcw.e  << 7) |
+				    (vdev->pmcw.lm << 5) |
+				    (vdev->pmcw.mm << 3) |
+				    (vdev->pmcw.d  << 2) |
+				    (vdev->pmcw.t  << 1) |
+				    (vdev->pmcw.v)),
+		   vdev->pmcw.lpm, vdev->pmcw.pnom, vdev->pmcw.lpum,
+		   vdev->pmcw.pim,
+		   /* MBI */
+		   vdev->pmcw.pom, vdev->pmcw.pam,
+		   vdev->pmcw.chpid[0], vdev->pmcw.chpid[1],
+		   vdev->pmcw.chpid[2], vdev->pmcw.chpid[3],
+		   vdev->pmcw.chpid[4], vdev->pmcw.chpid[5],
+		   vdev->pmcw.chpid[6], vdev->pmcw.chpid[7]);
+}
+
+/*
+ *!!! DISPLAY SCHIB
+ *!p >>--DISPLAY--SCHIB--.-ALL---.-------------------------------------------------><
+ *!p                     '-schib-'
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the guest's subchannel control block information
+ */
+static int cmd_display_schib(struct virt_sys *sys, char *cmd, int len)
+{
+	struct virt_device *vdev;
+	u64 sch;
+	int all;
+
+	if (strcasecmp(cmd, "ALL")) {
+		cmd = __extract_hex(cmd, &sch);
+		if (IS_ERR(cmd))
+			return PTR_ERR(cmd);
+
+		/* sch number must be: X'0001____' */
+		if ((sch & 0xffff0000) != 0x00010000)
+			return -EINVAL;
+
+		all = 0;
+	} else
+		all = 1;
+
+	/* find the virtual device */
+
+	list_for_each_entry(vdev, &sys->virt_devs, devices) {
+		if ((vdev->sch == (u32) sch) || all) {
+			if (!all || all == 1) {
+				con_printf(sys->con, "SCHIB DEV  INT-PARM ISC FLG LP "
+					   "PNO LPU PI MBI  PO PA CHPID0-3 CHPID4-7\n");
+				all = (all ? 2 : 0);
+			}
+
+			__do_display_schib(sys->con, vdev);
+
+			if (!all)
+				break;
+		}
+	}
+
+	return 0;
+}
+
 static struct cpcmd cmd_tbl_display[] = {
 	{"STORAGE", cmd_display_storage, NULL},
 	{"GPR", cmd_display_gpr, NULL},
@@ -396,6 +464,7 @@ static struct cpcmd cmd_tbl_display[] = {
 	{"CR", cmd_display_cr, NULL},
 	{"AR", cmd_display_ar, NULL},
 	{"PSW", cmd_display_psw, NULL},
+	{"SCHIB", cmd_display_schib, NULL},
 	{"SIECB", cmd_display_siecb, NULL},
 	{NULL, NULL, NULL},
 };
