@@ -1022,8 +1022,8 @@ static int da_snprintf(u8 *bytes, char *buf, int buflen, u8 opcode, struct
 		case IF_SI:
 			snprintf(buf, buflen, IPFX "%d(R%d),%d",
 				 inst->u.name,
-				 bytes[2] >> 4,				/* B1 */
 				 *((u16*)(bytes+2)) & 0x0fff,		/* D1 */
+				 bytes[2] >> 4,				/* B1 */
 				 bytes[1]);				/* I2 */
 			break;
 		case IF_SS1:
