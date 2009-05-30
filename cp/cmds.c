@@ -5,6 +5,7 @@
 #include <sched.h>
 #include <disassm.h>
 #include <cp.h>
+#include <cpu.h>
 
 struct cpcmd {
 	const char *name;

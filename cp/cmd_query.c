@@ -114,14 +114,16 @@ static int cmd_query(struct virt_sys *sys, char *cmd, int len)
 	} else if (!strcasecmp(cmd, "VIRTUAL")) {
 		struct virt_device *vdev;
 
-		con_printf(sys->con, "CPU %s\n", __guest_state_to_str(sys->task->cpu->state));
+		con_printf(sys->con, "CPU 00  ID  %016llX %s\n",
+			   sys->task->cpu->cpuid,
+			   __guest_state_to_str(sys->task->cpu->state));
 		con_printf(sys->con, "STORAGE = %lluM\n", sys->directory->storage_size >> 20);
 
 		list_for_each_entry(vdev, &sys->virt_devs, devices)
 			display_vdev(sys->con, vdev);
 
 	} else if (!strcasecmp(cmd, "REAL")) {
-		con_printf(sys->con, "CPU RUNNING\n");
+		con_printf(sys->con, "CPU 00  ID  %016llX RUNNING\n", getcpuid());
 		con_printf(sys->con, "STORAGE = %lluM\n", memsize >> 20);
 
 		list_devices(sys->con, display_rdev);
