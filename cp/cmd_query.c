@@ -123,7 +123,9 @@ static int cmd_query(struct virt_sys *sys, char *cmd, int len)
 			display_vdev(sys->con, vdev);
 
 	} else if (!strcasecmp(cmd, "REAL")) {
-		con_printf(sys->con, "CPU 00  ID  %016llX RUNNING\n", getcpuid());
+		con_printf(sys->con, "CPU %02d  ID  %016llX RUNNING\n",
+			   getcpuaddr(),
+			   getcpuid());
 		con_printf(sys->con, "STORAGE = %lluM\n", memsize >> 20);
 
 		list_devices(sys->con, display_rdev);
