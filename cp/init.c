@@ -9,6 +9,7 @@
 #include <clock.h>
 #include <ebcdic.h>
 #include <vdevice.h>
+#include <cpu.h>
 
 static int __alloc_guest_devices(struct virt_sys *sys)
 {
@@ -110,6 +111,8 @@ static int cp_init(void *data)
 	 * load guest's address space into the host's PASCE
 	 */
 	load_as(&sys->as);
+
+	cpu->cpuid = getcpuid() | 0xFF00000000000000ULL;
 
 	memset(&cpu->sie_cb, 0, sizeof(struct sie_cb));
 	cpu->sie_cb.gmsor = 0;

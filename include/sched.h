@@ -81,6 +81,7 @@ struct virt_cpu {
 	struct sie_cb sie_cb;
 
 	struct guest_regs regs;
+	u64 cpuid;
 
 	enum virt_cpustate state;
 };
