@@ -2,8 +2,8 @@
 # Sample configuration file for Hercules zArch emulator
 #
 
-CPUSERIAL 000777        # CPU serial number
-CPUMODEL  3158          # CPU model number
+CPUSERIAL 850918        # CPU serial number
+CPUMODEL  2097          # CPU model number
 MAINSIZE  128           # Main storage size in megabytes
 XPNDSIZE  0             # Expanded storage size in megabytes
 CNSLPORT  3271          # TCP port number to which consoles connect
