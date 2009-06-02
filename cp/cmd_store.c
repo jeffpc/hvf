@@ -263,12 +263,12 @@ static int cmd_store_psw(struct virt_sys *sys, char *cmd, int len)
 }
 
 static struct cpcmd cmd_tbl_store[] = {
-	{"STORAGE", cmd_store_storage, NULL},
-	{"GPR", cmd_store_gpr, NULL},
-	{"FPCR", cmd_store_fpcr, NULL},
-	{"FPR", cmd_store_fpr, NULL},
-	{"CR", cmd_store_cr, NULL},
-	{"AR", cmd_store_ar, NULL},
-	{"PSW", cmd_store_psw, NULL},
-	{NULL, NULL, NULL},
+	{"STORAGE",	cmd_store_storage,	NULL},
+	{"GPR",		cmd_store_gpr,		NULL},
+	{"FPCR",	cmd_store_fpcr,		NULL},
+	{"FPR",		cmd_store_fpr,		NULL},
+	{"CR",		cmd_store_cr,		NULL},
+	{"AR",		cmd_store_ar,		NULL},
+	{"PSW",		cmd_store_psw,		NULL},
+	{"",		NULL,			NULL},
 };

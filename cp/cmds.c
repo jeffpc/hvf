@@ -8,7 +8,7 @@
 #include <cpu.h>
 
 struct cpcmd {
-	const char *name;
+	const char name[CP_CMD_MAX_LEN];
 
 	/* handle function pointer */
 	int (*fnx)(struct virt_sys *sys, char *cmd, int len);
@@ -52,21 +52,32 @@ static char* type2name(u16 type)
 #include "cmd_store.c"
 
 static struct cpcmd commands[] = {
-	{"BEGIN", cmd_begin, NULL},
-	{"DISPLAY", NULL, cmd_tbl_display},
-	{"IPL", cmd_ipl, NULL},
-	{"QUERY", cmd_query, NULL},
-	{"STOP", cmd_stop, NULL},
-	{"STORE", NULL, cmd_tbl_store},
-	{"SYSTEM", cmd_system, NULL},
-	{NULL, NULL, NULL},
+	{"BE",		cmd_begin,		NULL},
+	{"BEG",		cmd_begin,		NULL},
+	{"BEGI",	cmd_begin,		NULL},
+	{"BEGIN",	cmd_begin,		NULL},
+
+	{"D",		NULL,			cmd_tbl_display},
+	{"DI",		NULL,			cmd_tbl_display},
+	{"DIS",		NULL,			cmd_tbl_display},
+	{"DISP",	NULL,			cmd_tbl_display},
+	{"DISPL",	NULL,			cmd_tbl_display},
+	{"DISPLA",	NULL,			cmd_tbl_display},
+	{"DISPLAY",	NULL,			cmd_tbl_display},
+
+	{"IPL",		cmd_ipl,		NULL},
+	{"QUERY",	cmd_query,		NULL},
+	{"STOP",	cmd_stop,		NULL},
+	{"STORE",	NULL,			cmd_tbl_store},
+	{"SYSTEM",	cmd_system,		NULL},
+	{"",		NULL,			NULL},
 };
 
 static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int len)
 {
 	int i, ret;
 
-	for(i=0; t[i].name; i++) {
+	for(i=0; t[i].name[0]; i++) {
 		const char *inp = cmd, *exp = t[i].name;
 		int match_len = 0;
 
@@ -76,24 +87,20 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int
 			exp++;
 		}
 
-		/* doesn't even begin the same */
-		if (!match_len)
+		/* doesn't match */
+		if (match_len != strnlen(t[i].name, len))
 			continue;
 
 		/*
 		 * the next char in the input is...
 		 */
-		if (cmd[match_len] == ' ')
+		while((cmd[match_len] == ' ' || cmd[match_len] == '\t') &&
+		      (match_len < len))
 			/*
 			 * command was given arguments - skip over the
 			 * delimiting space
 			 */
 			match_len++;
-		else if (cmd[match_len] != '\0')
-			/*
-			 * command mis-match, try the next one
-			 */
-			continue;
 
 		if (t[i].sub) {
 			ret = __invoke_cp_cmd(t[i].sub, sys, cmd + match_len, len - match_len);

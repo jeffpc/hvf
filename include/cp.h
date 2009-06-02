@@ -3,6 +3,8 @@
 
 #include <directory.h>
 
+#define CP_CMD_MAX_LEN	8
+
 /*
  * This file should contain only externally (from CP's point of view)
  * visible interfaces.
