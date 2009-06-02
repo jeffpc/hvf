@@ -65,10 +65,25 @@ static struct cpcmd commands[] = {
 	{"DISPLA",	NULL,			cmd_tbl_display},
 	{"DISPLAY",	NULL,			cmd_tbl_display},
 
+	{"I",		cmd_ipl,		NULL},
+	{"IP",		cmd_ipl,		NULL},
 	{"IPL",		cmd_ipl,		NULL},
+
+	{"Q",		cmd_query,		NULL},
+	{"QU",		cmd_query,		NULL},
+	{"QUE",		cmd_query,		NULL},
+	{"QUER",	cmd_query,		NULL},
 	{"QUERY",	cmd_query,		NULL},
+
 	{"STOP",	cmd_stop,		NULL},
+
+	{"STO",		NULL,			cmd_tbl_store},
+	{"STOR",	NULL,			cmd_tbl_store},
 	{"STORE",	NULL,			cmd_tbl_store},
+
+	{"SYS",		cmd_system,		NULL},
+	{"SYST",	cmd_system,		NULL},
+	{"SYSTE",	cmd_system,		NULL},
 	{"SYSTEM",	cmd_system,		NULL},
 	{"",		NULL,			NULL},
 };
@@ -88,7 +103,7 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int
 		}
 
 		/* doesn't match */
-		if (match_len != strnlen(t[i].name, len))
+		if (match_len != strnlen(t[i].name, CP_CMD_MAX_LEN))
 			continue;
 
 		/*

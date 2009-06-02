@@ -457,14 +457,32 @@ static int cmd_display_schib(struct virt_sys *sys, char *cmd, int len)
 }
 
 static struct cpcmd cmd_tbl_display[] = {
-	{"STORAGE",	cmd_display_storage,	NULL},
-	{"GPR",		cmd_display_gpr,	NULL},
-	{"FPCR",	cmd_display_fpcr,	NULL},
-	{"FPR",		cmd_display_fpr,	NULL},
-	{"CR",		cmd_display_cr,		NULL},
+	{"A",		cmd_display_ar,		NULL},
 	{"AR",		cmd_display_ar,		NULL},
+
+	{"C",		cmd_display_cr,		NULL},
+	{"CR",		cmd_display_cr,		NULL},
+
+	{"F",		cmd_display_fpr,	NULL},
+	{"FP",		cmd_display_fpr,	NULL},
+	{"FPR",		cmd_display_fpr,	NULL},
+
+	{"FPCR",	cmd_display_fpcr,	NULL},
+
+	{"G",		cmd_display_gpr,	NULL},
+	{"GP",		cmd_display_gpr,	NULL},
+	{"GPR",		cmd_display_gpr,	NULL},
+
 	{"PSW",		cmd_display_psw,	NULL},
+
 	{"SCHIB",	cmd_display_schib,	NULL},
+
 	{"SIECB",	cmd_display_siecb,	NULL},
+
+	{"STO",		cmd_display_storage,	NULL},
+	{"STOR",	cmd_display_storage,	NULL},
+	{"STORA",	cmd_display_storage,	NULL},
+	{"STORAG",	cmd_display_storage,	NULL},
+	{"STORAGE",	cmd_display_storage,	NULL},
 	{"",		NULL,			NULL},
 };
