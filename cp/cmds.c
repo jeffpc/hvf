@@ -52,39 +52,39 @@ static char* type2name(u16 type)
 #include "cmd_store.c"
 
 static struct cpcmd commands[] = {
-	{"BE",		cmd_begin,		NULL},
-	{"BEG",		cmd_begin,		NULL},
-	{"BEGI",	cmd_begin,		NULL},
 	{"BEGIN",	cmd_begin,		NULL},
+	{"BEGI",	cmd_begin,		NULL},
+	{"BEG",		cmd_begin,		NULL},
+	{"BE",		cmd_begin,		NULL},
 
-	{"D",		NULL,			cmd_tbl_display},
-	{"DI",		NULL,			cmd_tbl_display},
-	{"DIS",		NULL,			cmd_tbl_display},
-	{"DISP",	NULL,			cmd_tbl_display},
-	{"DISPL",	NULL,			cmd_tbl_display},
-	{"DISPLA",	NULL,			cmd_tbl_display},
 	{"DISPLAY",	NULL,			cmd_tbl_display},
+	{"DISPLA",	NULL,			cmd_tbl_display},
+	{"DISPL",	NULL,			cmd_tbl_display},
+	{"DISP",	NULL,			cmd_tbl_display},
+	{"DIS",		NULL,			cmd_tbl_display},
+	{"DI",		NULL,			cmd_tbl_display},
+	{"D",		NULL,			cmd_tbl_display},
 
-	{"I",		cmd_ipl,		NULL},
-	{"IP",		cmd_ipl,		NULL},
 	{"IPL",		cmd_ipl,		NULL},
+	{"IP",		cmd_ipl,		NULL},
+	{"I",		cmd_ipl,		NULL},
 
-	{"Q",		cmd_query,		NULL},
-	{"QU",		cmd_query,		NULL},
-	{"QUE",		cmd_query,		NULL},
-	{"QUER",	cmd_query,		NULL},
 	{"QUERY",	cmd_query,		NULL},
+	{"QUER",	cmd_query,		NULL},
+	{"QUE",		cmd_query,		NULL},
+	{"QU",		cmd_query,		NULL},
+	{"Q",		cmd_query,		NULL},
 
 	{"STOP",	cmd_stop,		NULL},
 
-	{"STO",		NULL,			cmd_tbl_store},
-	{"STOR",	NULL,			cmd_tbl_store},
 	{"STORE",	NULL,			cmd_tbl_store},
+	{"STOR",	NULL,			cmd_tbl_store},
+	{"STO",		NULL,			cmd_tbl_store},
 
-	{"SYS",		cmd_system,		NULL},
-	{"SYST",	cmd_system,		NULL},
-	{"SYSTE",	cmd_system,		NULL},
 	{"SYSTEM",	cmd_system,		NULL},
+	{"SYSTE",	cmd_system,		NULL},
+	{"SYST",	cmd_system,		NULL},
+	{"SYS",		cmd_system,		NULL},
 	{"",		NULL,			NULL},
 };
 
