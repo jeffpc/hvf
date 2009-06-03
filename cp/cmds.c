@@ -69,11 +69,11 @@ static struct cpcmd commands[] = {
 	{"IP",		cmd_ipl,		NULL},
 	{"I",		cmd_ipl,		NULL},
 
-	{"QUERY",	cmd_query,		NULL},
-	{"QUER",	cmd_query,		NULL},
-	{"QUE",		cmd_query,		NULL},
-	{"QU",		cmd_query,		NULL},
-	{"Q",		cmd_query,		NULL},
+	{"QUERY",	NULL,			cmd_tbl_query},
+	{"QUER",	NULL,			cmd_tbl_query},
+	{"QUE",		NULL,			cmd_tbl_query},
+	{"QU",		NULL,			cmd_tbl_query},
+	{"Q",		NULL,			cmd_tbl_query},
 
 	{"STOP",	cmd_stop,		NULL},
 

@@ -64,30 +64,83 @@ static void display_task(struct console *con, struct task *task)
 }
 
 /*
- *!!! QUERY CPLEVEL
- *!p >>--QUERY--CPLEVEL------------------------------------------------------------><
- *!! AUTH G
- *!! PURPOSE
- *! Displays the HVF version and time of IPL
- *
  *!!! QUERY TIME
  *!p >>--QUERY--TIME---------------------------------------------------------------><
  *!! AUTH G
  *!! PURPOSE
  *! Displays the current time
- *
+ */
+static int cmd_query_cplevel(struct virt_sys *sys, char *cmd, int len)
+{
+	con_printf(sys->con, "HVF version " VERSION "\n");
+	con_printf(sys->con, "IPL at %02d:%02d:%02d UTC %04d-%02d-%02d\n",
+		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
+		   ipltime.dm, ipltime.dd);
+
+	return 0;
+}
+
+/*
+ *!!! QUERY CPLEVEL
+ *!p >>--QUERY--CPLEVEL------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the HVF version and time of IPL
+ */
+static int cmd_query_time(struct virt_sys *sys, char *cmd, int len)
+{
+	struct datetime dt;
+
+	get_parsed_tod(&dt);
+
+	con_printf(sys->con, "TIME IS %02d:%02d:%02d UTC %04d-%02d-%02d\n",
+		   dt.th, dt.tm, dt.ts, dt.dy, dt.dm, dt.dd);
+
+	return 0;
+}
+
+/*
  *!!! QUERY VIRTUAL
  *!p >>--QUERY--VIRTUAL------------------------------------------------------------><
  *!! AUTH G
  *!! PURPOSE
  *! Lists all of the guest's virtual devices
- *
+ */
+static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
+{
+	struct virt_device *vdev;
+
+	con_printf(sys->con, "CPU 00  ID  %016llX %s\n",
+		   sys->task->cpu->cpuid,
+		   __guest_state_to_str(sys->task->cpu->state));
+	con_printf(sys->con, "STORAGE = %lluM\n", sys->directory->storage_size >> 20);
+
+	list_for_each_entry(vdev, &sys->virt_devs, devices)
+		display_vdev(sys->con, vdev);
+
+	return 0;
+}
+
+/*
  *!!! QUERY REAL
  *!p >>--QUERY--REAL---------------------------------------------------------------><
  *!! AUTH A
  *!! PURPOSE
  *! Lists all of the host's real devices
- *
+ */
+static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
+{
+	con_printf(sys->con, "CPU %02d  ID  %016llX RUNNING\n",
+		   getcpuaddr(),
+		   getcpuid());
+	con_printf(sys->con, "STORAGE = %lluM\n", memsize >> 20);
+
+	list_devices(sys->con, display_rdev);
+
+	return 0;
+}
+
+/*
  *!!! QUERY TASK
  *!p >>--QUERY--TASK---------------------------------------------------------------><
  *!! AUTH A
@@ -95,46 +148,31 @@ static void display_task(struct console *con, struct task *task)
  *! Lists all of the tasks running on the host. This includes guest virtual
  *! cpu tasks, as well as system helper tasks.
  */
-static int cmd_query(struct virt_sys *sys, char *cmd, int len)
+static int cmd_query_task(struct virt_sys *sys, char *cmd, int len)
 {
-	if (!strcasecmp(cmd, "CPLEVEL")) {
-		con_printf(sys->con, "HVF version " VERSION "\n");
-		con_printf(sys->con, "IPL at %02d:%02d:%02d UTC %04d-%02d-%02d\n",
-			   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
-			   ipltime.dm, ipltime.dd);
-
-	} else if (!strcasecmp(cmd, "TIME")) {
-		struct datetime dt;
-
-		get_parsed_tod(&dt);
-
-		con_printf(sys->con, "TIME IS %02d:%02d:%02d UTC %04d-%02d-%02d\n",
-			   dt.th, dt.tm, dt.ts, dt.dy, dt.dm, dt.dd);
-
-	} else if (!strcasecmp(cmd, "VIRTUAL")) {
-		struct virt_device *vdev;
-
-		con_printf(sys->con, "CPU 00  ID  %016llX %s\n",
-			   sys->task->cpu->cpuid,
-			   __guest_state_to_str(sys->task->cpu->state));
-		con_printf(sys->con, "STORAGE = %lluM\n", sys->directory->storage_size >> 20);
-
-		list_for_each_entry(vdev, &sys->virt_devs, devices)
-			display_vdev(sys->con, vdev);
-
-	} else if (!strcasecmp(cmd, "REAL")) {
-		con_printf(sys->con, "CPU %02d  ID  %016llX RUNNING\n",
-			   getcpuaddr(),
-			   getcpuid());
-		con_printf(sys->con, "STORAGE = %lluM\n", memsize >> 20);
-
-		list_devices(sys->con, display_rdev);
-
-	} else if (!strcasecmp(cmd, "TASK")) {
-		list_tasks(sys->con, display_task);
-
-	} else
-		con_printf(sys->con, "QUERY: Unknown variable '%s'\n", cmd);
+	list_tasks(sys->con, display_task);
 
 	return 0;
 }
+
+static struct cpcmd cmd_tbl_query[] = {
+	{"CPLEVEL",	cmd_query_cplevel,	NULL},
+
+	{"TIME",	cmd_query_time,		NULL},
+
+	{"VIRTUAL",	cmd_query_virtual,	NULL},
+	{"VIRTUA",	cmd_query_virtual,	NULL},
+	{"VIRTU",	cmd_query_virtual,	NULL},
+	{"VIRT",	cmd_query_virtual,	NULL},
+	{"VIR",		cmd_query_virtual,	NULL},
+	{"VI",		cmd_query_virtual,	NULL},
+	{"V",		cmd_query_virtual,	NULL},
+
+	{"REAL",	cmd_query_real,		NULL},
+	{"REA",		cmd_query_real,		NULL},
+	{"RE",		cmd_query_real,		NULL},
+	{"R",		cmd_query_real,		NULL},
+
+	{"TASK",	cmd_query_task,		NULL},
+	{"",		NULL,			NULL},
+};
