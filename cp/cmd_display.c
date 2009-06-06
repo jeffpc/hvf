@@ -39,13 +39,23 @@ enum display_fmt {
 };
 
 static void __display_storage_instruct(struct virt_sys *sys, u64 guest_addr,
-				       u64 host_addr, u64 mlen)
+				       u64 mlen)
 {
+	int ret;
 	char buf[64];
 	int ilen;
 	u64 val;
+	u64 host_addr;
 
 	u64 end_addr;
+
+	/* walk the page tables to find the real page frame */
+	ret = virt2phy_current(guest_addr, &host_addr);
+	if (ret) {
+		con_printf(sys->con, "DISPLAY: Specified address is not part of "
+			   "guest configuration (RC=%d,%d)\n", -EFAULT, ret);
+		return;
+	}
 
 	if (!mlen)
 		mlen = 1;
@@ -79,63 +89,66 @@ static void __display_storage_instruct(struct virt_sys *sys, u64 guest_addr,
 }
 
 static void __display_storage_numeric(struct virt_sys *sys, u64 guest_addr,
-				      u64 host_addr, u64 mlen)
+				      u64 mlen)
 {
-	u32 *ptr;
+	char buf[80];
+	char *bp;
+
+	u64 host_addr;
 	int this_len;
+
+	int ret;
+
+	/* round down */
+	guest_addr &= ~((u64) 0x3);
+
+	/* walk the page tables to find the real page frame */
+	ret = virt2phy_current(guest_addr, &host_addr);
+	if (ret)
+		goto fault;
 
 	if (mlen > 4)
 		mlen = (mlen >> 2) + !!(mlen & 0x3);
 	else
 		mlen = 1;
 
-	/* round down */
-	guest_addr &= ~((u64) 0x3);
-	ptr = (u32*)(host_addr & ~((u64) 0x3));
-
-	while(mlen) {
+	while(mlen && !ret) {
 		this_len = (mlen > 4) ? 4 : mlen;
 
-		if ((PAGE_SIZE-(guest_addr & PAGE_MASK)) < (4*this_len))
-				goto page_boundary;
+		mlen -= this_len;
 
-		switch (this_len) {
-			case 1:
-				con_printf(sys->con, "R%016llX  %08X\n",
-					   guest_addr, ptr[0]);
-				mlen -= 1;
-				break;
-			case 2:
+		bp = buf;
+		bp += snprintf(bp, 80, "R%016llX  ", guest_addr);
 
-				con_printf(sys->con, "R%016llX  %08X %08X\n",
-					   guest_addr, ptr[0], ptr[1]);
-				mlen -= 2;
-				break;
-			case 3:
-				con_printf(sys->con, "R%016llX  %08X %08X "
-					   "%08X\n", guest_addr, ptr[0],
-					   ptr[1], ptr[2]);
-				mlen -= 3;
-				break;
-			case 4:
-				con_printf(sys->con, "R%016llX  %08X %08X "
-					   "%08X %08X\n", guest_addr,
-					   ptr[0], ptr[1], ptr[2], ptr[3]);
-				mlen -= 4;
+		while(this_len) {
+			bp += snprintf(bp, 80 - (bp - buf), "%08X ",
+				       *(u32*)host_addr);
+
+			guest_addr += 4;
+			host_addr += 4;
+			this_len--;
+
+			/* loop if we're not crossing a page, or if we're done */
+			if (((guest_addr & PAGE_MASK) != 0) || !mlen)
+				continue;
+
+			/*
+			 * We will attempt to walk further along guest
+			 * storage, and are about to cross a page boundary,
+			 * walk the page tables to find the real page frame
+			 */
+			ret = virt2phy_current(guest_addr, &host_addr);
+			if (ret)
 				break;
 		}
 
-		guest_addr += 16;
-		ptr += 4;
-
-		if (((guest_addr & PAGE_MASK) < 16) && mlen)
-			goto page_boundary;
+		con_printf(sys->con, "%s\n", buf);
 	}
 
-	return;
-
-page_boundary:
-	con_printf(sys->con, "FIXME: would cross page boundary. halting output\n");
+fault:
+	if (ret)
+		con_printf(sys->con, "DISPLAY: The address %016llX is not part of "
+			   "guest configuration (RC=%d,%d)\n", guest_addr, -EFAULT, ret);
 }
 
 /*
@@ -150,7 +163,7 @@ page_boundary:
 static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 {
 	int ret;
-	u64 guest_addr, host_addr;
+	u64 guest_addr;
 	u64 mlen = 0;
 	enum display_fmt fmt;
 
@@ -177,18 +190,10 @@ static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 		return 0;
 	}
 
-	/* walk the page tables to find the real page frame */
-	ret = virt2phy_current(guest_addr, &host_addr);
-	if (ret) {
-		con_printf(sys->con, "DISPLAY: Specified address is not part of "
-			   "guest configuration (RC=%d,%d)\n", -EFAULT, ret);
-		return 0;
-	}
-
 	if (fmt == FMT_INSTRUCT)
-		__display_storage_instruct(sys, guest_addr, host_addr, mlen);
+		__display_storage_instruct(sys, guest_addr, mlen);
 	else
-		__display_storage_numeric(sys, guest_addr, host_addr, mlen);
+		__display_storage_numeric(sys, guest_addr, mlen);
 
 	return 0;
 }
