@@ -10,10 +10,7 @@
 #include <atomic.h>
 #include <spinlock.h>
 #include <buddy.h>
-
-static atomic_t numops;		/* # of I/O ops in-flight */
-static LIST_HEAD(ops);		/* in-flight ops */
-static spinlock_t ops_lock = SPIN_LOCK_UNLOCKED;
+#include <sched.h>
 
 /*
  * Helper function to make sure the io_op has everything set right
@@ -37,52 +34,65 @@ static void __reset_reserved_fields(struct io_op *ioop)
 	ioop->orb.__reserved6 = 0;
 }
 
+/* NOTE: assumes dev->q_lock is held */
+static void __submit_io(struct device *dev)
+{
+	struct io_op *ioop;
+	int err;
+
+	if (dev->q_cur)
+		return;
+
+	if (list_empty(&dev->q_out))
+		return;
+
+	ioop = list_entry(dev->q_out.next, struct io_op, list);
+
+	err = start_sch(dev->sch, &ioop->orb);
+	if (!err) {
+		list_del(&ioop->list);
+		dev->q_cur = ioop;
+	} else
+		ioop->err = err;
+}
+
 /*
  * Submit an I/O request to a subchannel, and set up everything needed to
  * handle the operation
  */
-int submit_io(struct io_op *ioop, int flags)
+int submit_io(struct device *dev, struct io_op *ioop, int flags)
 {
 	static atomic_t op_id_counter;
 	unsigned long intmask;
-
 	int err = -EBUSY;
-
-	if (!atomic_add_unless(&numops, 1, MAX_IOS))
-		goto out;
 
 	err = __verify_io_op(ioop);
 	if (err)
-		goto out_dec;
+		return 0;
 
 	/* make sure all reserved fields have the right values */
 	__reset_reserved_fields(ioop);
 
 	ioop->err = 0;
+	ioop->orb.param = atomic_inc_return(&op_id_counter);
 	atomic_set(&ioop->done, 0);
 
 	/* add it to the list of ops */
-	spin_lock_intsave(&ops_lock, &intmask);
-	list_add_tail(&ioop->list, &ops);
-	spin_unlock_intrestore(&ops_lock, intmask);
+	spin_lock_intsave(&dev->q_lock, &intmask);
+	list_add_tail(&ioop->list, &dev->q_out);
 
-	ioop->orb.param = atomic_inc_return(&op_id_counter);
+	__submit_io(dev); /* try to submit an IO right now */
+	spin_unlock_intrestore(&dev->q_lock, intmask);
 
-	/* Start the I/O */
-	err = start_sch(ioop->ssid, &ioop->orb);
-	if (!err)
-		goto out;
+	if (flags & CAN_LOOP) {
+		while(!atomic_read(&ioop->done))
+			;
+	} else if (flags & CAN_SLEEP) {
+		while(!atomic_read(&ioop->done))
+			schedule();
+	}
 
-	/* error while submitting I/O, let's unregister */
-
-	spin_lock_intsave(&ops_lock, &intmask);
-	list_del(&ioop->list);
-	spin_unlock_intrestore(&ops_lock, intmask);
-
-out_dec:
-	atomic_dec(&numops);
-out:
-	return err;
+	return 0;
 }
 
 /*
@@ -91,8 +101,6 @@ out:
 void init_io(void)
 {
 	u64 cr6;
-
-	atomic_set(&numops, 0);
 
 	/* enable all I/O interrupt classes */
 	asm volatile(
@@ -106,7 +114,7 @@ void init_io(void)
 	);
 }
 
-static int default_io_handler(struct io_op *ioop, struct irb *irb)
+static int default_io_handler(struct device *dev, struct io_op *ioop, struct irb *irb)
 {
 	ioop->err = -EAGAIN;
 
@@ -121,16 +129,16 @@ static int default_io_handler(struct io_op *ioop, struct irb *irb)
 	return 0;
 }
 
-static void __cpu_initiated_io(struct io_op *ioop, struct irb *irb)
+static void __cpu_initiated_io(struct device *dev, struct io_op *ioop, struct irb *irb)
 {
 	unsigned long intmask;
 
-	ioop->err = test_sch(ioop->ssid, irb);
+	ioop->err = test_sch(dev->sch, irb);
 
 	if (!ioop->err && ioop->handler)
-		ioop->handler(ioop, irb);
+		ioop->handler(dev, ioop, irb);
 	else if (!ioop->err)
-		default_io_handler(ioop, irb);
+		default_io_handler(dev, ioop, irb);
 
 	/*
 	 * We can do this, because the test_sch function sets ->err, and
@@ -140,19 +148,19 @@ static void __cpu_initiated_io(struct io_op *ioop, struct irb *irb)
 	if (ioop->err == -EAGAIN)
 		return; /* leave handler registered */
 
+	/* ...and remove it form the list */
+	spin_lock_intsave(&dev->q_lock, &intmask);
+	dev->q_cur = NULL;
+
+	__submit_io(dev); /* try to submit another IO */
+	spin_unlock_intrestore(&dev->q_lock, intmask);
+
 	/* flag io_op as done... */
 	atomic_set(&ioop->done, 1);
 
-	/* ...and remove it form the list */
-	spin_lock_intsave(&ops_lock, &intmask);
-	list_del(&ioop->list);
-	spin_unlock_intrestore(&ops_lock, intmask);
-
-	atomic_dec(&numops);
-
 	/* call the destructor if there is one */
 	if (ioop->dtor)
-		ioop->dtor(ioop);
+		ioop->dtor(dev, ioop);
 }
 
 static void __dev_initiated_io(struct device *dev, struct irb *irb)
@@ -169,31 +177,26 @@ void __io_int_handler(void)
 	struct device *dev;
 	struct irb irb;
 
-	/*
-	 * Scan the ops list to see if it is a CPU-initiated operation
-	 */
-	spin_lock_intsave(&ops_lock, &intmask);
-	list_for_each_entry(ioop, &ops, list) {
-		if (ioop->orb.param == IO_INT_CODE->param &&
-		    ioop->ssid == IO_INT_CODE->ssid) {
-			/*
-			 * CPU-initiated operation
-			 */
+	dev = find_device_by_sch(IO_INT_CODE->ssid);
+	BUG_ON(IS_ERR(dev));
 
-			spin_unlock_intrestore(&ops_lock, intmask);
+	spin_lock_intsave(&dev->q_lock, &intmask);
+	ioop = dev->q_cur;
+	spin_unlock_intrestore(&dev->q_lock, intmask);
 
-			__cpu_initiated_io(ioop, &irb);
-			return;
-		}
+	if (ioop && ioop->orb.param == IO_INT_CODE->param &&
+	    dev->sch == IO_INT_CODE->ssid) {
+		/*
+		 * CPU-initiated operation
+		 */
+
+		__cpu_initiated_io(dev, ioop, &irb);
+		return;
 	}
-	spin_unlock_intrestore(&ops_lock, intmask);
 
 	/*
 	 * device-initiated operation
 	 */
-	dev = find_device_by_sch(IO_INT_CODE->ssid);
-	BUG_ON(IS_ERR(dev));
-
 	BUG_ON(test_sch(dev->sch, &irb));
 
 	if (dev->dev->interrupt)

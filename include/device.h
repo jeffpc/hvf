@@ -1,6 +1,7 @@
 #ifndef __DEVICE_H
 #define __DEVICE_H
 
+#include <spinlock.h>
 #include <list.h>
 
 struct device;
@@ -21,6 +22,11 @@ struct device {
 	u8 model;
 	u16 ccuu;			/* device number */
 	struct device_type *dev;
+
+	spinlock_t q_lock;
+	struct io_op *q_cur;
+	struct list_head q_out;
+	struct list_head q_in;
 };
 
 extern struct device *find_device_by_type(u16 type, u8 model);

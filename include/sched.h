@@ -7,6 +7,7 @@
 #include <clock.h>
 
 #define CAN_SLEEP		1	/* safe to sleep */
+#define CAN_LOOP		2	/* safe to busy-wait */
 
 #define TASK_RUNNING		0
 #define TASK_SLEEPING		1

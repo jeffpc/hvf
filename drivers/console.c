@@ -10,7 +10,7 @@
 static LIST_HEAD(consoles);
 static spinlock_t consoles_lock = SPIN_LOCK_UNLOCKED;
 
-static int read_io_int_handler(struct io_op *ioop, struct irb *irb)
+static int read_io_int_handler(struct device *dev, struct io_op *ioop, struct irb *irb)
 {
 	struct console_line *cline;
 	struct ccw *ccw;
@@ -80,16 +80,10 @@ static void do_issue_read(struct console *con, struct io_op *ioop, struct ccw *c
 	ioop->orb.addr = (u32) (u64) ccws; // FIXME: make sure ccw is in <2GB
 	ioop->orb.f    = 1;
 
-	ioop->ssid = con->dev->sch;
 	ioop->handler = read_io_int_handler;
 	ioop->dtor = NULL;
 
-	while(submit_io(ioop, CAN_SLEEP))
-		schedule();
-
-	do {
-		schedule();
-	} while(!atomic_read(&ioop->done));
+	submit_io(con->dev, ioop, CAN_SLEEP);
 }
 
 /**
@@ -106,19 +100,7 @@ static int console_flusher(void *data)
 	struct io_op ioop;
 	struct ccw ccws[CON_MAX_FLUSH_LINES];
 
-	/*
-	 * Workaround to make entering the loop below simpler
-	 */
-	atomic_set(&ioop.done, 1);
-
 	for(;;) {
-		/*
-		 * A do-while to force a call schedule() at least once.
-		 */
-		do {
-			schedule();
-		} while(!atomic_read(&ioop.done));
-
 		if (atomic_read(&con->issue_read))
 			do_issue_read(con, &ioop, ccws);
 
@@ -174,8 +156,10 @@ static int console_flusher(void *data)
 		/*
 		 * Anything to do?
 		 */
-		if (!ccw_count)
+		if (!ccw_count) {
+			schedule();
 			continue;
+		}
 
 		/*
 		 * Clear Command-Chaining on the last CCW
@@ -193,12 +177,10 @@ static int console_flusher(void *data)
 		/*
 		 * Set up the operation handler pointers, and start the IO
 		 */
-		ioop.ssid = con->dev->sch;
 		ioop.handler = NULL;
 		ioop.dtor = NULL;
 
-		while(submit_io(&ioop, CAN_SLEEP))
-			schedule();
+		submit_io(con->dev, &ioop, CAN_SLEEP);
 	}
 }
 
