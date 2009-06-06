@@ -40,7 +40,7 @@ static void do_issue_read(struct console *con, struct io_op *ioop, struct ccw *c
 
 	found = 0;
 
-	atomic_dec(&con->issue_read);
+	atomic_dec(&con->dev->attention);
 
 	spin_lock(&con->lock);
 	list_for_each_entry(cline, &con->read_lines, lines) {
@@ -101,7 +101,7 @@ static int console_flusher(void *data)
 	struct ccw ccws[CON_MAX_FLUSH_LINES];
 
 	for(;;) {
-		if (atomic_read(&con->issue_read))
+		if (atomic_read(&con->dev->attention))
 			do_issue_read(con, &ioop, ccws);
 
 		spin_lock(&con->lock);
@@ -200,7 +200,6 @@ int register_console(struct device *dev)
 	con->lock   = SPIN_LOCK_UNLOCKED;
 	INIT_LIST_HEAD(&con->write_lines);
 	INIT_LIST_HEAD(&con->read_lines);
-	atomic_set(&con->issue_read, 0);
 
 	/*
 	 * alloc one read-line
@@ -215,27 +214,6 @@ int register_console(struct device *dev)
 	spin_unlock(&consoles_lock);
 
 	return 0;
-}
-
-/**
- * console_interrupt - generic console callback
- */
-int console_interrupt(struct device *dev, struct irb *irb)
-{
-	struct console *c;
-	int err = -ENOENT;
-
-	spin_lock(&consoles_lock);
-	list_for_each_entry(c, &consoles, consoles) {
-		if (dev == c->dev) {
-			err = 0;
-			atomic_inc(&c->issue_read);
-			break;
-		}
-	}
-	spin_unlock(&consoles_lock);
-
-	return err;
 }
 
 struct console* start_consoles(void)

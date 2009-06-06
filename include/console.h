@@ -35,7 +35,6 @@ struct console {
 	spinlock_t lock;
 	struct list_head write_lines;
 	struct list_head read_lines;
-	atomic_t issue_read;
 };
 
 extern int register_console(struct device *dev);

@@ -157,7 +157,7 @@ static void __unregister_device(struct device *dev)
 
 	spin_lock_intsave(&dev->q_lock, &mask);
 	BUG_ON(!list_empty(&dev->q_out) ||
-	       !list_empty(&dev->q_in) ||
+	       atomic_read(&dev->attention) ||
 	       dev->q_cur);
 	spin_unlock_intrestore(&dev->q_lock, mask);
 
@@ -292,7 +292,7 @@ void scan_devices(void)
 			 */
 			BUG_ON(!dev);
 
-			INIT_LIST_HEAD(&dev->q_in);
+			atomic_set(&dev->attention, 0);
 			INIT_LIST_HEAD(&dev->q_out);
 		}
 

@@ -199,6 +199,8 @@ void __io_int_handler(void)
 	 */
 	BUG_ON(test_sch(dev->sch, &irb));
 
+	atomic_inc(&dev->attention);
+
 	if (dev->dev->interrupt)
 		dev->dev->interrupt(dev, &irb);
 	else
