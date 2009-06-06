@@ -3,7 +3,7 @@ extern u32 GUEST_IPL_REGSAVE[];
 
 /*
  *!!! IPL
- *!p >>--IPL-----------------------------------------------------------------------><
+ *!p >>--IPL--vdev-----------------------------------------------------------------><
  *!! AUTH G
  *!! PURPOSE
  *! Perform a ...
@@ -12,10 +12,34 @@ extern u32 GUEST_IPL_REGSAVE[];
  */
 static int cmd_ipl(struct virt_sys *sys, char *cmd, int len)
 {
+	struct virt_device *vdev;
+	u64 vdevnum = 0;
 	u64 host_addr;
 	int bytes;
 	int ret;
 	int i;
+
+	/* get IPL vdev # */
+	cmd = __extract_hex(cmd, &vdevnum);
+	if (IS_ERR(cmd))
+		return PTR_ERR(cmd);
+
+	/* device numbers are 16-bits */
+	if (vdevnum & ~0xffff)
+		return -EINVAL;
+
+	/* find the virtual device */
+
+	list_for_each_entry(vdev, &sys->virt_devs, devices)
+		if (vdev->pmcw.dev_num == (u16) vdevnum)
+			goto found;
+
+	return -EINVAL; /* device not found */
+
+found:
+	/*
+	 * alright, we got the device... now set up IPL helper
+	 */
 
 	bytes = sizeof(u32)*(GUEST_IPL_REGSAVE-GUEST_IPL_CODE);
 
@@ -46,8 +70,8 @@ static int cmd_ipl(struct virt_sys *sys, char *cmd, int len)
 		ptr[i] = (u32) sys->task->cpu->regs.gpr[i];
 	}
 
-	sys->task->cpu->regs.gpr[1]  = GUEST_IPL_SCHNUM;
-	sys->task->cpu->regs.gpr[2]  = GUEST_IPL_DEVNUM;
+	sys->task->cpu->regs.gpr[1]  = vdev->sch;
+	sys->task->cpu->regs.gpr[2]  = vdev->pmcw.dev_num;
 	sys->task->cpu->regs.gpr[12] = GUEST_IPL_BASE;
 
 	*((u64*) &sys->task->cpu->sie_cb.gpsw) = 0x0008000080000000ULL |

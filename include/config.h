@@ -9,7 +9,4 @@
  */
 #define GUEST_IPL_BASE		(16ULL * 1024ULL * 1024ULL)
 
-#define GUEST_IPL_DEVNUM	0x0a00
-#define GUEST_IPL_SCHNUM	0x10005
-
 #endif
