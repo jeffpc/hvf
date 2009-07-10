@@ -17,7 +17,7 @@ static int read_io_int_handler(struct device *dev, struct io_op *ioop, struct ir
 	void *ptr;
 
 	/* Device End is set, we're done */
-	if (!(irb->status.dev_status & 0x04)) {
+	if (!(irb->scsw.dev_status & 0x04)) {
 		ioop->err = -EAGAIN;
 		return 0;
 	}

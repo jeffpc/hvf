@@ -119,11 +119,11 @@ static int default_io_handler(struct device *dev, struct io_op *ioop, struct irb
 	ioop->err = -EAGAIN;
 
 	/* Unit check? */
-	if (irb->status.dev_status & 0x02)
+	if (irb->scsw.dev_status & 0x02)
 		ioop->err = -EUCHECK; /* FIXME: we should bail */
 
 	/* Device End is set, we're done */
-	if (irb->status.dev_status & 0x04)
+	if (irb->scsw.dev_status & 0x04)
 		ioop->err = 0;
 
 	return 0;

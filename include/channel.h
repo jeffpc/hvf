@@ -61,7 +61,7 @@ struct orb {
 	u32 __reserved6;
 } __attribute__((packed,aligned(4)));
 
-struct subch_status {
+struct scsw {
 	/* word 0 */
 	u16 key:4,		/* Subchannel key */
 	    s:1,		/* Suspend control */
@@ -108,7 +108,7 @@ struct irb_ext_measurement {
 } __attribute__((packed));
 
 struct irb {
-	struct subch_status status;		/* Subchannel-Status */
+	struct scsw scsw;			/* Subchannel-Status */
 	struct irb_ext_status ext_status;	/* Extended-Status */
 	struct irb_ext_control ext_control;	/* Extended-Control */
 	struct irb_ext_measurement ext_measure;	/* Extended-Measurement */
@@ -160,8 +160,8 @@ struct schib_measurement_block {
 };
 
 struct schib {
-	struct pmcw pmcw;
-	struct subch_status status;		/* Subchannel-Status */
+	struct pmcw pmcw;		/* Path Management Control Word */
+	struct scsw scsw;		/* Subchannel Status Word */
 	union {
 		struct schib_measurement_block measure_block;
 	};
