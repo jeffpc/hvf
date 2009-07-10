@@ -12,7 +12,7 @@ struct virt_device {
 	u16 type;			/* 3330, 3215, ... */
 	u8 model;
 
-	struct schib_pmcw pmcw;		/* path info */
+	struct pmcw pmcw;		/* path info */
 };
 
 extern int alloc_virt_dev(struct virt_sys *sys,

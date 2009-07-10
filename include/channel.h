@@ -114,8 +114,8 @@ struct irb {
 	struct irb_ext_measurement ext_measure;	/* Extended-Measurement */
 } __attribute__((packed,aligned(4)));
 
-/* needed by schib */
-struct schib_pmcw {
+/* Path Management Control Word */
+struct pmcw {
 	/* word 0 */
 	u32 interrupt_param;	/* Interruption Parameter */
 
@@ -160,7 +160,7 @@ struct schib_measurement_block {
 };
 
 struct schib {
-	struct schib_pmcw path_ctl;
+	struct pmcw pmcw;
 	struct subch_status status;		/* Subchannel-Status */
 	union {
 		struct schib_measurement_block measure_block;

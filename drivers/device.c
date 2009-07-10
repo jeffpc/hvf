@@ -271,7 +271,7 @@ void scan_devices(void)
 		if (store_sch(sch, &schib))
 			continue;
 
-		if (!schib.path_ctl.v)
+		if (!schib.pmcw.v)
 			continue;
 
 		/*
@@ -296,7 +296,7 @@ void scan_devices(void)
 			INIT_LIST_HEAD(&dev->q_out);
 		}
 
-		schib.path_ctl.e = 1;
+		schib.pmcw.e = 1;
 
 		if (modify_sch(sch, &schib))
 			continue;
@@ -308,7 +308,7 @@ void scan_devices(void)
 		/*
 		 * Find out what the device is - whichever way is necessary
 		 */
-		ret = do_sense_id(dev, schib.path_ctl.dev_num, &buf);
+		ret = do_sense_id(dev, schib.pmcw.dev_num, &buf);
 
 		__unregister_device(dev); /* it's fake! */
 
@@ -317,7 +317,7 @@ void scan_devices(void)
 
 		dev->type  = buf.dev_type;
 		dev->model = buf.dev_model;
-		dev->ccuu  = schib.path_ctl.dev_num;
+		dev->ccuu  = schib.pmcw.dev_num;
 
 		if (__register_device(dev)) {
 			/*
@@ -326,7 +326,7 @@ void scan_devices(void)
 			 * list. All that needs to be done is to reset the
 			 * enabled bit.
 			 */
-			schib.path_ctl.e = 0;
+			schib.pmcw.e = 0;
 
 			/* msch could fail, but it shouldn't be fatal */
 			modify_sch(sch, &schib);
