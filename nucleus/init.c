@@ -91,10 +91,9 @@ void start(u64 __memsize)
 	ticks = 0;
 
 	/*
-	 * FIXME: >2GB is unsupported
+	 * save total system memory size
 	 */
-	memsize = __memsize > (2ULL * 1024 * 1024 * 1024) ?
-		(2ULL * 1024 * 1024 * 1024) : __memsize;
+	memsize = __memsize;
 
 	/*
 	 * Initialize struct page entries
