@@ -359,4 +359,5 @@ void list_devices(struct console *con, void (*f)(struct console*, struct device*
 void register_drivers(void)
 {
 	register_driver_3215();
+	register_driver_dasd();
 }

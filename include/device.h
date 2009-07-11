@@ -43,5 +43,6 @@ extern void register_drivers(void);
 
 /* device specific register functions */
 extern int register_driver_3215(void);
+extern int register_driver_dasd(void);
 
 #endif
