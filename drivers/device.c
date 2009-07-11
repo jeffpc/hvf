@@ -41,6 +41,7 @@ static struct device_type __fake_dev_type = {
 	.types		= LIST_HEAD_INIT(__fake_dev_type.types),
 	.reg		= NULL,
 	.interrupt	= NULL,
+	.snprintf	= NULL,
 	.type		= 0,
 	.model		= 0,
 };
@@ -179,7 +180,8 @@ static int __register_device(struct device *dev)
 
 	list_for_each_entry(type, &device_types, types) {
 		if (type->type == dev->type &&
-		    type->model == dev->model)
+		    (type->all_models ||
+		     type->model == dev->model))
 			goto found;
 	}
 
@@ -189,8 +191,12 @@ static int __register_device(struct device *dev)
 found:
 	dev->dev = type;
 
-	if (type && type->reg)
+	if (type && type->reg) {
 		err = type->reg(dev);
+
+		if (err)
+			dev->dev = NULL;
+	}
 
 	list_add_tail(&dev->devices, &devices);
 
@@ -294,6 +300,7 @@ void scan_devices(void)
 
 			atomic_set(&dev->attention, 0);
 			INIT_LIST_HEAD(&dev->q_out);
+			dev->dev = &__fake_dev_type;
 		}
 
 		schib.pmcw.e = 1;

@@ -12,8 +12,15 @@ static char *__guest_state_to_str(enum virt_cpustate st)
 
 static void display_rdev(struct console *con, struct device *dev)
 {
-	con_printf(con, "%-4s %04X %04X SCH = %05X\n",
-		   type2name(dev->type), dev->ccuu, dev->type,
+	char buf[40];
+
+	if (dev->dev && dev->dev->snprintf)
+		dev->dev->snprintf(dev, buf, 40);
+	else
+		buf[0] = '\0';
+
+	con_printf(con, "%-4s %04X %04X %sSCH = %05X\n",
+		   type2name(dev->type), dev->ccuu, dev->type, buf,
 		   dev->sch);
 }
 

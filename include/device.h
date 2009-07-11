@@ -12,8 +12,10 @@ struct device_type {
 	struct list_head types;
 	int (*reg)(struct device *dev);
 	int (*interrupt)(struct device *dev, struct irb *irb);
+	int (*snprintf)(struct device *dev, char *buf, int len);
 	u16 type;
 	u8 model;
+	u8 all_models;
 };
 
 struct device {
