@@ -183,13 +183,12 @@ void start(u64 __memsize)
 	init_sched();
 
 	/*
-	 * Register the console async task
+	 * IPL is more or less done
 	 */
-	opcon = start_consoles();
-
 	get_parsed_tod(&ipltime);
 
-	con_printf(opcon, "HVF VERSION " VERSION "\n\n");
+	opcon = start_consoles();
+
 	con_printf(opcon, "NOW %02d:%02d:%02d UTC %04d-%02d-%02d\n\n",
 		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
 		   ipltime.dm, ipltime.dd);

@@ -219,7 +219,7 @@ int register_console(struct device *dev)
 struct console* start_consoles(void)
 {
 	char name[TASK_NAME_LEN+1];
-	struct console *op;
+	struct console *con, *op;
 	int i;
 
 	/*
@@ -229,14 +229,18 @@ struct console* start_consoles(void)
 	BUG_ON(list_empty(&consoles));
 	op = list_first_entry(&consoles, struct console, consoles);
 
-	snprintf(name, TASK_NAME_LEN, "%05X-conflsh", op->dev->sch);
+	list_for_each_entry(con, &consoles, consoles) {
+		snprintf(name, TASK_NAME_LEN, "%05X-conflsh", con->dev->sch);
 
-	create_task(name, console_flusher, op);
+		create_task(name, console_flusher, con);
 
-	for(i = 0; splash[i]; i++)
-		con_printf(op, splash[i]);
+		for(i = 0; splash[i]; i++)
+			con_printf(con, splash[i]);
 
-	return op;
+		con_printf(con, "HVF VERSION " VERSION "\n\n");
+	}
+
+	return op; /* return the operator console */
 }
 
 int con_read_pending(struct console *con)
