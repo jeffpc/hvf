@@ -58,7 +58,7 @@ struct user *find_user_by_id(char *userid)
 	u = directory;
 
 	for (; u->userid; u++)
-		if (!strcmp(u->userid, userid))
+		if (!strcasecmp(u->userid, userid))
 			return u;
 
 	return ERR_PTR(-ENOENT);
