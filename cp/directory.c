@@ -3,7 +3,7 @@
 
 static struct user directory[] = {
 	{
-		.userid = "operator",
+		.userid = "OPERATOR",
 		.storage_size = 17 * 1024 * 1024,
 		.devices = {
 			{
