@@ -1,28 +1,57 @@
 #
 # Sample configuration file for Hercules zArch emulator
 #
-
-CPUSERIAL 850918        # CPU serial number
-CPUMODEL  2097          # CPU model number
-MAINSIZE  128           # Main storage size in megabytes
-XPNDSIZE  0             # Expanded storage size in megabytes
-CNSLPORT  3271          # TCP port number to which consoles connect
-NUMCPU    1             # Number of CPUs
-LOADPARM  0120....      # IPL parameter
-OSTAILOR  VM            # OS tailoring
-PANRATE   SLOW          # Panel refresh rate
-ARCHMODE  ESAME
-
+ 
+ARCHMODE        ESAME         # z/Architecture
+CPUMODEL        2097          # CPU model number
+CPUPRIO         0             # CPU thread priority
+CPUSERIAL       850918        # CPU serial number
+DEVPRIO         0             # Device thread priority
+DEVTMAX         0             # Allow any number of device threads
+DIAG8CMD        DISABLE       # Don't allow DIAG8
+ECPSVM          NO            # Disable ECPS:VM
+HERCPRIO        0             # Hercules thread priority
+#HTTPPORT       8081          # HTTP server port
+MAINSIZE        128           # Main storage size in megabytes
+XPNDSIZE        0             # Expanded storage size in megabytes
+NUMCPU          1             # Number of CPUs
+LOADPARM        ........      # IPL parameter
+OSTAILOR        NULL          # OS tailoring
+CNSLPORT        3271          # TCP port number to which consoles connect
+PANRATE         SLOW          # Panel refresh rate
+PGMPRDOS        RESTRICTED    # HVF isn't an IBM product => RESTRICTED is ok
+ 
 # .-----------------------Device number
 # |     .-----------------Device type
 # |     |       .---------File name and parameters
 # |     |       |
 # V     V       V
 #---    ----    --------------------
-0009	3215	
-000C    3505	../loader_rdr.bin ../hvf ebcdic multifile
-000D    3525    punch00d.txt ascii
-000E    1403    print00e.txt crlf
-0040	3270
-0041	3270
-0580	3590	tape-hvf.tdf
+
+# Card Reader
+000C    3505    ../loader_rdr.bin ../hvf ebcdic multifile
+
+# Card Punch
+ 000D    3525    punch00d.txt ascii
+
+# Printers
+000E    1403    print00e.txt
+000F    1403    print00f.txt
+
+# The Operator's Typewriter Console
+0009    3215    NOPROMPT # accessed via telnet
+#0009    3215-C  NOPROMPT # accessed from the Hercules window
+
+# Display Terminals
+00C1.04 3270
+
+# Typewriter Consoles, accessed via telnet
+00A1.04 3215    NOPROMPT
+
+# Tape Drives
+0480    3590    tape-hvf.tdf
+0481    3590    *
+0580    3590    *
+0581    3590    *
+
+# DASDs
