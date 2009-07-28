@@ -33,8 +33,41 @@ static struct device_type d3390 = {
 	.all_models	= 1,
 };
 
+/******************************************************************************/
+
+static int d9336_snprintf(struct device *dev, char* buf, int len)
+{
+	return snprintf(buf, len, "%13d BLK ", 0);
+}
+
+static int d9336_reg(struct device *dev)
+{
+	switch(dev->model) {
+		case 0x00: /* 9336-10 */
+		case 0x10: /* 9336-20 */
+			return 0;
+	}
+
+	return -ENOENT;
+}
+
+static struct device_type d9336 = {
+	.types		= LIST_HEAD_INIT(d9336.types),
+	.reg		= d9336_reg,
+	.interrupt	= NULL,
+	.snprintf	= d9336_snprintf,
+	.type		= 0x9336,
+	.all_models	= 1,
+};
+
 int register_driver_dasd(void)
 {
-	return register_device_type(&d3390);
+	int ret;
+
+	ret = register_device_type(&d3390);
+	if (ret)
+		return ret;
+
+	return register_device_type(&d9336);
 }
 
