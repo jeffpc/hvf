@@ -14,10 +14,10 @@ static void display_rdev(struct console *con, struct device *dev)
 {
 	char buf[40];
 
+	buf[0] = '\0';
+
 	if (dev->dev && dev->dev->snprintf)
 		dev->dev->snprintf(dev, buf, 40);
-	else
-		buf[0] = '\0';
 
 	con_printf(con, "%-4s %04X %04X %sSCH = %05X\n",
 		   type2name(dev->type), dev->ccuu, dev->type, buf,
