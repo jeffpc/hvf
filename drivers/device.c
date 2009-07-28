@@ -152,26 +152,12 @@ struct device *find_device_by_type(u16 type, u8 model)
 	return ERR_PTR(-ENOENT);
 }
 
-static void __unregister_device(struct device *dev)
-{
-	unsigned long mask;
-
-	spin_lock_intsave(&dev->q_lock, &mask);
-	BUG_ON(!list_empty(&dev->q_out) ||
-	       atomic_read(&dev->attention) ||
-	       dev->q_cur);
-	spin_unlock_intrestore(&dev->q_lock, mask);
-
-	spin_lock(&devs_lock);
-	list_del(&dev->devices);
-	spin_unlock(&devs_lock);
-}
-
 /**
  * __register_device - helper to register a device
  * @dev:	device to register
+ * @remove:	remove the device from the list first
  */
-static int __register_device(struct device *dev)
+static int __register_device(struct device *dev, int remove)
 {
 	struct device_type *type;
 	int err = 0;
@@ -189,6 +175,8 @@ static int __register_device(struct device *dev)
 	type = NULL;
 
 found:
+	spin_double_unlock(&devs_lock, &dev_types_lock);
+
 	dev->dev = type;
 
 	if (type && type->reg) {
@@ -198,8 +186,10 @@ found:
 			dev->dev = NULL;
 	}
 
+	spin_double_lock(&devs_lock, &dev_types_lock);
+	if (remove)
+		list_del(&dev->devices);
 	list_add_tail(&dev->devices, &devices);
-
 	spin_double_unlock(&devs_lock, &dev_types_lock);
 
 	return err;
@@ -309,15 +299,13 @@ void scan_devices(void)
 			continue;
 
 		dev->sch   = sch;
-		BUG_ON(__register_device(dev));
+		BUG_ON(__register_device(dev, 0));
 		BUG_ON(dev->dev != &__fake_dev_type);
 
 		/*
 		 * Find out what the device is - whichever way is necessary
 		 */
 		ret = do_sense_id(dev, schib.pmcw.dev_num, &buf);
-
-		__unregister_device(dev); /* it's fake! */
 
 		if (ret)
 			continue;
@@ -326,7 +314,8 @@ void scan_devices(void)
 		dev->model = buf.dev_model;
 		dev->ccuu  = schib.pmcw.dev_num;
 
-		if (__register_device(dev)) {
+		/* __register_device will remove the fake entry! */
+		if (__register_device(dev, 1)) {
 			/*
 			 * error registering ... the device struct MUST NOT
 			 * be freed as it has been added onto the devices
