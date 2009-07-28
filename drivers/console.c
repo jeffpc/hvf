@@ -196,6 +196,7 @@ int register_console(struct device *dev)
 	con = malloc(sizeof(struct console), ZONE_NORMAL);
 	BUG_ON(!con);
 
+	con->sys    = NULL;
 	con->dev    = dev;
 	con->lock   = SPIN_LOCK_UNLOCKED;
 	INIT_LIST_HEAD(&con->write_lines);

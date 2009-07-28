@@ -31,6 +31,7 @@ struct console_line {
 
 struct console {
 	struct list_head consoles;
+	struct virt_sys *sys;
 	struct device *dev;
 	spinlock_t lock;
 	struct list_head write_lines;
