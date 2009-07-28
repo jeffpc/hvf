@@ -51,8 +51,7 @@ struct user {
 	/* VM configuration */
 	u64 storage_size;
 
-	/* FIXME: make this dynamically allocated */
-	struct directory_vdev devices[6];
+	struct directory_vdev *devices;
 };
 
 extern struct user *find_user_by_id(char *userid);
