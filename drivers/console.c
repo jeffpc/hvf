@@ -340,3 +340,21 @@ void for_each_console(void (*f)(struct console *con))
 		f(con);
 	spin_unlock(&consoles_lock);
 }
+
+struct console* find_console(struct device *dev)
+{
+	struct console *con;
+
+	if (!dev)
+		return ERR_PTR(-ENOENT);
+
+	spin_lock(&consoles_lock);
+	list_for_each_entry(con, &consoles, consoles) {
+		if (con->dev == dev)
+			goto found;
+	}
+	con = ERR_PTR(-ENOENT);
+found:
+	spin_unlock(&consoles_lock);
+	return con;
+}
