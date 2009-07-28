@@ -44,5 +44,6 @@ extern struct console* start_consoles(void);
 extern int con_read_pending(struct console *con);
 extern int con_read(struct console *con, u8 *buf, int size);
 extern int con_write(struct console *con, u8 *buf, int len);
+extern void for_each_console(void (*f)(struct console *con));
 
 #endif

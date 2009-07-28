@@ -50,6 +50,7 @@ static char* type2name(u16 type)
 #include "cmd_system.c"
 #include "cmd_query.c"
 #include "cmd_store.c"
+#include "cmd_logon.c"
 
 static struct cpcmd commands[] = {
 	{"BEGIN",	cmd_begin,		NULL},
@@ -86,6 +87,14 @@ static struct cpcmd commands[] = {
 	{"SYST",	cmd_system,		NULL},
 	{"SYS",		cmd_system,		NULL},
 	{"",		NULL,			NULL},
+};
+
+static struct cpcmd logon_commands[] = {
+	{"LOGON",	cmd_logon,		NULL},
+	{"LOGO",	cmd_logon,		NULL},
+	{"LOG",		cmd_logon,		NULL},
+	{"LO",		cmd_logon,		NULL},
+	{"L",		cmd_logon,		NULL},
 };
 
 static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int len)
@@ -131,4 +140,9 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int
 int invoke_cp_cmd(struct virt_sys *sys, char *cmd, int len)
 {
 	return __invoke_cp_cmd(commands, sys, cmd, len);
+}
+
+int invoke_cp_logon(struct console *con, char *cmd, int len)
+{
+	return __invoke_cp_cmd(logon_commands, (struct virt_sys*) con, cmd, len);
 }

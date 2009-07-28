@@ -327,3 +327,16 @@ abort:
 
 	return bytes;
 }
+
+void for_each_console(void (*f)(struct console *con))
+{
+	struct console *con;
+
+	if (!f)
+		return;
+
+	spin_lock(&consoles_lock);
+	list_for_each_entry(con, &consoles, consoles)
+		f(con);
+	spin_unlock(&consoles_lock);
+}
