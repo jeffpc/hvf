@@ -70,6 +70,12 @@ static struct cpcmd commands[] = {
 	{"IP",		cmd_ipl,		NULL},
 	{"I",		cmd_ipl,		NULL},
 
+	{"LOGON",	cmd_logon_fail,		NULL},
+	{"LOGO",	cmd_logon_fail,		NULL},
+	{"LOG",		cmd_logon_fail,		NULL},
+	{"LO",		cmd_logon_fail,		NULL},
+	{"L",		cmd_logon_fail,		NULL},
+
 	{"QUERY",	NULL,			cmd_tbl_query},
 	{"QUER",	NULL,			cmd_tbl_query},
 	{"QUE",		NULL,			cmd_tbl_query},

@@ -14,3 +14,8 @@ static int cmd_logon(struct virt_sys *data, char *cmd, int len)
 	return 0;
 }
 
+static int cmd_logon_fail(struct virt_sys *sys, char *cmd, int len)
+{
+	con_printf(sys->con, "ALREADY LOGGED ON\n");
+	return 0;
+}
