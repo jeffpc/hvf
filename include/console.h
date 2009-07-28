@@ -15,7 +15,7 @@
 #define CON_MAX_FREE_LINES	32
 
 /* number of lines of console text to flush at a time */
-#define CON_MAX_FLUSH_LINES	8
+#define CON_MAX_FLUSH_LINES	32
 
 /* line state */
 #define CON_STATE_FREE		0
