@@ -1,3 +1,10 @@
+/*
+ *!!! LOGON
+ *!p >>--LOGON--userid-------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Log on to a virtual machine.
+ */
 static int cmd_logon(struct virt_sys *data, char *cmd, int len)
 {
 	struct console *con = (struct console*) data;
