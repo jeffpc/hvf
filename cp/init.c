@@ -10,9 +10,10 @@
 #include <ebcdic.h>
 #include <vdevice.h>
 #include <cpu.h>
+#include <mutex.h>
 
 static LIST_HEAD(online_users);
-static spinlock_t online_users_lock = SPIN_LOCK_UNLOCKED;
+static UNLOCKED_MUTEX(online_users_lock);
 
 static int __alloc_guest_devices(struct virt_sys *sys)
 {
@@ -219,7 +220,6 @@ static int cp_con_attn(void *data)
 void spawn_oper_cp(struct console *con)
 {
 	struct virt_sys *sys;
-	unsigned long intmask;
 
 	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
 	BUG_ON(!sys);
@@ -235,16 +235,15 @@ void spawn_oper_cp(struct console *con)
 
 	BUG_ON(IS_ERR(create_task("console-attn", cp_con_attn, NULL)));
 
-	spin_lock_intsave(&online_users_lock, &intmask);
+	mutex_lock(&online_users_lock);
 	list_add_tail(&sys->online_users, &online_users);
-	spin_unlock_intrestore(&online_users_lock, intmask);
+	mutex_unlock(&online_users_lock);
 }
 
 void spawn_user_cp(struct console *con, struct user *u)
 {
 	char tname[TASK_NAME_LEN+1];
 	struct virt_sys *sys;
-	unsigned long intmask;
 
 	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
 	if (!sys)
@@ -260,9 +259,9 @@ void spawn_user_cp(struct console *con, struct user *u)
 	if (IS_ERR(sys->task))
 		goto err_free;
 
-	spin_lock_intsave(&online_users_lock, &intmask);
+	mutex_lock(&online_users_lock);
 	list_add_tail(&sys->online_users, &online_users);
-	spin_unlock_intrestore(&online_users_lock, intmask);
+	mutex_unlock(&online_users_lock);
 	return;
 
 err_free:
@@ -275,14 +274,13 @@ err:
 void list_users(struct console *con, void (*f)(struct console *con,
 					       struct virt_sys *sys))
 {
-	unsigned long intmask;
 	struct virt_sys *sys;
 
 	if (!f)
 		return;
 
-	spin_lock_intsave(&online_users_lock, &intmask);
+	mutex_lock(&online_users_lock);
 	list_for_each_entry(sys, &online_users, online_users)
 		f(con, sys);
-	spin_unlock_intrestore(&online_users_lock, intmask);
+	mutex_unlock(&online_users_lock);
 }
