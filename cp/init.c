@@ -11,6 +11,9 @@
 #include <vdevice.h>
 #include <cpu.h>
 
+static LIST_HEAD(online_users);
+static spinlock_t online_users_lock = SPIN_LOCK_UNLOCKED;
+
 static int __alloc_guest_devices(struct virt_sys *sys)
 {
 	int i;
@@ -216,6 +219,7 @@ static int cp_con_attn(void *data)
 void spawn_oper_cp(struct console *con)
 {
 	struct virt_sys *sys;
+	unsigned long intmask;
 
 	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
 	BUG_ON(!sys);
@@ -230,12 +234,17 @@ void spawn_oper_cp(struct console *con)
 	BUG_ON(IS_ERR(sys->task));
 
 	BUG_ON(IS_ERR(create_task("console-attn", cp_con_attn, NULL)));
+
+	spin_lock_intsave(&online_users_lock, &intmask);
+	list_add_tail(&sys->online_users, &online_users);
+	spin_unlock_intrestore(&online_users_lock, intmask);
 }
 
 void spawn_user_cp(struct console *con, struct user *u)
 {
 	char tname[TASK_NAME_LEN+1];
 	struct virt_sys *sys;
+	unsigned long intmask;
 
 	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
 	if (!sys)
@@ -251,6 +260,9 @@ void spawn_user_cp(struct console *con, struct user *u)
 	if (IS_ERR(sys->task))
 		goto err_free;
 
+	spin_lock_intsave(&online_users_lock, &intmask);
+	list_add_tail(&sys->online_users, &online_users);
+	spin_unlock_intrestore(&online_users_lock, intmask);
 	return;
 
 err_free:

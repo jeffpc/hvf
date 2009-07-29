@@ -118,6 +118,7 @@ struct virt_sys {
 
 	struct list_head guest_pages;	/* list of guest pages */
 	struct list_head virt_devs;	/* list of guest virtual devs */
+	struct list_head online_users;	/* list of online users */
 
 	struct address_space as;	/* the guest storage */
 };
