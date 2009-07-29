@@ -65,6 +65,9 @@ parse_line()
 				MDISK)
 					echo "	{ /* MDISK */ .type = VDEV_MDISK, .vdev = 0x$2, .u.mdisk = { .rdev = 0x$4, .cyloff = $5, .cylcnt = $6, }, }," >> directory.devlist
 					;;
+				DED)
+					echo "	{ /* DED   */ .type = VDEV_DED,   .vdev = 0x$2, .u.dedicate = { .rdev = 0x$4, }, }," >> directory.devlist
+					;;
 				*)
 					echo "Error near:" "$@" >&2
 					exit 3

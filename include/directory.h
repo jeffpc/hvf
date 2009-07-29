@@ -23,6 +23,7 @@ struct directory_vdev {
 
 		/* VDEV_DED */
 		struct {
+			u16 rdev;	/* real device # */
 		} dedicate;
 
 		/* VDEV_SPOOL */
