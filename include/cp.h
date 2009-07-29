@@ -15,6 +15,9 @@ extern void spawn_user_cp(struct console *con, struct user *u);
 extern int invoke_cp_cmd(struct virt_sys *sys, char *cmd, int len);
 extern int invoke_cp_logon(struct console *con, char *cmd, int len);
 
+extern void list_users(struct console *con, void (*f)(struct console *con,
+						      struct virt_sys *sys));
+
 /* All the different ways to reset the system */
 extern void guest_power_on_reset(struct virt_sys *sys);
 extern void guest_system_reset_normal(struct virt_sys *sys);

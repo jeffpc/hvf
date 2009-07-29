@@ -271,3 +271,18 @@ err_free:
 err:
 	con_printf(con, "INTERNAL ERROR DURING LOGON\n");
 }
+
+void list_users(struct console *con, void (*f)(struct console *con,
+					       struct virt_sys *sys))
+{
+	unsigned long intmask;
+	struct virt_sys *sys;
+
+	if (!f)
+		return;
+
+	spin_lock_intsave(&online_users_lock, &intmask);
+	list_for_each_entry(sys, &online_users, online_users)
+		f(con, sys);
+	spin_unlock_intrestore(&online_users_lock, intmask);
+}
