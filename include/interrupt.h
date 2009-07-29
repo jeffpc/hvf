@@ -54,6 +54,27 @@ extern void PGM_INT(void);
 #define local_int_restore(x) \
 	__asm__ __volatile__("ssm   0(%0)" : : "a" (&x), "m" (x) : "memory")
 
+/**
+ * local_int_restore - restore interrupt mask
+ * x:	mask to restore
+ */
+static inline int interruptable()
+{
+	u8 x;
+
+	__asm__ __volatile__(
+		"stosm   0(%0),0x00"
+		: /* out */
+		: /* in */
+		 "a" (&x),
+		 "m" (x)
+		: /* clobber */
+		 "memory"
+	);
+
+	return (x & 0x43) != 0;
+}
+
 extern void set_timer(void);
 
 /*
