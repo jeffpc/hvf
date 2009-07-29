@@ -49,4 +49,19 @@ static inline u64 __guest_addr(struct virt_cpu *cpu, u64 disp, int x, int b)
 		(b ? __guest_gpr(cpu, b) : 0)) & mask;
 }
 
+/*****************************************************************************/
+/* SIE Interception Param parsing & instruction decode                       */
+
+#define IP_TO_RAW(sie)		((((u64)(sie).ipa) << 32) | ((u64)(sie).ipb))
+
+static inline u64 RAW_S_1(struct virt_cpu *cpu)
+{
+	u64 raw = IP_TO_RAW(cpu->sie_cb);
+
+	return __guest_addr(cpu,
+			    (raw >> 16) & 0xfff,
+			    (raw) >> 28 & 0xf,
+			    0);
+}
+
 #endif
