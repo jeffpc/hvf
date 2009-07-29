@@ -5,6 +5,7 @@
 #include <page.h>
 #include <dat.h>
 #include <clock.h>
+#include <interrupt.h>
 
 #define CAN_SLEEP		1	/* safe to sleep */
 #define CAN_LOOP		2	/* safe to busy-wait */
@@ -124,9 +125,6 @@ struct virt_sys {
 extern void init_sched(void);		/* initialize the scheduler */
 extern struct task* create_task(char *name, int (*f)(void*), void*);
 					/* create a new task */
-extern void schedule(void);		/* yield the cpu */
-extern void schedule_blocked(void);	/* yield the cpu & remove from
-					   runnable queue */
 extern void __schedule(struct psw *,
 		       int newstate);	/* scheduler helper - use with caution */
 extern void __schedule_svc(void);
@@ -159,6 +157,33 @@ static inline struct task *extract_task(void)
 static inline void set_task_ptr(struct task *task)
 {
 	*PSA_CURRENT = task;
+}
+
+/**
+ * schedule - used to explicitly yield the cpu
+ */
+static inline void schedule(void)
+{
+	asm volatile(
+		"	svc	%0\n"
+	: /* output */
+	: /* input */
+	  "i" (SVC_SCHEDULE)
+	);
+}
+
+/**
+ * schedule_blocked - used to explicitly yield the cpu without readding the
+ * task to the runnable queue
+ */
+static inline void schedule_blocked(void)
+{
+	asm volatile(
+		"	svc	%0\n"
+	: /* output */
+	: /* input */
+	  "i" (SVC_SCHEDULE_BLOCKED)
+	);
 }
 
 #endif

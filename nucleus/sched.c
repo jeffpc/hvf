@@ -3,7 +3,6 @@
 #include <buddy.h>
 #include <slab.h>
 #include <magic.h>
-#include <interrupt.h>
 
 /* list of all runnable processes */
 static struct list_head runnable;
@@ -248,32 +247,6 @@ void __schedule_svc(void)
 void __schedule_blocked_svc(void)
 {
 	__schedule(SVC_INT_OLD_PSW, TASK_LOCKED);
-}
-
-/**
- * schedule - used to explicitly yield the cpu
- */
-void schedule(void)
-{
-	asm volatile(
-		"	svc	%0\n"
-	: /* output */
-	: /* input */
-	  "i" (SVC_SCHEDULE)
-	);
-}
-
-/**
- * schedule - used to explicitly yield the cpu
- */
-void schedule_blocked(void)
-{
-	asm volatile(
-		"	svc	%0\n"
-	: /* output */
-	: /* input */
-	  "i" (SVC_SCHEDULE_BLOCKED)
-	);
 }
 
 /*
