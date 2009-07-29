@@ -66,8 +66,17 @@ static void display_vdev(struct console *con, struct virt_device *vdev)
 
 static void display_task(struct console *con, struct task *task)
 {
-	con_printf(con, "%*s %p %c\n", -TASK_NAME_LEN, task->name,
-		   task, (task->state == TASK_RUNNING ? 'R' : 'S'));
+	char state;
+
+	switch(task->state) {
+		case TASK_RUNNING:  state = 'R'; break;
+		case TASK_SLEEPING: state = 'S'; break;
+		case TASK_LOCKED:   state = 'L'; break;
+		default:            state = '?'; break;
+	}
+
+	con_printf(con, "%*s %p %c %016llX\n", -TASK_NAME_LEN, task->name,
+		   task, state, task->regs.psw.ptr);
 }
 
 /*

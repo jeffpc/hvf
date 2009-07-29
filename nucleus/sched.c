@@ -184,7 +184,7 @@ run:
 /**
  * schedule_preempted - called to switch tasks
  */
-void __schedule(struct psw *old_psw)
+void __schedule(struct psw *old_psw, int newstate)
 {
 	struct task *prev;
 	int force_idle = 0;
@@ -215,8 +215,9 @@ void __schedule(struct psw *old_psw)
 	/*
 	 * Add back on the queue
 	 */
-	prev->state = TASK_SLEEPING;
-	list_add_tail(&prev->run_queue, &runnable);
+	prev->state = newstate;
+	if (newstate != TASK_LOCKED)
+		list_add_tail(&prev->run_queue, &runnable);
 
 	/*
 	 * If the previous task didn't use it's full slice, force idle_task
@@ -238,7 +239,15 @@ go:
  */
 void __schedule_svc(void)
 {
-	__schedule(SVC_INT_OLD_PSW);
+	__schedule(SVC_INT_OLD_PSW, TASK_SLEEPING);
+}
+
+/**
+ * __schedule_blocked__svc - wrapper for the supervisor-service call handler
+ */
+void __schedule_blocked_svc(void)
+{
+	__schedule(SVC_INT_OLD_PSW, TASK_LOCKED);
 }
 
 /**
@@ -251,6 +260,19 @@ void schedule(void)
 	: /* output */
 	: /* input */
 	  "i" (SVC_SCHEDULE)
+	);
+}
+
+/**
+ * schedule - used to explicitly yield the cpu
+ */
+void schedule_blocked(void)
+{
+	asm volatile(
+		"	svc	%0\n"
+	: /* output */
+	: /* input */
+	  "i" (SVC_SCHEDULE_BLOCKED)
 	);
 }
 
@@ -288,4 +310,10 @@ void list_tasks(struct console *con,
 
 	list_for_each_entry(t, &processes, proc_list)
 		f(con, t);
+}
+
+void make_runnable(struct task *task)
+{
+	task->state = TASK_SLEEPING;
+	list_add_tail(&task->run_queue, &runnable);
 }

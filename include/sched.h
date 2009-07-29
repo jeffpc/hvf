@@ -11,6 +11,7 @@
 
 #define TASK_RUNNING		0
 #define TASK_SLEEPING		1
+#define TASK_LOCKED		2
 
 #define STACK_FRAME_SIZE	160
 
@@ -97,6 +98,7 @@ struct task {
 
 	struct list_head run_queue;	/* runnable list */
 	struct list_head proc_list;	/* processes list */
+	struct list_head blocked_list;	/* blocked on mutex/etc. list */
 
 	u64 slice_end_time;		/* end of slice time (ticks) */
 
@@ -123,8 +125,14 @@ extern void init_sched(void);		/* initialize the scheduler */
 extern struct task* create_task(char *name, int (*f)(void*), void*);
 					/* create a new task */
 extern void schedule(void);		/* yield the cpu */
-extern void __schedule(struct psw *);	/* scheduler helper - use with caution */
+extern void schedule_blocked(void);	/* yield the cpu & remove from
+					   runnable queue */
+extern void __schedule(struct psw *,
+		       int newstate);	/* scheduler helper - use with caution */
 extern void __schedule_svc(void);
+extern void __schedule_blocked_svc(void);
+
+extern void make_runnable(struct task *task);
 
 extern void list_tasks(struct console *con,
 		       void (*f)(struct console *, struct task*));

@@ -60,7 +60,8 @@ extern void set_timer(void);
  * The Supervisor-Service call table
  */
 #define SVC_SCHEDULE		0
-#define NR_SVC			1
+#define SVC_SCHEDULE_BLOCKED	1
+#define NR_SVC			2
 extern u64 svc_table[NR_SVC];
 
 /* Interrupt handlers */

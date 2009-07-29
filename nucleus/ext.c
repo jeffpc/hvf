@@ -34,7 +34,7 @@ void __ext_int_handler(void)
 		 * called this function already saved them at PSA_INT_GPR
 		 */
 		if (!(ticks % SCHED_TICKS_PER_SLICE)) {
-			__schedule(EXT_INT_OLD_PSW);
+			__schedule(EXT_INT_OLD_PSW, TASK_SLEEPING);
 
 			/* unreachable */
 			BUG();
