@@ -13,6 +13,7 @@ struct virt_device {
 	u8 model;
 
 	struct pmcw pmcw;		/* path info */
+	struct scsw scsw;		/* subchannel-status */
 };
 
 extern int alloc_virt_dev(struct virt_sys *sys,
