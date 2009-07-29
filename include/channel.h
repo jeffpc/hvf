@@ -61,6 +61,20 @@ struct orb {
 	u32 __reserved6;
 } __attribute__((packed,aligned(4)));
 
+enum SCSW_FC {
+	FC_CLEAR	= 0x10,
+	FC_HALT		= 0x20,
+	FC_START	= 0x40,
+};
+
+enum SCSW_SC {
+	SC_STATUS	= 0x01,
+	SC_SECONDARY	= 0x02,
+	SC_PRIMARY	= 0x04,
+	SC_INTERMED	= 0x08,
+	SC_ALERT	= 0x10,
+};
+
 struct scsw {
 	/* word 0 */
 	u16 key:4,		/* Subchannel key */
