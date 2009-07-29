@@ -165,6 +165,12 @@ static inline void set_task_ptr(struct task *task)
  */
 static inline void schedule(void)
 {
+	/*
+	 * if we are not interruptable, we shouldn't call any functions that
+	 * may sleep - schedule() is guaranteed to sleep :)
+	 */
+	BUG_ON(!interruptable());
+
 	asm volatile(
 		"	svc	%0\n"
 	: /* output */
@@ -179,6 +185,12 @@ static inline void schedule(void)
  */
 static inline void schedule_blocked(void)
 {
+	/*
+	 * if we are not interruptable, we shouldn't call any functions that
+	 * may sleep - schedule() is guaranteed to sleep :)
+	 */
+	BUG_ON(!interruptable());
+
 	asm volatile(
 		"	svc	%0\n"
 	: /* output */
