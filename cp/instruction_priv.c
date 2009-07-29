@@ -12,7 +12,7 @@ static int handle_msch(struct virt_sys *sys)
 	u64 addr = RAW_S_1(cpu);
 
 	struct schib *gschib;
-	struct virt_device *vdev;
+	struct virt_device *vdev, *vdev_cur;
 	int ret = 0;
 
 	if ((PAGE_SIZE-(addr & PAGE_MASK)) < sizeof(struct schib)) {
@@ -35,13 +35,16 @@ static int handle_msch(struct virt_sys *sys)
 	}
 
 	/* find the virtual device */
-	list_for_each_entry(vdev, &sys->virt_devs, devices) {
-		if (vdev->sch == (u32) r1)
+	vdev = NULL;
+	list_for_each_entry(vdev_cur, &sys->virt_devs, devices) {
+		if (vdev_cur->sch == (u32) r1) {
+			vdev = vdev_cur;
 			break;
+		}
 	}
 
 	/* There's no virtual device with this sch number; CC=3 */
-	if (vdev == container_of(&sys->virt_devs, struct virt_device, devices)) {
+	if (!vdev) {
 		cpu->sie_cb.gpsw.cc = 3;
 		goto out;
 	}
@@ -132,7 +135,7 @@ static int handle_stsch(struct virt_sys *sys)
 	u64 addr = RAW_S_1(cpu);
 
 	struct schib *gschib;
-	struct virt_device *vdev;
+	struct virt_device *vdev, *vdev_cur;
 	int ret = 0;
 
 	if ((PAGE_SIZE-(addr & PAGE_MASK)) < sizeof(struct schib)) {
@@ -155,13 +158,16 @@ static int handle_stsch(struct virt_sys *sys)
 	}
 
 	/* find the virtual device */
-	list_for_each_entry(vdev, &sys->virt_devs, devices) {
-		if (vdev->sch == (u32) r1)
+	vdev = NULL;
+	list_for_each_entry(vdev_cur, &sys->virt_devs, devices) {
+		if (vdev_cur->sch == (u32) r1) {
+			vdev = vdev_cur;
 			break;
+		}
 	}
 
 	/* There's no virtual device with this sch number; CC=3 */
-	if (vdev == container_of(&sys->virt_devs, struct virt_device, devices)) {
+	if (!vdev) {
 		cpu->sie_cb.gpsw.cc = 3;
 		goto out;
 	}
