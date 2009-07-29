@@ -244,6 +244,21 @@ void spawn_user_cp(struct console *con, struct user *u)
 {
 	char tname[TASK_NAME_LEN+1];
 	struct virt_sys *sys;
+	int already_online = 0;
+
+	mutex_lock(&online_users_lock);
+	list_for_each_entry(sys, &online_users, online_users) {
+		if (sys->directory == u) {
+			already_online = 1;
+			break;
+		}
+	}
+	mutex_unlock(&online_users_lock);
+
+	if (already_online) {
+		con_printf(con, "ALREADY LOGGED ON\n");
+		return;
+	}
 
 	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
 	if (!sys)
