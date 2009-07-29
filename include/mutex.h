@@ -5,6 +5,7 @@
 #include <atomic.h>
 #include <spinlock.h>
 #include <sched.h>
+#include <interrupt.h>
 
 typedef struct {
 	atomic_t state;
@@ -22,6 +23,12 @@ extern void __mutex_lock(mutex_t *lock);
 
 static inline void mutex_lock(mutex_t *lock)
 {
+	/*
+	 * if we are not interruptable, we shouldn't call any functions that
+	 * may sleep - e.g., mutex_lock
+	 */
+	BUG_ON(!interruptable());
+
 	if (unlikely(atomic_add_unless(&lock->state, -1, 0) == 0))
 		__mutex_lock(lock); /* the slow-path */
 }
