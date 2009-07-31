@@ -59,7 +59,6 @@ static int handle_validity(struct virt_sys *sys)
 
 static int handle_stop(struct virt_sys *sys)
 {
-	sys->task->cpu->state = GUEST_STOPPED;
 	atomic_clear_mask(CPUSTAT_STOP_INT, &sys->task->cpu->sie_cb.cpuflags);
 	return 0;
 }
