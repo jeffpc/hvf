@@ -12,3 +12,6 @@ all:
 	$(AS) -m64 --defsym DEBUGADDR=0x$(shell $(NM) debug|grep start$$|cut -d ' ' -f1) -o loader.o loader.S
 	$(LD) $(LDFLAGS) -T linker-loader.script -o loader loader.o
 	$(OBJCOPY) -O binary -j .text -j .data -j .rodata loader loader.raw
+
+clean:
+	rm -f debug debug.o debug.raw loader loader.o loader.raw
