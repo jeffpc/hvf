@@ -48,7 +48,7 @@ clean:
 	$(call clean,hvf)
 	$(call clean,loader_*.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl_tape.S ipl/ipl_rdr_ccws.S)
 	$(call clean,cp/directory_structs.c)
-	$(call rclean,Documentation/commands)
+	$(call rclean,doc/commands)
 
 mrproper: clean
 	$(call clean,cscope.out ctags)

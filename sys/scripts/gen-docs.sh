@@ -2,7 +2,7 @@ write_docs()
 {
 cat "$1" | awk -v fmt="$2" '
 BEGIN{
-	docdir = "Documentation/commands";
+	docdir = "doc/commands";
 
 	if (fmt == "txt") {
 		cmd_title_open = "";
@@ -91,8 +91,8 @@ BEGIN{
 '
 }
 
-mkdir -p Documentation/commands/txt
-mkdir -p Documentation/commands/html
+mkdir -p doc/commands/txt
+mkdir -p doc/commands/html
 
 for srcf in cp/cmd_*.c ; do
 	echo "Inspecting $srcf..."
