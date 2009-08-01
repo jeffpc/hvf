@@ -29,7 +29,7 @@ PGMPRDOS        RESTRICTED    # HVF isn't an IBM product => RESTRICTED is ok
 #---    ----    --------------------
 
 # Card Reader
-000C    3505    ../loader_rdr.bin ../hvf ebcdic multifile
+000C    3505    ../sys/loader_rdr.bin ../sys/hvf ebcdic multifile
 
 # Card Punch
  000D    3525    punch00d.txt ascii
