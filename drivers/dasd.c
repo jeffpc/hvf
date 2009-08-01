@@ -65,14 +65,14 @@ static int d9336_reg(struct device *dev)
 
 	memset(&ioop.orb, 0, sizeof(struct orb));
 	ioop.orb.lpm = 0xff;
-	ioop.orb.addr = (u32) (u64) &ccw;
+	ioop.orb.addr = ADDR31(&ccw);
 	ioop.orb.f = 1;
 
 	memset(&ccw, 0, sizeof(struct ccw));
 	ccw.cmd = 0x64; /* RDC */
 	ccw.flags = CCW_FLAG_SLI;
 	ccw.count = 64;
-	ccw.addr = (u32) (u64) buf;
+	ccw.addr = ADDR31(buf);
 
 	/*
 	 * issue RDC

@@ -69,15 +69,14 @@ static void do_issue_read(struct console *con, struct io_op *ioop, struct ccw *c
 
 	memset(ccws, 0, sizeof(struct ccw));
 
-	// FIXME: make sure buffer is in <2GB
-	ccws[0].addr  = (u32) (u64) cline->buf;
+	ccws[0].addr  = ADDR31(cline->buf);
 	ccws[0].count = CON_MAX_LINE_LEN - 1;
 	ccws[0].cmd   = 0x0a;
 	ccws[0].flags = CCW_FLAG_SLI;
 
 	memset(&ioop->orb, 0, sizeof(struct orb));
 	ioop->orb.lpm  = 0xff;
-	ioop->orb.addr = (u32) (u64) ccws; // FIXME: make sure ccw is in <2GB
+	ioop->orb.addr = ADDR31(ccws);
 	ioop->orb.f    = 1;
 
 	ioop->handler = read_io_int_handler;
@@ -138,8 +137,7 @@ static int console_flusher(void *data)
 
 			cline->state = CON_STATE_IO;
 
-			// FIXME: make sure buffer is in <2GB
-			ccws[ccw_count].addr = (u32) (u64) cline->buf;
+			ccws[ccw_count].addr = ADDR31(cline->buf);
 			ccws[ccw_count].count = cline->len;
 			ccws[ccw_count].cmd   = 0x01; /* write */
 			ccws[ccw_count].flags = CCW_FLAG_CC | CCW_FLAG_SLI;
@@ -170,7 +168,7 @@ static int console_flusher(void *data)
 		 */
 		memset(&ioop.orb, 0, sizeof(struct orb));
 		ioop.orb.lpm = 0xff;
-		ioop.orb.addr = (u32) (u64) ccws; // FIXME: make sure ccw is in <2GB
+		ioop.orb.addr = ADDR31(ccws);
 		ioop.orb.f = 1;		/* format 1 CCW */
 
 		/*

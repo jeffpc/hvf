@@ -42,6 +42,24 @@ static inline void lpswe(void *psw)
 			} while(0)
 
 /*
+ * This should be as simple as a cast, but unfortunately, the BUG_ON check
+ * is there to make sure we never submit a truncated address to the channels
+ *
+ * In the future, the io code should check if IDA is necessary, and in that
+ * case allocate an IDAL & set the IDA ccw flag. Other parts of the system
+ * that require 31-bit address should do whatever their equivalent action
+ * is.
+ */
+static inline u32 ADDR31(void *ptr)
+{
+	u64 ip = (u64) ptr;
+
+	BUG_ON(ip & ~0x7fffffffull);
+
+	return (u32) ip;
+}
+
+/*
  * string.h equivalents
  */
 #define memset(s,c,n)	__builtin_memset((s),(c),(n))

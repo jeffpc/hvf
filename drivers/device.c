@@ -223,14 +223,14 @@ static int do_sense_id(struct device *dev, u16 dev_num, struct senseid_struct *b
 
 	memset(&ioop.orb, 0, sizeof(struct orb));
 	ioop.orb.lpm = 0xff;
-	ioop.orb.addr = (u32) (u64) &ccw;
+	ioop.orb.addr = ADDR31(&ccw);
 	ioop.orb.f = 1;
 
 	memset(&ccw, 0, sizeof(struct ccw));
 	ccw.cmd = 0xe4; /* Sense-ID */
 	ccw.flags = CCW_FLAG_SLI;
 	ccw.count = sizeof(struct senseid_struct);
-	ccw.addr = (u32) (u64) buf;
+	ccw.addr = ADDR31(buf);
 
 	/*
 	 * issue SENSE-ID
