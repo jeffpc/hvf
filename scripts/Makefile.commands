@@ -14,6 +14,7 @@ cmd-pad=bash scripts/pad.sh $(1) $(2)
 cmd-clean=rm -f $(1)
 cmd-rclean=rm -rf $(1)
 cmd-cscope=cscope -R -b
+cmd-gendir=bash scripts/gen-dir.sh $(1) $(2)
 
 ifeq ($V,1)
 c-to-o=$(cmd-c-to-o)
@@ -32,6 +33,7 @@ pad=$(cmd-pad)
 clean=$(cmd-clean)
 rclean=$(cmd-rclean)
 cscope=$(cmd-cscope)
+gendir=$(cmd-gendir)
 else
 c-to-o=@echo "  [CC]      $(2)"; $(cmd-c-to-o)
 c-to-s=@echo "  [CC]      $(2)"; $(cmd-c-to-s)
@@ -49,5 +51,6 @@ pad=@echo "  [PAD]     $1 (multiple of $2 bytes)"; $(cmd-pad)
 clean=@echo "  [CLEAN]   $1"; $(cmd-clean)
 rclean=@echo "  [CLEAN]   $1"; $(cmd-rclean)
 cscope=@echo "  [CSCOPE]  cscope.out"; $(cmd-cscope)
+gendir=@echo "  [DIRECT]  $1 -> $2"; $(cmd-gendir)
 endif
 

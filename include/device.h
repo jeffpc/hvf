@@ -30,6 +30,15 @@ struct device {
 	struct io_op *q_cur;
 	struct list_head q_out;
 	atomic_t attention;
+
+	union {
+		struct {
+			u16 blk_size;	/* block size */
+			u32 bpg;	/* blocks per cyclical group */
+			u32 bpp;	/* blocks per access possition */
+			u32 blks;	/* blocks */
+		} fba;
+	};
 };
 
 extern struct device *find_device_by_type(u16 type, u8 model);

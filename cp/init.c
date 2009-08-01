@@ -10,6 +10,10 @@
 #include <ebcdic.h>
 #include <vdevice.h>
 #include <cpu.h>
+#include <mutex.h>
+
+static LIST_HEAD(online_users);
+static UNLOCKED_MUTEX(online_users_lock);
 
 static int __alloc_guest_devices(struct virt_sys *sys)
 {
@@ -47,6 +51,32 @@ static int __alloc_guest_storage(struct virt_sys *sys)
 	}
 
 	return 0;
+}
+
+static void process_logon_cmd(struct console *con)
+{
+	u8 cmd[128];
+	int ret;
+
+	ret = con_read(con, cmd, 128);
+
+	if (ret == -1)
+		return; /* no lines to read */
+
+	if (!ret)
+		return; /* empty line */
+
+	ebcdic2ascii(cmd, ret);
+
+	/*
+	 * we got a command to process!
+	 */
+
+	ret = invoke_cp_logon(con, (char*) cmd, ret);
+	if (!ret)
+		return;
+
+	con_printf(con, "NOT LOGGED ON\n");
 }
 
 static void process_cmd(struct virt_sys *sys)
@@ -149,28 +179,42 @@ static int cp_init(void *data)
 	}
 }
 
-/*
- * FIXME: This function should service all the consoles on the system
- */
-static int cp_cmd_intercept_gen(void *data)
+static void __con_attn(struct console *con)
 {
-	struct virt_sys *sys = data;
+	if (con->sys) {
+		/* There's already a user on this console */
 
-	for(;;) {
-		schedule();
+		if (!con->sys->task->cpu ||
+		    con->sys->task->cpu->state == GUEST_STOPPED)
+			return;
 
-		if (!sys->task->cpu ||
-		    sys->task->cpu->state == GUEST_STOPPED)
-			continue;
-
-		if (!con_read_pending(sys->con))
-			continue;
+		if (!con_read_pending(con))
+			return;
 
 		/*
 		 * There's a read pending. Generate an interception.
 		 */
-		atomic_set_mask(CPUSTAT_STOP_INT, &sys->task->cpu->sie_cb.cpuflags);
+		atomic_set_mask(CPUSTAT_STOP_INT, &con->sys->task->cpu->sie_cb.cpuflags);
+	} else {
+		if (!con_read_pending(con))
+			return;
+
+		/*
+		 * There's a read pending. MUST be a command
+		 */
+		process_logon_cmd(con);
 	}
+}
+
+static int cp_con_attn(void *data)
+{
+	for(;;) {
+		schedule();
+
+		for_each_console(__con_attn);
+	}
+
+	return 0;
 }
 
 void spawn_oper_cp(struct console *con)
@@ -181,12 +225,77 @@ void spawn_oper_cp(struct console *con)
 	BUG_ON(!sys);
 
 	sys->con = con;
+	con->sys = sys;
 
 	sys->directory = find_user_by_id("operator");
 	BUG_ON(IS_ERR(sys->directory));
 
-	sys->task = create_task("operator-vcpu0", cp_init, sys);
+	sys->task = create_task("OPERATOR-vcpu0", cp_init, sys);
 	BUG_ON(IS_ERR(sys->task));
 
-	BUG_ON(IS_ERR(create_task("*-cmd_intercept", cp_cmd_intercept_gen, sys)));
+	BUG_ON(IS_ERR(create_task("console-attn", cp_con_attn, NULL)));
+
+	mutex_lock(&online_users_lock);
+	list_add_tail(&sys->online_users, &online_users);
+	mutex_unlock(&online_users_lock);
+}
+
+void spawn_user_cp(struct console *con, struct user *u)
+{
+	char tname[TASK_NAME_LEN+1];
+	struct virt_sys *sys;
+	int already_online = 0;
+
+	mutex_lock(&online_users_lock);
+	list_for_each_entry(sys, &online_users, online_users) {
+		if (sys->directory == u) {
+			already_online = 1;
+			break;
+		}
+	}
+	mutex_unlock(&online_users_lock);
+
+	if (already_online) {
+		con_printf(con, "ALREADY LOGGED ON\n");
+		return;
+	}
+
+	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
+	if (!sys)
+		goto err;
+
+	sys->con = con;
+	con->sys = sys;
+
+	sys->directory = u;
+
+	snprintf(tname, TASK_NAME_LEN, "%s-vcpu0", u->userid);
+	sys->task = create_task(tname, cp_init, sys);
+	if (IS_ERR(sys->task))
+		goto err_free;
+
+	mutex_lock(&online_users_lock);
+	list_add_tail(&sys->online_users, &online_users);
+	mutex_unlock(&online_users_lock);
+	return;
+
+err_free:
+	free(sys);
+	con->sys = NULL;
+err:
+	con_printf(con, "INTERNAL ERROR DURING LOGON\n");
+}
+
+void list_users(struct console *con, void (*f)(struct console *con,
+					       struct virt_sys *sys))
+{
+	struct virt_sys *sys;
+
+	if (!f)
+		return;
+
+	mutex_lock(&online_users_lock);
+	list_for_each_entry(sys, &online_users, online_users)
+		f(con, sys);
+	mutex_unlock(&online_users_lock);
 }

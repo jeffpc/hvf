@@ -2,7 +2,7 @@
 # HVF: Hobbyist Virtualization Facility
 #
 
-VERSION=0.15
+VERSION=0.16-rc1
 
 AS=$(CROSS_COMPILE)as
 CC=$(CROSS_COMPILE)gcc
@@ -47,6 +47,7 @@ clean:
 	@$(MAKE) DIR=cp/ cleanup V=$V
 	$(call clean,hvf)
 	$(call clean,loader_*.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl_tape.S ipl/ipl_rdr_ccws.S)
+	$(call clean,cp/directory_structs.c)
 	$(call rclean,Documentation/commands)
 
 mrproper: clean

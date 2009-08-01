@@ -14,10 +14,10 @@ static void display_rdev(struct console *con, struct device *dev)
 {
 	char buf[40];
 
+	buf[0] = '\0';
+
 	if (dev->dev && dev->dev->snprintf)
 		dev->dev->snprintf(dev, buf, 40);
-	else
-		buf[0] = '\0';
 
 	con_printf(con, "%-4s %04X %04X %sSCH = %05X\n",
 		   type2name(dev->type), dev->ccuu, dev->type, buf,
@@ -66,8 +66,17 @@ static void display_vdev(struct console *con, struct virt_device *vdev)
 
 static void display_task(struct console *con, struct task *task)
 {
-	con_printf(con, "%*s %p %c\n", -TASK_NAME_LEN, task->name,
-		   task, (task->state == TASK_RUNNING ? 'R' : 'S'));
+	char state;
+
+	switch(task->state) {
+		case TASK_RUNNING:  state = 'R'; break;
+		case TASK_SLEEPING: state = 'S'; break;
+		case TASK_LOCKED:   state = 'L'; break;
+		default:            state = '?'; break;
+	}
+
+	con_printf(con, "%*s %p %c %016llX\n", -TASK_NAME_LEN, task->name,
+		   task, state, task->regs.psw.ptr);
 }
 
 /*
@@ -162,6 +171,26 @@ static int cmd_query_task(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+static void display_names(struct console *con, struct virt_sys *sys)
+{
+	con_printf(con, "%s %04X %-8s\n", type2name(sys->con->dev->type),
+		   sys->con->dev->ccuu, sys->directory->userid);
+}
+
+/*
+ *!!! QUERY NAMES
+ *!p >>--QUERY--NAMES--------------------------------------------------------------><
+ *!! AUTH G
+ *!! PURPOSE
+ *! Lists all of the logged in users.
+ */
+static int cmd_query_names(struct virt_sys *sys, char *cmd, int len)
+{
+	list_users(sys->con, display_names);
+
+	return 0;
+}
+
 static struct cpcmd cmd_tbl_query[] = {
 	{"CPLEVEL",	cmd_query_cplevel,	NULL},
 
@@ -179,6 +208,10 @@ static struct cpcmd cmd_tbl_query[] = {
 	{"REA",		cmd_query_real,		NULL},
 	{"RE",		cmd_query_real,		NULL},
 	{"R",		cmd_query_real,		NULL},
+
+	{"NAMES",	cmd_query_names,	NULL},
+	{"NAME",	cmd_query_names,	NULL},
+	{"NAM",		cmd_query_names,	NULL},
 
 	{"TASK",	cmd_query_task,		NULL},
 	{"",		NULL,			NULL},

@@ -27,9 +27,12 @@ static char* type2name(u16 type)
 		case 0x1732:	return "OSA";
 		case 0x3215:	return "CONS";
 		case 0x3278:	return "GRAF";
-		case 0x3390:	return "DASD";
 		case 0x3505:	return "RDR";
 		case 0x3525:	return "PUN";
+
+		/* various dasds */
+		case 0x3390:
+		case 0x9336:	return "DASD";
 
 		/* various tape drives */
 		case 0x3480:
@@ -50,6 +53,7 @@ static char* type2name(u16 type)
 #include "cmd_system.c"
 #include "cmd_query.c"
 #include "cmd_store.c"
+#include "cmd_logon.c"
 
 static struct cpcmd commands[] = {
 	{"BEGIN",	cmd_begin,		NULL},
@@ -69,6 +73,12 @@ static struct cpcmd commands[] = {
 	{"IP",		cmd_ipl,		NULL},
 	{"I",		cmd_ipl,		NULL},
 
+	{"LOGON",	cmd_logon_fail,		NULL},
+	{"LOGO",	cmd_logon_fail,		NULL},
+	{"LOG",		cmd_logon_fail,		NULL},
+	{"LO",		cmd_logon_fail,		NULL},
+	{"L",		cmd_logon_fail,		NULL},
+
 	{"QUERY",	NULL,			cmd_tbl_query},
 	{"QUER",	NULL,			cmd_tbl_query},
 	{"QUE",		NULL,			cmd_tbl_query},
@@ -86,6 +96,14 @@ static struct cpcmd commands[] = {
 	{"SYST",	cmd_system,		NULL},
 	{"SYS",		cmd_system,		NULL},
 	{"",		NULL,			NULL},
+};
+
+static struct cpcmd logon_commands[] = {
+	{"LOGON",	cmd_logon,		NULL},
+	{"LOGO",	cmd_logon,		NULL},
+	{"LOG",		cmd_logon,		NULL},
+	{"LO",		cmd_logon,		NULL},
+	{"L",		cmd_logon,		NULL},
 };
 
 static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int len)
@@ -131,4 +149,9 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int
 int invoke_cp_cmd(struct virt_sys *sys, char *cmd, int len)
 {
 	return __invoke_cp_cmd(commands, sys, cmd, len);
+}
+
+int invoke_cp_logon(struct console *con, char *cmd, int len)
+{
+	return __invoke_cp_cmd(logon_commands, (struct virt_sys*) con, cmd, len);
 }

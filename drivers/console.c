@@ -69,15 +69,14 @@ static void do_issue_read(struct console *con, struct io_op *ioop, struct ccw *c
 
 	memset(ccws, 0, sizeof(struct ccw));
 
-	// FIXME: make sure buffer is in <2GB
-	ccws[0].addr  = (u32) (u64) cline->buf;
+	ccws[0].addr  = ADDR31(cline->buf);
 	ccws[0].count = CON_MAX_LINE_LEN - 1;
 	ccws[0].cmd   = 0x0a;
-	ccws[0].sli   = 1;
+	ccws[0].flags = CCW_FLAG_SLI;
 
 	memset(&ioop->orb, 0, sizeof(struct orb));
 	ioop->orb.lpm  = 0xff;
-	ioop->orb.addr = (u32) (u64) ccws; // FIXME: make sure ccw is in <2GB
+	ioop->orb.addr = ADDR31(ccws);
 	ioop->orb.f    = 1;
 
 	ioop->handler = read_io_int_handler;
@@ -138,12 +137,10 @@ static int console_flusher(void *data)
 
 			cline->state = CON_STATE_IO;
 
-			// FIXME: make sure buffer is in <2GB
-			ccws[ccw_count].addr = (u32) (u64) cline->buf;
+			ccws[ccw_count].addr = ADDR31(cline->buf);
 			ccws[ccw_count].count = cline->len;
 			ccws[ccw_count].cmd   = 0x01; /* write */
-			ccws[ccw_count].sli   = 1;
-			ccws[ccw_count].cc    = 1; /* command chaining */
+			ccws[ccw_count].flags = CCW_FLAG_CC | CCW_FLAG_SLI;
 
 			ccw_count++;
 		}
@@ -164,14 +161,14 @@ static int console_flusher(void *data)
 		/*
 		 * Clear Command-Chaining on the last CCW
 		 */
-		ccws[ccw_count-1].cc = 0;
+		ccws[ccw_count-1].flags &= ~CCW_FLAG_CC;
 
 		/*
 		 * Now, set up the ORB and CCW
 		 */
 		memset(&ioop.orb, 0, sizeof(struct orb));
 		ioop.orb.lpm = 0xff;
-		ioop.orb.addr = (u32) (u64) ccws; // FIXME: make sure ccw is in <2GB
+		ioop.orb.addr = ADDR31(ccws);
 		ioop.orb.f = 1;		/* format 1 CCW */
 
 		/*
@@ -196,6 +193,7 @@ int register_console(struct device *dev)
 	con = malloc(sizeof(struct console), ZONE_NORMAL);
 	BUG_ON(!con);
 
+	con->sys    = NULL;
 	con->dev    = dev;
 	con->lock   = SPIN_LOCK_UNLOCKED;
 	INIT_LIST_HEAD(&con->write_lines);
@@ -325,4 +323,35 @@ abort:
 	spin_unlock(&con->lock);
 
 	return bytes;
+}
+
+void for_each_console(void (*f)(struct console *con))
+{
+	struct console *con;
+
+	if (!f)
+		return;
+
+	spin_lock(&consoles_lock);
+	list_for_each_entry(con, &consoles, consoles)
+		f(con);
+	spin_unlock(&consoles_lock);
+}
+
+struct console* find_console(struct device *dev)
+{
+	struct console *con;
+
+	if (!dev)
+		return ERR_PTR(-ENOENT);
+
+	spin_lock(&consoles_lock);
+	list_for_each_entry(con, &consoles, consoles) {
+		if (con->dev == dev)
+			goto found;
+	}
+	con = ERR_PTR(-ENOENT);
+found:
+	spin_unlock(&consoles_lock);
+	return con;
 }

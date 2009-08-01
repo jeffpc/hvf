@@ -27,3 +27,8 @@ all: $(DIR)/built-in.o
 
 %.o: %.c
 	$(call c-to-o,$<,$@)
+
+cp/directory.c: cp/directory_structs.c
+
+cp/directory_structs.c: hvf.directory
+	$(call gendir,$<,$@)

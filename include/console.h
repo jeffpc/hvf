@@ -15,7 +15,7 @@
 #define CON_MAX_FREE_LINES	32
 
 /* number of lines of console text to flush at a time */
-#define CON_MAX_FLUSH_LINES	8
+#define CON_MAX_FLUSH_LINES	32
 
 /* line state */
 #define CON_STATE_FREE		0
@@ -31,6 +31,7 @@ struct console_line {
 
 struct console {
 	struct list_head consoles;
+	struct virt_sys *sys;
 	struct device *dev;
 	spinlock_t lock;
 	struct list_head write_lines;
@@ -43,5 +44,7 @@ extern struct console* start_consoles(void);
 extern int con_read_pending(struct console *con);
 extern int con_read(struct console *con, u8 *buf, int size);
 extern int con_write(struct console *con, u8 *buf, int len);
+extern void for_each_console(void (*f)(struct console *con));
+extern struct console* find_console(struct device *dev);
 
 #endif
