@@ -5,15 +5,21 @@
  * We only care about format-1 CCWs
  */
 struct ccw {
-	u8 cmd;			/* command code */
-	u8 cd:1,		/* Chain-Data */
-	   cc:1,		/* Chain-Command */
-	   sli:1,		/* Suppress-Length-Indication */
-	   skp:1,		/* Skip */
-	   pci:1,		/* Program-Controlled-Interruption */
-	   ida:1,		/* Indirect-Data-Address */
-	   s:1,			/* Suspend */
-	   mida:1;		/* Modified-Indirect-Data-Address */
+	u8 cmd;			/* Command code */
+#define CCW_CMD_IPL_READ	0x02
+#define CCW_CMD_NOP		0x03
+#define CCW_CMD_BASIC_SENSE	0x04
+#define CCW_CMD_SENSE_ID	0xe4
+#define CCW_CMD_TIC		0x08
+	u8 flags;		/* Flags */
+#define CCW_FLAG_CD		0x80	/* Chain-Data */
+#define CCW_FLAG_CC		0x40	/* Chain-Command */
+#define CCW_FLAG_SLI		0x20	/* Suppress-Length-Indication */
+#define CCW_FLAG_SKP		0x10	/* Skip */
+#define CCW_FLAG_PCI		0x08	/* Program-Controlled-Interruption */
+#define CCW_FLAG_IDA		0x04	/* Indirect-Data-Address */
+#define CCW_FLAG_S		0x02	/* Suspend */
+#define CCW_FLAG_MIDA		0x01	/* Modified-Indirect-Data-Address */
 	u16 count;		/* Count */
 	u32 addr;		/* Data Address */
 } __attribute__((packed,aligned(8)));
@@ -38,7 +44,7 @@ struct orb {
 	   u:1,			/* Suppress-Suspend-Interruption Control */
 	   __zero1:1,
 	   h:1,			/* Format-2-IDAW Control */
-	   t:1;			/* 2K-IDAW Control */ 
+	   t:1;			/* 2K-IDAW Control */
 	u8 lpm;			/* Logical-Path Mask */
 	u8 l:1,			/* Incorrect-Length-Suppression Mode */
 	   d:1,			/* Modified-CCW-Indirect-Data-Addressing Control */

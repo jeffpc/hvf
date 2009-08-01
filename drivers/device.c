@@ -228,7 +228,7 @@ static int do_sense_id(struct device *dev, u16 dev_num, struct senseid_struct *b
 
 	memset(&ccw, 0, sizeof(struct ccw));
 	ccw.cmd = 0xe4; /* Sense-ID */
-	ccw.sli = 1;
+	ccw.flags = CCW_FLAG_SLI;
 	ccw.count = sizeof(struct senseid_struct);
 	ccw.addr = (u32) (u64) buf;
 

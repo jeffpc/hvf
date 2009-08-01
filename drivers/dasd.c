@@ -70,7 +70,7 @@ static int d9336_reg(struct device *dev)
 
 	memset(&ccw, 0, sizeof(struct ccw));
 	ccw.cmd = 0x64; /* RDC */
-	ccw.sli = 1;
+	ccw.flags = CCW_FLAG_SLI;
 	ccw.count = 64;
 	ccw.addr = (u32) (u64) buf;
 

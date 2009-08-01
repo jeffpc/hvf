@@ -73,7 +73,7 @@ static void do_issue_read(struct console *con, struct io_op *ioop, struct ccw *c
 	ccws[0].addr  = (u32) (u64) cline->buf;
 	ccws[0].count = CON_MAX_LINE_LEN - 1;
 	ccws[0].cmd   = 0x0a;
-	ccws[0].sli   = 1;
+	ccws[0].flags = CCW_FLAG_SLI;
 
 	memset(&ioop->orb, 0, sizeof(struct orb));
 	ioop->orb.lpm  = 0xff;
@@ -142,8 +142,7 @@ static int console_flusher(void *data)
 			ccws[ccw_count].addr = (u32) (u64) cline->buf;
 			ccws[ccw_count].count = cline->len;
 			ccws[ccw_count].cmd   = 0x01; /* write */
-			ccws[ccw_count].sli   = 1;
-			ccws[ccw_count].cc    = 1; /* command chaining */
+			ccws[ccw_count].flags = CCW_FLAG_CC | CCW_FLAG_SLI;
 
 			ccw_count++;
 		}
@@ -164,7 +163,7 @@ static int console_flusher(void *data)
 		/*
 		 * Clear Command-Chaining on the last CCW
 		 */
-		ccws[ccw_count-1].cc = 0;
+		ccws[ccw_count-1].flags &= ~CCW_FLAG_CC;
 
 		/*
 		 * Now, set up the ORB and CCW
