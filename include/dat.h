@@ -121,7 +121,7 @@ static inline int virt2phy_current(u64 virt, u64 *phy)
 	  "=d" (result),
 	  "=d" (cc)
 	: /* input */
-	  "d" (virt)
+	  "a" (virt)
 	);
 
 	if (cc != 0)
