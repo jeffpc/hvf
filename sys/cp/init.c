@@ -237,6 +237,8 @@ void spawn_oper_cp(struct console *con)
 	sys->directory = find_user_by_id("operator");
 	BUG_ON(IS_ERR(sys->directory));
 
+	sys->print_ts = 1; /* print timestamps */
+
 	sys->task = create_task("OPERATOR-vcpu0", cp_init, sys);
 	BUG_ON(IS_ERR(sys->task));
 
@@ -275,6 +277,8 @@ void spawn_user_cp(struct console *con, struct user *u)
 	con->sys = sys;
 
 	sys->directory = u;
+
+	sys->print_ts = 1; /* print timestamps */
 
 	snprintf(tname, TASK_NAME_LEN, "%s-vcpu0", u->userid);
 	sys->task = create_task(tname, cp_init, sys);

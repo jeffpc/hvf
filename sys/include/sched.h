@@ -115,6 +115,7 @@ struct virt_sys {
 	struct user *directory;		/* the directory information */
 
 	struct console *con;		/* the login console */
+	int print_ts;			/* print timestamps */
 
 	struct list_head guest_pages;	/* list of guest pages */
 	struct list_head virt_devs;	/* list of guest virtual devs */

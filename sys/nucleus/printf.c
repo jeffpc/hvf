@@ -8,6 +8,7 @@
 #include <ebcdic.h>
 #include <slab.h>
 #include <clock.h>
+#include <sched.h>
 
 int vprintf(struct console *con, const char *fmt, va_list args)
 {
@@ -16,8 +17,7 @@ int vprintf(struct console *con, const char *fmt, va_list args)
 	int off = 0;
 	int ret;
 
-	if (1) {
-		/* TODO: make it a config option */
+	if (!con->sys || (con->sys && con->sys->print_ts)) {
 		memset(&dt, 0, sizeof(dt));
 		ret = get_parsed_tod(&dt);
 		off = snprintf(buf, 128, "%02d:%02d:%02d ", dt.th, dt.tm,
