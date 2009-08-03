@@ -148,6 +148,8 @@ static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
 {
+	CP_CMD_AUTH(sys, 'A');
+
 	con_printf(sys->con, "CPU %02d  ID  %016llX RUNNING\n",
 		   getcpuaddr(),
 		   getcpuid());
@@ -168,6 +170,8 @@ static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_query_task(struct virt_sys *sys, char *cmd, int len)
 {
+	CP_CMD_AUTH(sys, 'A');
+
 	list_tasks(sys->con, display_task);
 
 	return 0;
