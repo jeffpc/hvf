@@ -9,6 +9,7 @@
  * This file should contain only externally (from CP's point of view)
  * visible interfaces.
  */
+extern struct console *oper_con;
 
 extern void spawn_oper_cp(struct console *con);
 extern void spawn_user_cp(struct console *con, struct user *u);

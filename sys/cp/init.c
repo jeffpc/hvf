@@ -12,6 +12,11 @@
 #include <cpu.h>
 #include <mutex.h>
 
+/* This is used to con_printf to the operator about various async events -
+ * e.g., user logon
+ */
+struct console *oper_con;
+
 static LIST_HEAD(online_users);
 static UNLOCKED_MUTEX(online_users_lock);
 
@@ -220,6 +225,8 @@ static int cp_con_attn(void *data)
 void spawn_oper_cp(struct console *con)
 {
 	struct virt_sys *sys;
+
+	oper_con = con;
 
 	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
 	BUG_ON(!sys);
