@@ -34,4 +34,9 @@ extern int handle_instruction_priv(struct virt_sys *sys);
 
 typedef int (*intercept_handler_t)(struct virt_sys *sys);
 
+#define CP_CMD_AUTH(s,a)	do { \
+					if ((s)->directory->auth > (a)) \
+						return -EPERM; \
+				} while(0)
+
 #endif
