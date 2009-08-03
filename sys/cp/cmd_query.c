@@ -28,10 +28,12 @@ static void display_vdev(struct console *con, struct virt_device *vdev)
 {
 	switch (vdev->vtype) {
 		case VDEV_CONS:
-			con_printf(con, "CONS %04X 3215 ON %s %04X SCH = %05X\n",
+			con_printf(con, "CONS %04X 3215 ON %s %04X %s SCH = %05X\n",
 				   vdev->pmcw.dev_num,
 				   type2name(con->dev->type), // FIXME?
-				   con->dev->ccuu, vdev->sch);
+				   con->dev->ccuu,
+				   con->sys->print_ts ? "TS" : "NOTS",
+				   vdev->sch);
 			break;
 		case VDEV_DED:
 			con_printf(con, "???? %04X SCH = %05X\n",
