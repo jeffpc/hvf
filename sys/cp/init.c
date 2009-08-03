@@ -118,6 +118,9 @@ static void process_cmd(struct virt_sys *sys)
 		case -EINVAL:
 			con_printf(sys->con, "Operand missing or invalid\n");
 			break;
+		case -EPERM:
+			con_printf(sys->con, "Not authorized\n");
+			break;
 		default:
 			con_printf(sys->con, "RC=%d\n", ret);
 			break;
