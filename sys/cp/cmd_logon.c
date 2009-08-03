@@ -7,7 +7,7 @@
  */
 static int cmd_logon(struct virt_sys *data, char *cmd, int len)
 {
-	struct console *con = (struct console*) data;
+	struct console *con = (struct console*) data; /* BEWARE */
 	struct user *u;
 
 	u = find_user_by_id(cmd);
