@@ -53,6 +53,8 @@ struct user {
 	u64 storage_size;
 
 	struct directory_vdev *devices;
+
+	u8 auth;
 };
 
 extern struct user *find_user_by_id(char *userid);
