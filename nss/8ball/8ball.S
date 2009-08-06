@@ -73,6 +73,10 @@ FAIL_IO:
 	OI	DISWAIT+7,0xF1
 	LPSW	DISWAIT
 
+FAIL_CLOCK:
+	OI	DISWAIT+7,0xF2
+	LPSW	DISWAIT
+
 MAXSCH:
 .long 0x0001ffff
 
@@ -159,6 +163,15 @@ IO_DONE:
 	BC	8,WAIT_FOR_USER
 
 	LA	%R3,ANS1
+	LA	%R4,_ANSLEN
+	LA	%R5,NUMANS
+	STCK	CLOCK
+	BC	3,FAIL_CLOCK
+	LM	%R8,%R9,CLOCK
+	SRDL	%R8,28
+	DLR	%R8,%R5
+	MSR	%R8,%R4
+	AR	%R3,%R8
 
 	L	%R4,RESPCCW
 	N	%R4,ADDR_MASK
@@ -190,6 +203,11 @@ DE_MASK:
 .long 0x00000004
 ADDR_MASK:
 .long 0xff000000
+
+.align 8
+CLOCK:
+.long 0x00000000
+.long 0x00000000
 
 .align 8
 RESPCCW:
@@ -226,6 +244,7 @@ ANS18: .ascii "MY SOURCES SAY NO        \n\n"
 ANS19: .ascii "OUTLOOK NOT SO GOOD      \n\n"
 ANS20: .ascii "VERY DOUBTFUL            \n\n"
 .equ _ANSLEN, .-ANS20
+.equ NUMANS, 20
 ANSEND:
 
 .align 8
