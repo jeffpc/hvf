@@ -115,6 +115,16 @@ FOUND:
 
 	TR	GREETMSG(_GREETLEN),A2E
 
+	LA	%R7,_ANSLEN
+	LA	%R8,ANS1
+	LA	%R9,ANSEND
+
+TRLOOP:
+	TR	0(_ANSLEN,%R8),A2E
+	AR	%R8,%R7
+	CR	%R8,%R9
+	BC	4,TRLOOP
+
 	OI	ORB+6,0xff
 	LA	%R2,GREETCCW
 
@@ -138,13 +148,23 @@ IOSVC:
 	BC	11,WAIT
 
 IO_DONE:
+	# SHAKE SHAKE SHAKE
+
 	LA	%R2,GREETCCW
 	C	%R2,ORB
 	BC	8,WAIT_FOR_USER
 
-	# SHAKE SHAKE SHAKE
+	LA	%R2,RESPCCW
+	C	%R2,ORB
+	BC	8,WAIT_FOR_USER
 
-	LA	%R2,GREETCCW
+	LA	%R3,ANS1
+
+	L	%R4,RESPCCW
+	N	%R4,ADDR_MASK
+	AR	%R4,%R3
+	ST	%R4,RESPCCW
+
 	B	GO
 
 DO_READ:
@@ -168,8 +188,13 @@ ATTN_MASK:
 .long 0x00000080
 DE_MASK:
 .long 0x00000004
+ADDR_MASK:
+.long 0xff000000
 
 .align 8
+RESPCCW:
+.long 0x01000000
+.long 0x40000000 | _ANSLEN
 GREETCCW:
 .long 0x01000000
 .long 0x00000000
@@ -179,6 +204,29 @@ GREETMSG:
 .equ _GREETLEN, .-GREETMSG
 GREETLEN:
 .long _GREETLEN
+
+ANS1:  .ascii "AS I SEE IT, YES         \n\n"
+ANS2:  .ascii "IT IS CERTAIN            \n\n"
+ANS3:  .ascii "IT IS DECIDEDLY SO       \n\n"
+ANS4:  .ascii "MOST LIKELY              \n\n"
+ANS5:  .ascii "OUTLOOK GOOD             \n\n"
+ANS6:  .ascii "SIGNS POINT TO YES       \n\n"
+ANS7:  .ascii "WITHOUT A DOUBT          \n\n"
+ANS8:  .ascii "YES                      \n\n"
+ANS9:  .ascii "YES - DEFINITELY         \n\n"
+ANS10: .ascii "YOU MAY RELY ON IT       \n\n"
+ANS11: .ascii "REPLY HAZY, TRY AGAIN    \n\n"
+ANS12: .ascii "ASK AGAIN LATER          \n\n"
+ANS13: .ascii "BETTER NOT TELL YOU NOW  \n\n"
+ANS14: .ascii "CANNOT PREDICT NOW       \n\n"
+ANS15: .ascii "CONCENTRATE AND ASK AGAIN\n\n"
+ANS16: .ascii "DON'T COUNT ON IT        \n\n"
+ANS17: .ascii "MY REPLY IS NO           \n\n"
+ANS18: .ascii "MY SOURCES SAY NO        \n\n"
+ANS19: .ascii "OUTLOOK NOT SO GOOD      \n\n"
+ANS20: .ascii "VERY DOUBTFUL            \n\n"
+.equ _ANSLEN, .-ANS20
+ANSEND:
 
 .align 8
 READCCW:
