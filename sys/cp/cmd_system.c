@@ -3,7 +3,9 @@ extern u32 GUEST_IPL_REGSAVE[];
 
 /*
  *!!! IPL
- *!p >>--IPL--vdev-----------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc IPL} <vdev>
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Perform a ...
@@ -89,19 +91,26 @@ fail:
 }
 
 /*!!! SYSTEM CLEAR
- *!p >>--SYSTEM--CLEAR-------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc SYStem CLEAR}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Identical to reset-clear button on a real mainframe.
  *
  *!!! SYSTEM RESET
  *!p >>--SYSTEM--RESET-------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc SYStem RESET}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Identical to reset-normal button on a real mainframe.
  *
  *!!! SYSTEM RESTART
- *!p >>--SYSTEM--RESTART-----------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc SYStem RESTART}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Perform a restart operation.
@@ -109,7 +118,9 @@ fail:
  *! Not yet implemented.
  *
  *!!! SYSTEM STORE
- *!p >>--SYSTEM--STORE-------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc SYStem STORE}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Perform a ...

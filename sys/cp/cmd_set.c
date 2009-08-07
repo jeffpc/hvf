@@ -1,6 +1,8 @@
 /*
  *!!! SET NOTS
- *!p >>--SET--NOTS-----------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc SET NOTS}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Disable the console timestamp printing
@@ -13,7 +15,9 @@ static int cmd_set_nots(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! SET TS
- *!p >>--SET--TS-------------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc SET TS}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Enable the console timestamp printing

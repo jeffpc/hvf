@@ -83,7 +83,9 @@ static void display_task(struct console *con, struct task *task)
 
 /*
  *!!! QUERY TIME
- *!p >>--QUERY--TIME---------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query TIME}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the current time
@@ -100,7 +102,9 @@ static int cmd_query_cplevel(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! QUERY CPLEVEL
- *!p >>--QUERY--CPLEVEL------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query CPLEVEL}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the HVF version and time of IPL
@@ -119,7 +123,9 @@ static int cmd_query_time(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! QUERY VIRTUAL
- *!p >>--QUERY--VIRTUAL------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query Virtual}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Lists all of the guest's virtual devices
@@ -141,7 +147,9 @@ static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! QUERY REAL
- *!p >>--QUERY--REAL---------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query Real}
+ *!! XATNYS
  *!! AUTH A
  *!! PURPOSE
  *! Lists all of the host's real devices
@@ -162,7 +170,9 @@ static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! QUERY TASK
- *!p >>--QUERY--TASK---------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query Task}
+ *!! XATNYS
  *!! AUTH A
  *!! PURPOSE
  *! Lists all of the tasks running on the host. This includes guest virtual
@@ -185,7 +195,9 @@ static void display_names(struct console *con, struct virt_sys *sys)
 
 /*
  *!!! QUERY NAMES
- *!p >>--QUERY--NAMES--------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query NAMes}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Lists all of the logged in users.

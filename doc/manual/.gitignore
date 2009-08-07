@@ -1,4 +1,9 @@
 *.aux
 *.log
+*.cb
+*.cb2
+*.dvi
 .*.swp
+tex
+cp-cmd-list.tex
 manual.pdf

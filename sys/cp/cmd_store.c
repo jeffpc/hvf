@@ -1,6 +1,8 @@
 /*
  *!!! STORE STORAGE
- *!p >>--STORE--STORAGE--value--address--------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc STOre STOrage} <value> <address>
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Sets a word in guest's storage at address to value
@@ -47,7 +49,9 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! STORE GPR
- *!p >>--STORE--GPR--gpr--value----------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc STOre Gpr} <gpr> <value>
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Sets a guest's general purpose register to the specified value
@@ -78,7 +82,9 @@ static int cmd_store_gpr(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! STORE FPR
- *!p >>--STORE--FPR--fpr--value----------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc STOre Fpr} <fpr> <value>
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Sets a guest's floating point register to the specified value
@@ -109,7 +115,9 @@ static int cmd_store_fpr(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! STORE FPCR
- *!p >>--STORE--FPCR--value--------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc STOre FPCR} <value>
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Sets a guest's floating point control register to the specified value
@@ -133,7 +141,9 @@ static int cmd_store_fpcr(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! STORE CR
- *!p >>--STORE--CR--cr--value------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc STOre Cr} <cr> <value>
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Sets a guest's control register to the specified value
@@ -164,7 +174,9 @@ static int cmd_store_cr(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! STORE AR
- *!p >>--STORE--AR--ar--value------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc STOre Ar} <ar> <value>
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Sets a guest's access register to the specified value
@@ -197,10 +209,16 @@ static int cmd_store_ar(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! STORE PSW
- *!p >>--STORE--PSW--val1-.--------------------------.-----------------------------><
- *!p                      '-val2--.----------------.-'
- *!p                              '-val3--.------.-'
- *!p                                      '-val4-'
+ *!! SYNTAX
+ *! \tok{\sc STOre PSW}
+ *! <val1>
+ *!     \begin{stack} \\ <val2>
+ *!         \begin{stack} \\ <val3>
+ *!             \begin{stack} \\ <val4>
+ *!             \end{stack}
+ *!         \end{stack}
+ *!     \end{stack}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Sets a guest's PSW to the specified value

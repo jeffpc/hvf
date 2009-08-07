@@ -1,6 +1,38 @@
-\documentclass[11pt]{article}
+\documentclass[12pt]{book}
+
+\usepackage[paper=letterpaper,margin=1in]{geometry}
+
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot[LE]{\textbf{\thepage} HVF Manual}
+\fancyfoot[RO]{Chapter X. ChName \textbf{\thepage}}
+\fancyfoot[LO,RE,C]{}
+\renewcommand\headrule{}
+
+\usepackage[leftbars]{changebar}
+\setcounter{changebargrey}{0}
+
+\usepackage[square]{syntax}
+
+\setlength{\parskip}{\baselineskip}
+\setlength{\parindent}{0pt}
+
+\newcommand{\deftok}[1]{\tok{\bf #1}}
+
 \begin{document}
 
+\input{front}
+\twocolumn
+\input{contents}
+\input{preface}
+% switch page numbering
+\include{cp-commands}
+\include{cp-prog}
+\appendix
 \input{license}
 
 \end{document}
