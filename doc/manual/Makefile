@@ -17,4 +17,5 @@ cp-directory-sample.tex:
 	(echo "\\begin{verbatim}"; cat ../../sys/hvf.directory; echo "\\end{verbatim}") > $@
 
 clean:
-	rm -f manual.aux manual.cb manual.cb2 manual.dvi manual.log manual.pdf
+	rm -f *.toc *.aux *.cb *.cb2 *.dvi *.log manual.pdf cp-cmd-list.tex cp-directory-sample.tex
+	rm -rf tex/
