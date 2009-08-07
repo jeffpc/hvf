@@ -1,7 +1,7 @@
 /*
  *!!! SET NOTS
  *!! SYNTAX
- *! \tok{\sc SET NOTS}
+ *! \tok{\sc SET} \tok{\sc NOTS}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -16,7 +16,7 @@ static int cmd_set_nots(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! SET TS
  *!! SYNTAX
- *! \tok{\sc SET TS}
+ *! \tok{\sc SET} \tok{\sc TS}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE

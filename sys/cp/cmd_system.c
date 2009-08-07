@@ -92,7 +92,7 @@ fail:
 
 /*!!! SYSTEM CLEAR
  *!! SYNTAX
- *! \tok{\sc SYStem CLEAR}
+ *! \tok{\sc SYStem} \tok{\sc CLEAR}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -101,7 +101,7 @@ fail:
  *!!! SYSTEM RESET
  *!p >>--SYSTEM--RESET-------------------------------------------------------------><
  *!! SYNTAX
- *! \tok{\sc SYStem RESET}
+ *! \tok{\sc SYStem} \tok{\sc RESET}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -109,7 +109,7 @@ fail:
  *
  *!!! SYSTEM RESTART
  *!! SYNTAX
- *! \tok{\sc SYStem RESTART}
+ *! \tok{\sc SYStem} \tok{\sc RESTART}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -119,7 +119,7 @@ fail:
  *
  *!!! SYSTEM STORE
  *!! SYNTAX
- *! \tok{\sc SYStem STORE}
+ *! \tok{\sc SYStem} \tok{\sc STORE}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE

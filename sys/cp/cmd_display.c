@@ -154,7 +154,7 @@ fault:
 /*
  *!!! DISPLAY STORAGE
  *!! SYNTAX
- *! \tok{\sc Display STOrage}
+ *! \tok{\sc Display} \tok{\sc STOrage}
  *! \begin{stack} \\ \deftok{N} \\ \tok{I} \end{stack}
  *! <addr>
  *! \begin{stack} \\ \tok{.} <length> \end{stack}
@@ -221,7 +221,7 @@ static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! DISPLAY SIECB
  *!! SYNTAX
- *! \tok{\sc Display SIECB}
+ *! \tok{\sc Display} \tok{\sc SIECB}
  *!! XATNYS
  *!! AUTH A
  *!! PURPOSE
@@ -247,7 +247,7 @@ static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! DISPLAY GPR
  *!! SYNTAX
- *! \tok{\sc Display Gpr}
+ *! \tok{\sc Display} \tok{\sc Gpr}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -285,7 +285,7 @@ static int cmd_display_gpr(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! DISPLAY FPCR
  *!! SYNTAX
- *! \tok{\sc Display FPCR}
+ *! \tok{\sc Display} \tok{\sc FPCR}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -300,7 +300,7 @@ static int cmd_display_fpcr(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! DISPLAY FPR
  *!! SYNTAX
- *! \tok{\sc Display Fpr}
+ *! \tok{\sc Display} \tok{\sc Fpr}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -338,7 +338,7 @@ static int cmd_display_fpr(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! DISPLAY CR
  *!! SYNTAX
- *! \tok{\sc Display Cr}
+ *! \tok{\sc Display} \tok{\sc Cr}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -376,7 +376,7 @@ static int cmd_display_cr(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! DISPLAY AR
  *!! SYNTAX
- *! \tok{\sc Display Ar}
+ *! \tok{\sc Display} \tok{\sc Ar}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -414,7 +414,7 @@ static int cmd_display_ar(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! DISPLAY PSW
  *!! SYNTAX
- *! \tok{\sc Display PSW}
+ *! \tok{\sc Display} \tok{\sc PSW}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -453,7 +453,7 @@ static void __do_display_schib(struct console *con, struct virt_device *vdev)
 /*
  *!!! DISPLAY SCHIB
  *!! SYNTAX
- *! \tok{\sc Display SCHIB}
+ *! \tok{\sc Display} \tok{\sc SCHIB}
  *! \begin{stack} \tok{ALL} \\ <schib> \end{stack}
  *!! XATNYS
  *!! AUTH G

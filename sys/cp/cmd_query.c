@@ -84,7 +84,7 @@ static void display_task(struct console *con, struct task *task)
 /*
  *!!! QUERY TIME
  *!! SYNTAX
- *! \tok{\sc Query TIME}
+ *! \tok{\sc Query} \tok{\sc TIME}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -103,7 +103,7 @@ static int cmd_query_cplevel(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! QUERY CPLEVEL
  *!! SYNTAX
- *! \tok{\sc Query CPLEVEL}
+ *! \tok{\sc Query} \tok{\sc CPLEVEL}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -124,7 +124,7 @@ static int cmd_query_time(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! QUERY VIRTUAL
  *!! SYNTAX
- *! \tok{\sc Query Virtual}
+ *! \tok{\sc Query} \tok{\sc Virtual}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -148,7 +148,7 @@ static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! QUERY REAL
  *!! SYNTAX
- *! \tok{\sc Query Real}
+ *! \tok{\sc Query} \tok{\sc Real}
  *!! XATNYS
  *!! AUTH A
  *!! PURPOSE
@@ -171,7 +171,7 @@ static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! QUERY TASK
  *!! SYNTAX
- *! \tok{\sc Query Task}
+ *! \tok{\sc Query} \tok{\sc Task}
  *!! XATNYS
  *!! AUTH A
  *!! PURPOSE
@@ -196,7 +196,7 @@ static void display_names(struct console *con, struct virt_sys *sys)
 /*
  *!!! QUERY NAMES
  *!! SYNTAX
- *! \tok{\sc Query NAMes}
+ *! \tok{\sc Query} \tok{\sc NAMes}
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE

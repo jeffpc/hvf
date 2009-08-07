@@ -1,7 +1,7 @@
 /*
  *!!! STORE STORAGE
  *!! SYNTAX
- *! \tok{\sc STOre STOrage} <value> <address>
+ *! \tok{\sc STOre} \tok{\sc STOrage} <value> <address>
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -50,7 +50,7 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! STORE GPR
  *!! SYNTAX
- *! \tok{\sc STOre Gpr} <gpr> <value>
+ *! \tok{\sc STOre} \tok{\sc Gpr} <gpr> <value>
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -83,7 +83,7 @@ static int cmd_store_gpr(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! STORE FPR
  *!! SYNTAX
- *! \tok{\sc STOre Fpr} <fpr> <value>
+ *! \tok{\sc STOre} \tok{\sc Fpr} <fpr> <value>
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -116,7 +116,7 @@ static int cmd_store_fpr(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! STORE FPCR
  *!! SYNTAX
- *! \tok{\sc STOre FPCR} <value>
+ *! \tok{\sc STOre} \tok{\sc FPCR} <value>
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -142,7 +142,7 @@ static int cmd_store_fpcr(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! STORE CR
  *!! SYNTAX
- *! \tok{\sc STOre Cr} <cr> <value>
+ *! \tok{\sc STOre} \tok{\sc Cr} <cr> <value>
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -175,7 +175,7 @@ static int cmd_store_cr(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! STORE AR
  *!! SYNTAX
- *! \tok{\sc STOre Ar} <ar> <value>
+ *! \tok{\sc STOre} \tok{\sc Ar} <ar> <value>
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -210,7 +210,7 @@ static int cmd_store_ar(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! STORE PSW
  *!! SYNTAX
- *! \tok{\sc STOre PSW}
+ *! \tok{\sc STOre} \tok{\sc PSW}
  *! <val1>
  *!     \begin{stack} \\ <val2>
  *!         \begin{stack} \\ <val3>
