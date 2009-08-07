@@ -12,10 +12,6 @@ pdf: cp-cmd-list.tex cp-directory-sample.tex
 cp-cmd-list.tex:
 	./gen-docs.sh
 
-.PHONY: cp-directory-sample.tex
-cp-directory-sample.tex:
-	(echo "\\begin{verbatim}"; cat ../../sys/hvf.directory; echo "\\end{verbatim}") > $@
-
 clean:
-	rm -f *.toc *.aux *.cb *.cb2 *.dvi *.log manual.pdf cp-cmd-list.tex cp-directory-sample.tex
+	rm -f *.toc *.aux *.cb *.cb2 *.dvi *.log manual.pdf cp-cmd-list.tex
 	rm -rf tex/

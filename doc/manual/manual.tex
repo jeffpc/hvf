@@ -37,6 +37,19 @@
 \newcommand{\capfont}                   \small
 \newcommand{\captionfont}               {}
 
+\usepackage{listings}
+\lstset{%
+numbers=left,
+numberstyle=\footnotesize,
+stepnumber=1,
+numbersep=5pt,
+showspaces=false,
+frame=single,
+tabsize=8,
+captionpos=b,
+breaklines=true
+}
+
 %\setcounter{tocdepth}{3}
 
 \setlength{\parskip}{\baselineskip}
@@ -52,7 +65,7 @@
 \input{cp-directory}
 \input{cp-commands}
 \input{cp-prog}
-\input{cp-nss}
+%\input{cp-nss}
 \input{abi}
 \appendix
 \input{license}

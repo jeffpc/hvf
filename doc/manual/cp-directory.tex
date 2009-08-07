@@ -1,6 +1,8 @@
 \chapter{CP Directory}
+\label{chap:directory}
 The directory contains a list of all valid users on the system.  Currently,
-any changes to the directory require that the nucleus be rebuilt.
+any changes to the directory require that the nucleus be rebuilt, and the
+system re-IPLed.
 
 \section{Directory Syntax}
 The directory is a simple text file with a declarative syntax used to
@@ -64,9 +66,12 @@ long.
 \end{syntdiag}
 
 \section{Example Directory}
+Figure~\ref{fig:directory-sample} is the default directory distributed with
+HVF.  It defines several users with nearly identical configurations.
+
 \begin{figure*}[htb]
 \small
-\input{cp-directory-sample}
+\lstinputlisting{../../sys/hvf.directory}
 \captionfont
 \caption{\capfont Example directory defining three users.}
 \label{fig:directory-sample}
