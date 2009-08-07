@@ -26,7 +26,7 @@ BEGIN{
 
 	print "\\input{" _fname "}" >> "cp-cmd-list.tex"
 
-	print "\\section*{" name "}" > fname;
+	print "\\section{" name "}" > fname;
 	mode = "none";
 }
 

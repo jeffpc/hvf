@@ -2,8 +2,10 @@
 *.log
 *.cb
 *.cb2
+*.toc
 *.dvi
 .*.swp
 tex
 cp-cmd-list.tex
+cp-directory-sample.tex
 manual.pdf

@@ -1,3 +1,41 @@
-\chapter*{CP Programming Interfaces}
-\section*{Remote Procedure Call Interface}
-FIXME: this is where the 
+\chapter{CP Programming Interfaces}
+\section{ABI}
+HVF uses the same ABI (s390x) as Linux on z.  The following sections attempt
+to introduce portions of it.  For more information see the relevant
+literature.
+
+\subsection{Register Assignments}
+The ABI defines these register assignments.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+Reg   &   Use                                        &Saved? \\
+\hline\hline
+R0    &   Used by syscalls/assembly                  &Call-clobbered \\
+R1    &   Used by syscalls/assembly                  &Call-clobbered \\
+R2    &   Argument 0 / return value 0                &Call-clobbered \\
+R3    &   Argument 1 / return value 1 (if long long) &Call-clobbered \\
+R4    &   Argument 2                                 &Call-clobbered \\
+R5    &   Argument 3                                 &Call-clobbered \\
+R6    &   Argument 4                                 &Saved \\
+R7    &   Pointer-to arguments 5 to ...              &Saved \\
+R8    &   This \& that                               &Saved \\
+R9    &   This \& that                               &Saved \\
+R10   &   Static-chain ( if nested function )        &Saved \\
+R11   &   Frame-pointer ( if function used alloca )  &Saved \\
+R12   &   Got-pointer                                &Saved \\
+R13   &   Base-pointer                               &Saved \\
+R14   &   Return-address                             &Saved \\
+R15   &   Stack-pointer                              &Saved \\
+\hline
+\end{tabular}
+\end{center}
+
+Note that HVF using this ABI internally places no restrictions on the guest
+operating systems in any way.
+
+\section{ELF Binary File Format}
+FIXME: describe ELF
+\section{Remote Procedure Call Interface}
+FIXME: describe the rpc

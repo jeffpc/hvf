@@ -1,0 +1,25 @@
+\subsection{8ball}
+The 8ball NSS is a trivial guest intended for basic guest capabilities
+testing and use amusement.
+
+After IPL, 8ball attempts to find device number \mbox{0009} assuming it is a
+3215 console.  Failure to detect the device is indicated by entering a
+disabled wait state with the instruction address equal to 20000 hex.
+
+If the console was found, the program proceeds to greet the user, prompting
+him to enter a question.  Once the user enters any data, a randomly selected
+response is printed to the terminal and another question is requested.
+
+\subsubsection*{Error conditions}
+All error conditions are indicated by loading disabled wait state with
+various instruction addresses.
+
+\begin{description}
+\item[020000] Failed to find device 0009.
+\item[0000F0] Failed to bring subchannel online.
+\item[0000F1] Failed to initiate I/O (SSCH set non-zero condition code), or
+	failed to get IRB in the I/O interrupt handler (TSCH set condition
+	code to 3).
+\item[0000F2] Failed to obtain a functional clock (STCK set condition code to
+	2 or 3).
+\end{description}
