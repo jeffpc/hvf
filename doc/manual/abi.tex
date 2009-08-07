@@ -1,0 +1,116 @@
+\chapter{ABI}
+\label{chap:abi}
+HVF uses the same ABI (s390x) as Linux on z.  The following sections attempt
+to introduce portions of it.  For more information see the relevant
+literature.
+
+Note that HVF using this ABI internally places no restrictions on the guest
+operating systems in any way.
+
+\section{Register Assignments}
+The ABI defines these register assignments.
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+Reg   &   Use                                        &Saved? \\
+\hline\hline
+R0    &   Used by syscalls/assembly                  &Call-clobbered \\
+R1    &   Used by syscalls/assembly                  &Call-clobbered \\
+R2    &   Argument 0 / return value 0                &Call-clobbered \\
+R3    &   Argument 1 / return value 1 (if long long) &Call-clobbered \\
+R4    &   Argument 2                                 &Call-clobbered \\
+R5    &   Argument 3                                 &Call-clobbered \\
+R6    &   Argument 4                                 &Saved \\
+R7    &   Pointer-to arguments 5 to ...              &Saved \\
+R8    &   This \& that                               &Saved \\
+R9    &   This \& that                               &Saved \\
+R10   &   Static-chain ( if nested function )        &Saved \\
+R11   &   Frame-pointer ( if function used alloca )  &Saved \\
+R12   &   Got-pointer                                &Saved \\
+R13   &   Base-pointer                               &Saved \\
+R14   &   Return-address                             &Saved \\
+R15   &   Stack-pointer                              &Saved \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{ELF Binary File Format}
+This section introduces the ELF binary file format for the s390x ABI.  For
+more detailed description, see the appropriate standard.
+
+Each ELF file begins with the following header:
+
+\begin{lstlisting}[language=C]
+typedef struct {
+	u8       e_ident[16];
+	u16      e_type;
+	u16      e_machine;
+	u32      e_version;
+	u64      e_entry;
+	u64      e_phoff;
+	u64      e_shoff;
+	u32      e_flags;
+	u16      e_ehsize;
+	u16      e_phentsize;
+	u16      e_phnum;
+	u16      e_shentsize;
+	u16      e_shnum;
+	u16      e_shstrndx;
+} Elf64_Ehdr;
+\end{lstlisting}
+
+\begin{description}
+\item[e\_ident] contains several bytes of information:
+	
+	Bytes 0-3 contain the magic ASCII string ``\textbackslash x7FELF'', which is
+	equal to 7F454C46 hex.
+
+	Byte 4 contains the ELF class which should equal 1 for 31-bit files,
+	and 2 for 64-bit files.
+
+	Byte 5 contains the byte order information.  A value of 1 indicates
+	little endian format, while value of 2 indicates a big endian
+	format.  In HVF this must always be equal to 2.
+
+	Byte 6 contains the ELF file format version.  Currently, only one
+	version is defined --- 1.
+
+	Bytes 7-15 contain other information, however HVF ignores these
+	fields.
+	% FIXME: fill this in later
+
+\item[e\_type] specifies the type of the payload.  Currently, HVF expects
+	only executables, and therefore this field should be set to 2.
+
+\item[e\_machine] identifies the target architecture.  It should always
+	equal 16 hex identifying it as ESA/390 or z/Architecture.
+
+\item[e\_version] contains the ELF header version number.  It should always
+	equal to 1.
+
+\item[e\_entry] is the address of the entry point.  That is the location of
+	the instruction to transfer control to once loading has completed.
+
+\item[e\_phoff] contains the offset into the file to the first program
+	header.  HVF ignores this field.
+
+\item[e\_shoff] contains the offset into the file to the first section
+	header.
+
+\item[e\_flags] contains processor specific flags.  HVF ignores this field.
+
+\item[e\_ehsize] is the ELF header size.  HVF ignores this field.
+
+\item[e\_phentsize] equals the program header entry size.  HVF ignores this
+	field.
+
+\item[e\_phnum] is the number of program headers.  HVF ignores this field.
+
+\item[e\_shentsize] equals the section header entry size.
+
+\item[e\_shnum] is the number of section header.
+
+\item[e\_shstrndx] contains the section name string table index.  HVF
+	ignores this field.
+\end{description}

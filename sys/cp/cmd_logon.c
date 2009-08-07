@@ -1,6 +1,8 @@
 /*
  *!!! LOGON
- *!p >>--LOGON--userid-------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc LOGON} <userid>
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Log on to a virtual machine.
