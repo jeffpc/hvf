@@ -1,10 +1,10 @@
 all: pdf
 
-dvi: cp-cmd-list.tex cp-directory-sample.tex
+dvi: cp-cmd-list.tex
 	latex manual
 	latex manual
 
-pdf: cp-cmd-list.tex cp-directory-sample.tex
+pdf: cp-cmd-list.tex
 	pdflatex manual
 	pdflatex manual
 

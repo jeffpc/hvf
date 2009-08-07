@@ -8,6 +8,8 @@
 
 all:
 	make -C sys
+	make -C doc/manual
 
 clean:
 	make -C sys clean
+	make -C doc/manual clean
