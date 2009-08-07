@@ -32,7 +32,7 @@ PGMPRDOS        RESTRICTED    # HVF isn't an IBM product => RESTRICTED is ok
 000C    3505    ../sys/loader_rdr.bin ../sys/hvf ebcdic multifile
 
 # Card Punch
- 000D    3525    punch00d.txt ascii
+000D    3525    punch00d.txt ascii
 
 # Printers
 000E    1403    print00e.txt
