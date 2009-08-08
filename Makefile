@@ -8,8 +8,10 @@
 
 all:
 	make -C sys
+	make -C nss/8ball
 	make -C doc/manual
 
 clean:
 	make -C sys clean
+	make -C nss/8ball clean
 	make -C doc/manual clean
