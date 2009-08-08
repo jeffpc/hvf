@@ -10,6 +10,18 @@ operating systems in any way.
 \section{Register Assignments}
 The ABI defines these register assignments.
 
+\cbstart
+All HVF code written in C follows the below assignment.
+
+Any assembly helpers interfacing with C code must at the very least follow
+this convention at the entry and exit points, however internally they may
+use any register assignment.
+
+All other assembly code (the assembly portion of the IPL loader, the guest
+IPL helper, NSS, etc.) is free to follow any convention.  In this case, the
+code clearly documents any register convention.
+\cbend
+
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
@@ -36,27 +48,53 @@ R15   &   Stack-pointer                              &Saved \\
 \end{center}
 
 \section{ELF Binary File Format}
+\label{sec:elf}
 This section introduces the ELF binary file format for the s390x ABI.  For
 more detailed description, see the appropriate standard.
 
-Each ELF file begins with the following header:
+\cbstart
+Each ELF file is made of sections.  Each section defines a contiguous range
+of bytes.  Each section has a header that specifies how to handle the
+section.
 
+Not all sections need to be loaded to allow program execution.  For example,
+the symbol table is stored as a section with sh\_type equal to SHT\_SYMTAB
+(for definition of sh\_type and SHT\_SYMTAB, see below).
+
+Not all sections may contain data in the ELF file.  For example, the .bss
+section (in C applications for UNIX) gets initialized to binary zeros.  The
+ELF file simply contains the header for the section, along with the
+SHT\_NOBITS type.  This instructs the loader to allocate the necessary
+storage, and clear it.  (For definition of SHT\_NOBITS, see below).
+
+Each ELF file begins with a header.  The header contains several pointers to
+other structures in the file, such as the section headers.
+
+The ELF header points to program headers.  HVF does not make use of them,
+and therefore they are not discussed here.
+\cbend
+
+\cbstart
+\subsection{ELF Header}
+\cbend
+
+\cbdelete
 \begin{lstlisting}[language=C]
 typedef struct {
-	u8       e_ident[16];
-	u16      e_type;
-	u16      e_machine;
-	u32      e_version;
-	u64      e_entry;
-	u64      e_phoff;
-	u64      e_shoff;
-	u32      e_flags;
-	u16      e_ehsize;
-	u16      e_phentsize;
-	u16      e_phnum;
-	u16      e_shentsize;
-	u16      e_shnum;
-	u16      e_shstrndx;
+        u8       e_ident[16];
+        u16      e_type;
+        u16      e_machine;
+        u32      e_version;
+        u64      e_entry;
+        u64      e_phoff;
+        u64      e_shoff;
+        u32      e_flags;
+        u16      e_ehsize;
+        u16      e_phentsize;
+        u16      e_phnum;
+        u16      e_shentsize;
+        u16      e_shnum;
+        u16      e_shstrndx;
 } Elf64_Ehdr;
 \end{lstlisting}
 
@@ -66,12 +104,14 @@ typedef struct {
 	Bytes 0-3 contain the magic ASCII string ``\textbackslash x7FELF'', which is
 	equal to 7F454C46 hex.
 
-	Byte 4 contains the ELF class which should equal 1 for 31-bit files,
-	and 2 for 64-bit files.
+	Byte 4 contains the ELF class which should equal 1 \cbstart
+	(ELFCLASS32) \cbend for 31-bit files, and 2 \cbstart (ELFCLASS64)
+	\cbend for 64-bit files.
 
-	Byte 5 contains the byte order information.  A value of 1 indicates
-	little endian format, while value of 2 indicates a big endian
-	format.  In HVF this must always be equal to 2.
+	Byte 5 contains the byte order information.  A value of 1 \cbstart
+	(ELFDATA2LSB) \cbend indicates little endian format, while value of
+	2 \cbstart (ELFDATA2MSB) \cbend indicates a big endian format.  In
+	HVF this must always be equal to 2.
 
 	Byte 6 contains the ELF file format version.  Currently, only one
 	version is defined --- 1.
@@ -80,8 +120,15 @@ typedef struct {
 	fields.
 	% FIXME: fill this in later
 
-\item[e\_type] specifies the type of the payload.  Currently, HVF expects
-	only executables, and therefore this field should be set to 2.
+\item[e\_type] specifies the type of the payload.
+
+	\cbstart
+	Valid values are: 0 (ET\_NONE), 1 (ET\_REL), 2 (ET\_EXEC), 3
+	(ET\_DYN), and 4 (ET\_CORE)
+	\cbend
+
+	Currently, HVF expects only executables, and therefore this field
+	should be set to 2 \cbstart (ET\_EXEC) \cbend.
 
 \item[e\_machine] identifies the target architecture.  It should always
 	equal 16 hex identifying it as ESA/390 or z/Architecture.
@@ -114,3 +161,59 @@ typedef struct {
 \item[e\_shstrndx] contains the section name string table index.  HVF
 	ignores this field.
 \end{description}
+
+\cbstart
+\subsection{Section Header}
+Each section header is as follows:
+
+\begin{lstlisting}[language=C]
+typedef struct {
+        u32      sh_name;
+        u32      sh_type;
+        u64      sh_flags;
+        u64      sh_addr;
+        u64      sh_offset;
+        u64      sh_size;
+        u32      sh_link;
+        u32      sh_info;
+        u64      sh_addralign;
+        u64      sh_entsize;
+} Elf64_Shdr;
+\end{lstlisting}
+
+\begin{description}
+\item[sh\_name] is the name of the section.  HVF ignores this field.
+
+\item[sh\_type] defines the type of the section.
+
+	Valid types include SHT\_NULL (00), SHT\_PROGBITS (01), SHT\_SYMTAB
+	(02), SHT\_STRTAB (03), SHT\_RELA (04), SHT\_HASH (05), SHT\_DYNAMIC
+	(06), SHT\_NOTE (07), SHT\_NOBITS (08), SHT\_REL (09), SHT\_SHLIB
+	(0A), and SHT\_DYNSYM (0B).
+
+	HVF handles only sections SHT\_PROGBITS with non-zero sh\_addr (see
+	below), and SHT\_NOBITS.
+
+\item[sh\_flags] defines the section attributes.
+
+\item[sh\_addr] stores the target in-storage address to for this section.
+
+\item[sh\_offset] stores the offset into the file where segement data
+	begins.
+
+\item[sh\_size] stores the length of the section.
+
+\item[sh\_link] contains links to other sections.  HVF ignores this field.
+
+\item[sh\_info] contains miscellaneous information.  HVF ignores this field.
+
+\item[sh\_addralign] specifies the address alignment boundary.  This field
+	is useful for relocatable sections.  Since HVF does not support
+	those, it ignores this field.
+
+\item[sh\_entsize] defines the size of entries if the section contains a
+	table.  Since HVF does not parse any sections with tables, it
+	ignores this field.
+
+\end{description}
+\cbend

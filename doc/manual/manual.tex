@@ -1,5 +1,8 @@
 \documentclass[12pt]{book}
 
+\newcommand{\warndraft}{\textbf{DRAFT}}
+%\newcommand{\warndraft}{}
+
 \usepackage[paper=letterpaper,margin=1in]{geometry}
 
 \usepackage{helvet}
@@ -8,6 +11,7 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhead{}
+\fancyhead[C]{\warndraft}
 \fancyfoot[LE]{\textbf{\thepage}\hspace{1em}HVF Manual}
 \fancyfoot[RO]{\rightmark\hspace{1em}\textbf{\thepage}}
 \fancyfoot[LO,RE,C]{}
@@ -15,6 +19,7 @@
 
 \fancypagestyle{plain}{%
 \fancyhf{} % clear all header and footer fields
+\fancyhead[C]{\warndraft}
 \fancyfoot[LE]{\textbf{\thepage} HVF Manual}
 \fancyfoot[LO]{\copyright\ Josef ``Jeff'' Sipek}
 \fancyfoot[RO]{\textbf{\thepage}}
@@ -52,6 +57,9 @@ breaklines=true
 
 %\setcounter{tocdepth}{3}
 
+\usepackage{boxedminipage}
+\newcommand{\note}[1]{\begin{boxedminipage}[t]{\linewidth}\textbf{Note:}\par #1\end{boxedminipage}}
+
 \setlength{\parskip}{\baselineskip}
 \setlength{\parindent}{0pt}
 
@@ -60,12 +68,13 @@ breaklines=true
 \input{front}
 %\twocolumn
 \input{contents}
+\input{notices}
 \input{preface}
 % switch page numbering
 \input{cp-directory}
 \input{cp-commands}
 \input{cp-prog}
-%\input{cp-nss}
+\input{cp-nss}
 \input{abi}
 \appendix
 \input{license}
