@@ -20,6 +20,8 @@ OSTAILOR        NULL          # OS tailoring
 CNSLPORT        3271          # TCP port number to which consoles connect
 PANRATE         SLOW          # Panel refresh rate
 PGMPRDOS        RESTRICTED    # HVF isn't an IBM product => RESTRICTED is ok
+LEGACYSENSEID   OFF           # Hercules shouldn't let us do Sense-ID on
+                              # devices that never supported it
  
 # .-----------------------Device number
 # |     .-----------------Device type
