@@ -33,6 +33,18 @@ struct device {
 
 	union {
 		struct {
+			u16 cyls;	/* cylinders */
+			u16 tracks;	/* tracks per cylinder */
+			u16 len;	/* track length */
+			u8  sectors;	/* # sectors per track */
+			u8  formula;	/* capacity formula */
+			u16 f1,		/* factor f1 */
+			    f2,		/* factor f2 */
+			    f3,		/* factor f3 */
+			    f4,		/* factor f4 */
+			    f5;		/* factor f5 */
+		} eckd;
+		struct {
 			u16 blk_size;	/* block size */
 			u32 bpg;	/* blocks per cyclical group */
 			u32 bpp;	/* blocks per access possition */
