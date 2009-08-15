@@ -92,7 +92,7 @@ static struct device_type d3390 = {
 
 static int d9336_snprintf(struct device *dev, char* buf, int len)
 {
-	return snprintf(buf, len, "%13d BLK ", dev->fba.blks);
+	return snprintf(buf, len, "%10d BLK ", dev->fba.blks);
 }
 
 static int d9336_reg(struct device *dev)
