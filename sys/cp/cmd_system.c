@@ -10,7 +10,8 @@ extern u32 GUEST_IPL_REGSAVE[];
  *!! PURPOSE
  *! Perform a ...
  *!! NOTES
- *! Not yet implemented.
+ *! \item Not yet implemented.
+ *!! SETON
  */
 static int cmd_ipl(struct virt_sys *sys, char *cmd, int len)
 {
@@ -115,7 +116,8 @@ fail:
  *!! PURPOSE
  *! Perform a restart operation.
  *!! NOTES
- *! Not yet implemented.
+ *! \item Not yet implemented.
+ *!! SETON
  *
  *!!! SYSTEM STORE
  *!! SYNTAX
@@ -125,7 +127,8 @@ fail:
  *!! PURPOSE
  *! Perform a ...
  *!! NOTES
- *! Not yet implemented.
+ *! \item Not yet implemented.
+ *!! SETON
  */
 static int cmd_system(struct virt_sys *sys, char *cmd, int len)
 {

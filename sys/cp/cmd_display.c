@@ -163,18 +163,24 @@ fault:
  *!! PURPOSE
  *! Displays a portion of guest's storage.
  *!! OPERANDS
- *!: addr
- *! is the guest storage address.
- *!: length
- *! is the number of bytes to display.  If not specified, 4 is assumed.
+ *! \cbstart
+ *! \item[addr] is the guest storage address.
+ *! \item[length] is the number of bytes to display.  If not specified, 4 is
+ *! assumed.
+ *! \cbend
+ *!! SDNAREPO
  *!! OPTIONS
- *!: N
- *! display guest storage in numeric format.
- *!: I
- *! display guest storage in instruction format.
+ *! \cbstart
+ *! \item[N] display guest storage in numeric format.
+ *! \item[I] display guest storage in instruction format.
+ *! \cbend
+ *!! SNOITPO
  *!! NOTES
- *!:
- *! text
+ *! \cbstart
+ *! \item Currently, the instruction display does not support page-boundary
+ *! crossing.
+ *! \cbend
+ *!! SETON
  *!! EXAMPLES
  *! D STO 200\\
  *! D STO N200.10\\

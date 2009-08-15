@@ -44,7 +44,7 @@ BEGIN{
 
 /^[/ ]\*!! AUTH / {
 	mode = "none";
-	print "\\subsection*{Authorization}\n" $3 >> fname;
+	print "\\subsection*{Authorization}\nPriviledge Class: " $3 >> fname;
 	next;
 }
 
@@ -61,12 +61,41 @@ BEGIN{
 }
 
 /^[/ ]\*!! OPERANDS$/ {
-	mode = "opers";
+	mode = "copy";
+	print "\\subsection*{Operands}" >> fname;
+	print "\\begin{description}" >> fname
+	next;
+}
+
+/^[/ ]\*!! SDNAREPO$/ {
+	mode = "none";
+	print "\\end{description}" >> fname;
 	next;
 }
 
 /^[/ ]\*!! OPTIONS$/ {
-	mode = "options";
+	mode = "copy";
+	print "\\subsection*{Options}" >> fname;
+	print "\\begin{description}" >> fname;
+	next;
+}
+
+/^[/ ]\*!! SNOITPO$/ {
+	mode = "none";
+	print "\\end{description}" >> fname;
+	next;
+}
+
+/^[/ ]\*!! NOTES$/ {
+	mode = "copy";
+	print "\\subsection*{Usage Notes}" >> fname;
+	print "\\begin{enumerate}" >> fname;
+	next;
+}
+
+/^[/ ]\*!! SETON$/ {
+	mode = "none";
+	print "\\end{enumerate}" >> fname;
 	next;
 }
 
