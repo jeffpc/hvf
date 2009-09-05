@@ -7,16 +7,27 @@
 #include <directory.h>
 #include <ebcdic.h>
 #include <slab.h>
+#include <clock.h>
+#include <sched.h>
 
 int vprintf(struct console *con, const char *fmt, va_list args)
 {
-	int ret;
+	struct datetime dt;
 	char buf[128];
+	int off = 0;
+	int ret;
 
-	ret = vsnprintf(buf, 128, fmt, args);
+	if (!con->sys || (con->sys && con->sys->print_ts)) {
+		memset(&dt, 0, sizeof(dt));
+		ret = get_parsed_tod(&dt);
+		off = snprintf(buf, 128, "%02d:%02d:%02d ", dt.th, dt.tm,
+			       dt.ts);
+	}
+
+	ret = vsnprintf(buf+off, 128-off, fmt, args);
 	if (ret) {
-		ascii2ebcdic((u8 *) buf, ret);
-		con_write(con, (u8 *) buf, ret);
+		ascii2ebcdic((u8 *) buf, off+ret);
+		con_write(con, (u8 *) buf, off+ret);
 	}
 
 	return ret;

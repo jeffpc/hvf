@@ -9,8 +9,8 @@
 
 typedef struct {
 	atomic_t state;
-	struct list_head queue;
 	spinlock_t queue_lock;
+	struct list_head queue;
 } mutex_t;
 
 #define UNLOCKED_MUTEX(name)	mutex_t name = { \

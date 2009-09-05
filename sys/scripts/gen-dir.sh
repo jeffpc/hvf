@@ -32,6 +32,7 @@ parse_line()
 			echo "static struct directory_vdev __directory_$2[] = {" >> directory.devlist
 			echo "	{" >> directory.userlist
 			echo "		.userid = \"$2\"," >> directory.userlist
+			echo "		.auth = '$3'," >> directory.userlist
 			echo "		.devices = __directory_$2," >> directory.userlist
 
 			userid="$2"

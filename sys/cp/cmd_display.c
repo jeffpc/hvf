@@ -153,12 +153,38 @@ fault:
 
 /*
  *!!! DISPLAY STORAGE
- *!p                       .-N-.
- *!p >>--DISPLAY--STORAGE--+---+-addr-.----------.---------------------------------><
- *!p                       '-I-'      '-.-length-'
+ *!! SYNTAX
+ *! \tok{\sc Display} \tok{\sc STOrage}
+ *! \begin{stack} \\ \deftok{N} \\ \tok{I} \end{stack}
+ *! <addr>
+ *! \begin{stack} \\ \tok{.} <length> \end{stack}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays a portion of guest's storage.
+ *!! OPERANDS
+ *! \cbstart
+ *! \item[addr] is the guest storage address.
+ *! \item[length] is the number of bytes to display.  If not specified, 4 is
+ *! assumed.
+ *! \cbend
+ *!! SDNAREPO
+ *!! OPTIONS
+ *! \cbstart
+ *! \item[N] display guest storage in numeric format.
+ *! \item[I] display guest storage in instruction format.
+ *! \cbend
+ *!! SNOITPO
+ *!! NOTES
+ *! \cbstart
+ *! \item Currently, the instruction display does not support page-boundary
+ *! crossing.
+ *! \cbend
+ *!! SETON
+ *!! EXAMPLES
+ *! D STO 200\\
+ *! D STO N200.10\\
+ *! D STO I1234.200
  */
 static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 {
@@ -200,7 +226,9 @@ static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! DISPLAY SIECB
- *!p >>--DISPLAY--SIECB------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Display} \tok{\sc SIECB}
+ *!! XATNYS
  *!! AUTH A
  *!! PURPOSE
  *! Displays hexdump of the guest's SIE control block.
@@ -209,6 +237,8 @@ static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
 {
 	u32 *val;
 	int i;
+
+	CP_CMD_AUTH(sys, 'A');
 
 	val = (u32*) &sys->task->cpu->sie_cb;
 
@@ -222,7 +252,9 @@ static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! DISPLAY GPR
- *!p >>--DISPLAY--GPR--------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Display} \tok{\sc Gpr}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the guest's general purpose registers
@@ -258,7 +290,9 @@ static int cmd_display_gpr(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! DISPLAY FPCR
- *!p >>--DISPLAY--FPCR-------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Display} \tok{\sc FPCR}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the guest's floating point control register
@@ -271,7 +305,9 @@ static int cmd_display_fpcr(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! DISPLAY FPR
- *!p >>--DISPLAY--FPR--------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Display} \tok{\sc Fpr}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the guest's floating point registers
@@ -307,7 +343,9 @@ static int cmd_display_fpr(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! DISPLAY CR
- *!p >>--DISPLAY--CR---------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Display} \tok{\sc Cr}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the guest's control registers
@@ -343,7 +381,9 @@ static int cmd_display_cr(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! DISPLAY AR
- *!p >>--DISPLAY--AR---------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Display} \tok{\sc Ar}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the guest's access registers
@@ -379,7 +419,9 @@ static int cmd_display_ar(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! DISPLAY PSW
- *!p >>--DISPLAY--PSW--------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Display} \tok{\sc PSW}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the guest's PSW
@@ -416,8 +458,10 @@ static void __do_display_schib(struct console *con, struct virt_device *vdev)
 
 /*
  *!!! DISPLAY SCHIB
- *!p >>--DISPLAY--SCHIB--.-ALL---.-------------------------------------------------><
- *!p                     '-schib-'
+ *!! SYNTAX
+ *! \tok{\sc Display} \tok{\sc SCHIB}
+ *! \begin{stack} \tok{ALL} \\ <schib> \end{stack}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the guest's subchannel control block information

@@ -54,6 +54,7 @@ static char* type2name(u16 type)
 #include "cmd_query.c"
 #include "cmd_store.c"
 #include "cmd_logon.c"
+#include "cmd_set.c"
 
 static struct cpcmd commands[] = {
 	{"BEGIN",	cmd_begin,		NULL},
@@ -84,6 +85,8 @@ static struct cpcmd commands[] = {
 	{"QUE",		NULL,			cmd_tbl_query},
 	{"QU",		NULL,			cmd_tbl_query},
 	{"Q",		NULL,			cmd_tbl_query},
+
+	{"SET",		NULL,			cmd_tbl_set},
 
 	{"STOP",	cmd_stop,		NULL},
 

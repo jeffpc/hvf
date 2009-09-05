@@ -12,6 +12,11 @@
 #include <cpu.h>
 #include <mutex.h>
 
+/* This is used to con_printf to the operator about various async events -
+ * e.g., user logon
+ */
+struct console *oper_con;
+
 static LIST_HEAD(online_users);
 static UNLOCKED_MUTEX(online_users_lock);
 
@@ -112,6 +117,9 @@ static void process_cmd(struct virt_sys *sys)
 			break;
 		case -EINVAL:
 			con_printf(sys->con, "Operand missing or invalid\n");
+			break;
+		case -EPERM:
+			con_printf(sys->con, "Not authorized\n");
 			break;
 		default:
 			con_printf(sys->con, "RC=%d\n", ret);
@@ -221,6 +229,8 @@ void spawn_oper_cp(struct console *con)
 {
 	struct virt_sys *sys;
 
+	oper_con = con;
+
 	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
 	BUG_ON(!sys);
 
@@ -229,6 +239,8 @@ void spawn_oper_cp(struct console *con)
 
 	sys->directory = find_user_by_id("operator");
 	BUG_ON(IS_ERR(sys->directory));
+
+	sys->print_ts = 1; /* print timestamps */
 
 	sys->task = create_task("OPERATOR-vcpu0", cp_init, sys);
 	BUG_ON(IS_ERR(sys->task));
@@ -268,6 +280,8 @@ void spawn_user_cp(struct console *con, struct user *u)
 	con->sys = sys;
 
 	sys->directory = u;
+
+	sys->print_ts = 1; /* print timestamps */
 
 	snprintf(tname, TASK_NAME_LEN, "%s-vcpu0", u->userid);
 	sys->task = create_task(tname, cp_init, sys);

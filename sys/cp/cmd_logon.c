@@ -1,13 +1,15 @@
 /*
  *!!! LOGON
- *!p >>--LOGON--userid-------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc LOGON} <userid>
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Log on to a virtual machine.
  */
 static int cmd_logon(struct virt_sys *data, char *cmd, int len)
 {
-	struct console *con = (struct console*) data;
+	struct console *con = (struct console*) data; /* BEWARE */
 	struct user *u;
 
 	u = find_user_by_id(cmd);
@@ -17,6 +19,8 @@ static int cmd_logon(struct virt_sys *data, char *cmd, int len)
 	}
 
 	spawn_user_cp(con, u);
+	con_printf(oper_con, "%s %04X LOGON AS %-8s\n",
+		   type2name(con->dev->type), con->dev->ccuu, u->userid);
 
 	return 0;
 }

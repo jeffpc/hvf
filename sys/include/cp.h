@@ -9,6 +9,7 @@
  * This file should contain only externally (from CP's point of view)
  * visible interfaces.
  */
+extern struct console *oper_con;
 
 extern void spawn_oper_cp(struct console *con);
 extern void spawn_user_cp(struct console *con, struct user *u);
@@ -32,5 +33,10 @@ extern int handle_instruction(struct virt_sys *sys);
 extern int handle_instruction_priv(struct virt_sys *sys);
 
 typedef int (*intercept_handler_t)(struct virt_sys *sys);
+
+#define CP_CMD_AUTH(s,a)	do { \
+					if ((s)->directory->auth > (a)) \
+						return -EPERM; \
+				} while(0)
 
 #endif

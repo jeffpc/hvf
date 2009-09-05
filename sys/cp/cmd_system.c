@@ -3,12 +3,15 @@ extern u32 GUEST_IPL_REGSAVE[];
 
 /*
  *!!! IPL
- *!p >>--IPL--vdev-----------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc IPL} <vdev>
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Perform a ...
  *!! NOTES
- *! Not yet implemented.
+ *! \item Not yet implemented.
+ *!! SETON
  */
 static int cmd_ipl(struct virt_sys *sys, char *cmd, int len)
 {
@@ -89,32 +92,43 @@ fail:
 }
 
 /*!!! SYSTEM CLEAR
- *!p >>--SYSTEM--CLEAR-------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc SYStem} \tok{\sc CLEAR}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Identical to reset-clear button on a real mainframe.
  *
  *!!! SYSTEM RESET
  *!p >>--SYSTEM--RESET-------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc SYStem} \tok{\sc RESET}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Identical to reset-normal button on a real mainframe.
  *
  *!!! SYSTEM RESTART
- *!p >>--SYSTEM--RESTART-----------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc SYStem} \tok{\sc RESTART}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Perform a restart operation.
  *!! NOTES
- *! Not yet implemented.
+ *! \item Not yet implemented.
+ *!! SETON
  *
  *!!! SYSTEM STORE
- *!p >>--SYSTEM--STORE-------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc SYStem} \tok{\sc STORE}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Perform a ...
  *!! NOTES
- *! Not yet implemented.
+ *! \item Not yet implemented.
+ *!! SETON
  */
 static int cmd_system(struct virt_sys *sys, char *cmd, int len)
 {

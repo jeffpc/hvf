@@ -1,0 +1,41 @@
+\chapter{CP Named Saved Segments}
+\label{chap:nss}
+\cbstart
+\note{HVF does not currently support NSS IPL and therefore the following is
+	the description of the design to be implemented.}
+
+A Named Saved Segment (NSS) is saved storage image that can be IPLed under a
+given name.  The image can be reloaded and execution resumed.
+
+The contents of the storage image may be thought of as the contents of
+storage right after the conclusion of the IPL channel program for a CCW-Type
+IPL.
+
+Of course it is possible to take a running system place an appropriate PSW
+at address 0.  Since the contents of the registers and I/O device states are
+not stored, the system must take care to store any and all state it wishes
+to keep.  A simple way to store all the processor state is to issue a store
+status operation.
+
+NSS improve performance by allowing sharing of static pages between guests.
+Additionally, these static pages, if unmodified by the guest, do not have to
+be paged out.  Instead, they may be simply discarded and later reloaded from
+the NSS.
+
+\section{Named Saved Segment File Format}
+Each NSS is saved in a single file using the ELF file format.  (See
+section~\ref{sec:elf} for ELF file format details.)
+
+The guest storage is saved as one or more sections. Each section's type may
+be either PROGBITS or NOBITS.  Any PROGBITS sections are loaded verbatim at
+the specified address.  Any NOBITS sections cause the specified storage
+range to be cleared.
+
+Outcome of loading a NSS with overlapping sections is unpredictable.
+
+\section{Supplied Named Saved Segments}
+This section presents information about the named saved segments
+distributed with HVF.
+
+\input{nss-8ball}
+\cbend

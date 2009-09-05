@@ -28,10 +28,12 @@ static void display_vdev(struct console *con, struct virt_device *vdev)
 {
 	switch (vdev->vtype) {
 		case VDEV_CONS:
-			con_printf(con, "CONS %04X 3215 ON %s %04X SCH = %05X\n",
+			con_printf(con, "CONS %04X 3215 ON %s %04X %s SCH = %05X\n",
 				   vdev->pmcw.dev_num,
 				   type2name(con->dev->type), // FIXME?
-				   con->dev->ccuu, vdev->sch);
+				   con->dev->ccuu,
+				   con->sys->print_ts ? "TS" : "NOTS",
+				   vdev->sch);
 			break;
 		case VDEV_DED:
 			con_printf(con, "???? %04X SCH = %05X\n",
@@ -81,7 +83,9 @@ static void display_task(struct console *con, struct task *task)
 
 /*
  *!!! QUERY TIME
- *!p >>--QUERY--TIME---------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query} \tok{\sc TIME}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the current time
@@ -98,7 +102,9 @@ static int cmd_query_cplevel(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! QUERY CPLEVEL
- *!p >>--QUERY--CPLEVEL------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query} \tok{\sc CPLEVEL}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Displays the HVF version and time of IPL
@@ -117,7 +123,9 @@ static int cmd_query_time(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! QUERY VIRTUAL
- *!p >>--QUERY--VIRTUAL------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query} \tok{\sc Virtual}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Lists all of the guest's virtual devices
@@ -139,13 +147,17 @@ static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! QUERY REAL
- *!p >>--QUERY--REAL---------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query} \tok{\sc Real}
+ *!! XATNYS
  *!! AUTH A
  *!! PURPOSE
  *! Lists all of the host's real devices
  */
 static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
 {
+	CP_CMD_AUTH(sys, 'A');
+
 	con_printf(sys->con, "CPU %02d  ID  %016llX RUNNING\n",
 		   getcpuaddr(),
 		   getcpuid());
@@ -158,7 +170,9 @@ static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
 
 /*
  *!!! QUERY TASK
- *!p >>--QUERY--TASK---------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query} \tok{\sc Task}
+ *!! XATNYS
  *!! AUTH A
  *!! PURPOSE
  *! Lists all of the tasks running on the host. This includes guest virtual
@@ -166,6 +180,8 @@ static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_query_task(struct virt_sys *sys, char *cmd, int len)
 {
+	CP_CMD_AUTH(sys, 'A');
+
 	list_tasks(sys->con, display_task);
 
 	return 0;
@@ -179,7 +195,9 @@ static void display_names(struct console *con, struct virt_sys *sys)
 
 /*
  *!!! QUERY NAMES
- *!p >>--QUERY--NAMES--------------------------------------------------------------><
+ *!! SYNTAX
+ *! \tok{\sc Query} \tok{\sc NAMes}
+ *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
  *! Lists all of the logged in users.

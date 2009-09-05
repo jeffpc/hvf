@@ -1,0 +1,79 @@
+\chapter{CP Directory}
+\label{chap:directory}
+The directory contains a list of all valid users on the system.  Currently,
+any changes to the directory require that the nucleus be rebuilt, and the
+system re-IPLed.
+
+\section{Directory Syntax}
+The directory is a simple text file with a declarative syntax used to
+describe all the virtual machines.
+
+All empty lines and lines with only white space are ignored.
+
+Each virtual machine definition must begin with a USERID statement
+specifying the userid and the authorization level.  All statements following
+the USERID statement are applied to this userid definition until another
+USERID statement is encountered.
+
+\begin{syntdiag}
+\tok{USERID} <userid> <auth>
+\end{syntdiag}
+
+A CPU statement defines a virtual processor.  The cpuid parameter defines
+the number of the cpu in hex.  Typically, the first processor is numbered
+00.  Currently, HVF ignores this statement and always instantiates a single
+guest processor.
+
+\begin{syntdiag}
+\tok{CPU} <cpuid>
+\end{syntdiag}
+
+The STORAGE statement may appear only once within a virtual machine's
+definition.  It specifies the amount of memory allocated to the guest.  The
+size is scaled by the optional scale --- K (\mbox{1,024}), M
+(\mbox{1,048,576}), or G (\mbox{1,073,741,824}).
+
+Note that the size must be a multiple of 64kB and that the directory parser
+does not check for this.
+
+\begin{syntdiag}
+\tok{STORAGE} <size>
+\begin{stack}
+	\\
+	\tok{K} \\
+	\tok{M} \\
+	\tok{G}
+\end{stack}
+\end{syntdiag}
+
+The DEV statement may appear arbitrary number of times.  Each occurence
+defines a virtual device with the virtual device number vdev.  The device
+types CONSOLE, RDR, PUN, and PRT connect the device to CP's spooling
+facility which then directs any I/Os to the appropriate destination.  When
+the MDISK device type is specified, the virtual device is a minidisk
+residing on rdev (a DASD) starting at cylinder off and being len cylinders
+long.
+
+\begin{syntdiag}
+\tok{DEV} <vdev>
+\begin{stack}
+	\tok{CONSOLE} \\
+	\tok{RDR} \\
+	\tok{PUN} \\
+	\tok{PRT} \\
+	\tok{MDISK} <rdev> <off> <len>
+\end{stack}
+\end{syntdiag}
+
+\section{Example Directory}
+Figure~\ref{fig:directory-sample} is the default directory distributed with
+HVF.  It defines several users with nearly identical configurations.
+
+\begin{figure*}[htb]
+\small
+\lstinputlisting{../../sys/hvf.directory}
+\captionfont
+\caption{\capfont Example directory defining three users.}
+\label{fig:directory-sample}
+\end{figure*}
+

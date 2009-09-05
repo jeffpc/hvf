@@ -17,11 +17,9 @@ XPNDSIZE        0             # Expanded storage size in megabytes
 NUMCPU          1             # Number of CPUs
 LOADPARM        ........      # IPL parameter
 OSTAILOR        NULL          # OS tailoring
-CNSLPORT        3271          # TCP port number to which consoles connect
+CNSLPORT        3272          # TCP port number to which consoles connect
 PANRATE         SLOW          # Panel refresh rate
 PGMPRDOS        RESTRICTED    # HVF isn't an IBM product => RESTRICTED is ok
-LEGACYSENSEID   OFF           # Hercules shouldn't let us do Sense-ID on
-                              # devices that never supported it
  
 # .-----------------------Device number
 # |     .-----------------Device type
@@ -31,10 +29,10 @@ LEGACYSENSEID   OFF           # Hercules shouldn't let us do Sense-ID on
 #---    ----    --------------------
 
 # Card Reader
-000C    3505    ../sys/loader_rdr.bin ../sys/hvf ebcdic multifile
+000C    3505    
 
 # Card Punch
-000D    3525    punch00d.txt ascii
+ 000D    3525    punch00d.txt ascii
 
 # Printers
 000E    1403    print00e.txt

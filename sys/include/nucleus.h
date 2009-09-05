@@ -3,7 +3,6 @@
 
 #include <config.h>
 #include <compiler.h>
-#include <types.h>
 #include <errno.h>
 
 extern volatile u64 ticks;

@@ -10,6 +10,7 @@
 #define ESUBENOENT	7
 #define EUCHECK		8
 #define EFAULT		9
+#define EPERM		10
 
 #define PTR_ERR(ptr)	((s64) ptr)
 #define ERR_PTR(err)	((void*) err)
