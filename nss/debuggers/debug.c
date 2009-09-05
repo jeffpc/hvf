@@ -1,19 +1,5 @@
 #define memcpy(d,s,l)	__builtin_memcpy((d),(s),(l))
 
-#define NULL	((void*) 0)
-
-typedef unsigned long long u64;
-typedef signed long long s64;
-
-typedef unsigned int u32;
-typedef signed int s32;
-
-typedef unsigned short u16;
-typedef signed short s16;
-
-typedef unsigned char u8;
-typedef signed char s8;
-
 u64 dis_wait_psw[2] = {
 	//0x0002000180000000ull,
 	0x0202000180000000ull,

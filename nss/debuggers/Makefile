@@ -3,7 +3,7 @@ LD=s390x-linux-ld
 OBJCOPY=s390x-linux-objcopy
 AS=s390x-linux-as
 NM=s390x-linux-nm
-CFLAGS=-Wall -O2 -g -fno-strict-aliasing -nostdlib
+CFLAGS=-Wall -O2 -g -fno-strict-aliasing -nostdlib -include ../../include/types.h
 
 all:
 	$(CC) $(CFLAGS) -c -o debug.o debug.c
