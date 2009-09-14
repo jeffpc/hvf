@@ -1,0 +1,31 @@
+HVF v0.13 is available for download.
+
+HVF is a hypervisor OS for z/Architecture systems.
+
+Tarballs:
+http://www.josefsipek.net/projects/hvf/src/
+
+Git repo:
+git://repo.or.cz/hvf.git
+
+
+Not that many changes, but worthy of a release simply because now it IPLs
+under z/VM 5.2 on a z800.
+
+As always, patches, and other feedback is welcome.
+
+Josef "Jeff" Sipek.
+
+------------
+Changes since v0.12:
+
+Josef 'Jeff' Sipek (8):
+      console: use a linked list instead of a statically allocated array
+      build: be more consistent with output
+      io: be a little bit smarter about handling Unit-Check
+      device: move Sense-ID issuing code into a helper function
+      device: static device configuration & 0009 definition
+      console: do not use MIDA for console IO
+      device: Display model number as a 2 digit number
+      HVF 0.13
+
