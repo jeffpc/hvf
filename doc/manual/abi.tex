@@ -8,6 +8,7 @@ Note that HVF using this ABI internally places no restrictions on the guest
 operating systems in any way.
 
 \section{Register Assignments}
+\label{sec:registers}
 The ABI defines these register assignments.
 
 \cbstart
@@ -64,6 +65,42 @@ F15   &   General purpose                            &Call-clobbered \cbend \\
 \hline
 \end{tabular}
 \end{center}
+
+\cbstart
+\section{Stack Frame Layout}
+\label{sec:stackframe}
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+z/Arch (s390x) & s/390 (s390) & Use \\
+\hline\hline
+0            & 0        & back chain (NULL signifies end of back chain)\\
+8            & 4        & end of stack (not used in Linux s390/s390x)\\
+16           & 8        & glue (not used in Linux s390/s390x)\\
+24           & 12       & glue (not used in Linux s390/s390x)\\
+32           & 16       & scratch area\\
+40           & 20       & scratch area\\
+48           & 24       & saved r6 of caller function\\
+56           & 28       & saved r7 of caller function\\
+64           & 32       & saved r8 of caller function\\
+72           & 36       & saved r9 of caller function\\
+80           & 40       & saved r10 of caller function\\
+88           & 44       & saved r11 of caller function\\
+96           & 48       & saved r12 of caller function\\
+104          & 52       & saved r13 of caller function\\
+112          & 56       & saved r14 of caller function\\
+120          & 60       & saved r15 of caller function\\
+128          & 64       & saved f4 of caller function\\
+132          & 72       & saved f6 of caller function\\
+             & 80       & undefined\\
+160          & 96       & outgoing args passed from caller to callee\\
+160+x        & 96+x     & possible stack alignment (8 bytes desirable)\\
+160+x+y      & 96+x+y   & alloca space of caller (if used)\\
+160+x+y+z    & 96+x+y+z & automatics of caller (if used)\\
+\hline
+\end{tabular}
+\end{center}
+\cbend
 
 \section{ELF Binary File Format}
 \label{sec:elf}
