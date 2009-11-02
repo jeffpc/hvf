@@ -39,10 +39,28 @@ R8    &   This \& that                               &Saved \\
 R9    &   This \& that                               &Saved \\
 R10   &   Static-chain ( if nested function )        &Saved \\
 R11   &   Frame-pointer ( if function used alloca )  &Saved \\
-R12   &   Got-pointer                                &Saved \\
-R13   &   Base-pointer                               &Saved \\
-R14   &   Return-address                             &Saved \\
+R12   &   Got-pointer \cbstart / local variable\cbend &Saved \\
+R13   &   Base-pointer \cbstart (aka. literal pool pointer)\cbend &Saved \\
+R14   &   Return-address                             &Saved \\ % verify!
 R15   &   Stack-pointer                              &Saved \\
+\hline
+\cbstart
+F0    &   Argument 0 / return value 0                &Call-clobbered \\
+F1    &   General purpose                            &Call-clobbered \\
+F2    &   Argument 1                                 &Call-clobbered \\
+F3    &   General purpose                            &Call-clobbered \\
+F4    &   argument 2 (z/Architecture only)           &Saved \\
+F5    &   General purpose                            &Call-clobbered \\
+F6    &   argument 3 (z/Architecture only)           &Saved \\
+F7    &   General purpose                            &Call-clobbered \\
+F8    &   General purpose                            &Call-clobbered \\
+F9    &   General purpose                            &Call-clobbered \\
+F10   &   General purpose                            &Call-clobbered \\
+F11   &   General purpose                            &Call-clobbered \\
+F12   &   General purpose                            &Call-clobbered \\
+F13   &   General purpose                            &Call-clobbered \\
+F14   &   General purpose                            &Call-clobbered \\
+F15   &   General purpose                            &Call-clobbered \cbend \\
 \hline
 \end{tabular}
 \end{center}
