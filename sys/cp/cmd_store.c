@@ -23,7 +23,7 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 
 	ret = parse_addrspec(&guest_addr, NULL, cmd);
 	if (ret) {
-		con_printf(sys->con, "DISPLAY: Invalid addr-spec '%s'\n", cmd);
+		con_printf(sys->con, "STORE: Invalid addr-spec '%s'\n", cmd);
 		return ret;
 	}
 
@@ -35,7 +35,7 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 	/* walk the page tables to find the real page frame */
 	ret = virt2phy_current(guest_addr, &host_addr);
 	if (ret) {
-		con_printf(sys->con, "DISPLAY: Specified address is not part of "
+		con_printf(sys->con, "STORE: Specified address is not part of "
 			   "guest configuration\n");
 		return ret;
 	}
