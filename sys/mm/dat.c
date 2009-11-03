@@ -9,7 +9,7 @@ static void *alloc_table(int order)
 
 	p = alloc_pages(order, ZONE_NORMAL);
 	BUG_ON(!p);
-	memset(page_to_addr(p), 0xff, PAGE_SIZE);
+	memset(page_to_addr(p), 0xff, PAGE_SIZE << order);
 
 	return page_to_addr(p);
 }
