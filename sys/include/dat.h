@@ -122,6 +122,8 @@ static inline int virt2phy_current(u64 virt, u64 *phy)
 	  "=d" (cc)
 	: /* input */
 	  "a" (virt)
+	: /* clobber */
+	  "cc"
 	);
 
 	if (cc != 0)
