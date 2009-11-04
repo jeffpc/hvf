@@ -229,7 +229,7 @@ static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
  *!! SYNTAX
  *! \tok{\sc Display} \tok{\sc SIECB}
  *!! XATNYS
- *!! AUTH A
+ *!! AUTH E
  *!! PURPOSE
  *! Displays hexdump of the guest's SIE control block.
  */
@@ -238,7 +238,7 @@ static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
 	u32 *val;
 	int i;
 
-	CP_CMD_AUTH(sys, 'A');
+	CP_CMD_AUTH(sys, 'E');
 
 	val = (u32*) &sys->task->cpu->sie_cb;
 
