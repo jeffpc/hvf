@@ -424,14 +424,25 @@ static int cmd_display_ar(struct virt_sys *sys, char *cmd, int len)
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
- *! Displays the guest's PSW
+ *! Displays the guest's PSW.
+ *!
+ *! \cbstart
+ *! If the guest is in ESA/390 mode, the 8-byte PSW is displayed.
+ *!
+ *! If the guest is in z/Architecture mode, the 16-byte PSW is displayed.
+ *! \cbend
  */
 static int cmd_display_psw(struct virt_sys *sys, char *cmd, int len)
 {
 	u32 *ptr = (u32*) &sys->task->cpu->sie_cb.gpsw;
 
-	con_printf(sys->con, "PSW = %08X %08X %08X %08X\n",
-		   ptr[0], ptr[1], ptr[2], ptr[3]);
+	if (VCPU_ZARCH(sys->task->cpu))
+		con_printf(sys->con, "PSW = %08X %08X %08X %08X\n",
+			   ptr[0], ptr[1], ptr[2], ptr[3]);
+	else
+		con_printf(sys->con, "PSW = %08X %08X\n",
+			   ptr[0], ptr[1]);
+
 	return 0;
 }
 

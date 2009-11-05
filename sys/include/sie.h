@@ -70,4 +70,6 @@ struct sie_cb {
 	u8		reserved188[120];	/* 0x0188 */
 } __attribute__((aligned(256),packed));
 
+#define VCPU_ZARCH(vcpu)	(atomic_read(&((vcpu)->sie_cb.cpuflags)) & CPUSTAT_ZARCH)
+
 #endif

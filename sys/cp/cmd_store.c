@@ -210,30 +210,51 @@ static int cmd_store_ar(struct virt_sys *sys, char *cmd, int len)
 /*
  *!!! STORE PSW
  *!! SYNTAX
+ *! \cbstart
  *! \tok{\sc STOre} \tok{\sc PSW}
- *! <val1>
- *!     \begin{stack} \\ <val2>
- *!         \begin{stack} \\ <val3>
- *!             \begin{stack} \\ <val4>
- *!             \end{stack}
- *!         \end{stack}
+ *!     \begin{stack} \\
+ *!       \begin{stack} \\
+ *!         \begin{stack} \\ <hexword1>
+ *!         \end{stack} <hexword2>
+ *!       \end{stack} <hexword3>
  *!     \end{stack}
+ *! <hexword4>
+ *! \cbend
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
- *! Sets a guest's PSW to the specified value
+ *! \cbstart
+ *! Alters all or a part of the PSW.
+ *! \cbend
+ *!! OPERANDS
+ *! \cbstart
+ *! \item[hexword...]
+ *!   \textbf{For an ESA/390 guest:}
  *!
- *! If only one val1 is specified, PSW bits 96-127 are set to it.
+ *!   Alters all or part of the PSW with the data specified in hexword1
+ *!   and hexword2.  If only hexword2 is specified, it is stored to PSW bits
+ *!   32-63.  If hexword3 and hexword4 are specified, hexword3 is stored to
+ *!   PSW bits 0-31, and hexword4 to PSW bits 32-63.
  *!
- *! If val1 and val2 are specified, PSW bits 64-95 are set to val1, and bits
- *! 96-127 are set to val2.
+ *!   If more than two values are specified, the PSW remains unchanged and an
+ *!   message indicating an error is printed.
  *!
- *! If val1, val2, and val3 are specified, PSW bits 32-63 are set to val1,
- *! bits 64-95 are set to val2, and bits 96-127 are set to val3.
+ *!   \textbf{For a z/Architecture guest:}
  *!
- *! If val1, val2, val3, and val4 are specified, PSW bits 0-31 are set to
- *! val1, bits 32-63 are set to val2, bits 64-95 are set to val3, and
- *! bits 96-127 are set to val4.
+ *!   If only one hexword4 is specified, PSW bits 96-127 are set to it.
+ *!
+ *!   If hexword3 and hexword4 are specified, PSW bits 64-95 are set to
+ *!   hexword3, and bits 96-127 are set to hexword4.
+ *!
+ *!   If hexword2, hexword3, and hexword4 are specified, PSW bits 32-63 are
+ *!   set to hexword2, bits 64-95 are set to hexword3, and bits 96-127 are
+ *!   set to hexword4.
+ *!
+ *!   If hexword1, hexword2, hexword3, and hexword4 are specified, PSW bits
+ *!   0-31 are set to hexword1, bits 32-63 are set to hexword2, bits 64-95
+ *!   are set to hexword3, and bits 96-127 are set to hexword4.
+ *! \cbend
+ *!! SDNAREPO
  */
 static int cmd_store_psw(struct virt_sys *sys, char *cmd, int len)
 {
@@ -252,6 +273,23 @@ static int cmd_store_psw(struct virt_sys *sys, char *cmd, int len)
 
 	if (!cnt)
 		return -EINVAL;
+
+	if (!VCPU_ZARCH(sys->task->cpu)) {
+		/* ESA/390 mode */
+		if (cnt > 2) {
+			con_printf(sys->con, "STORE: ERROR ESA/390 PSW USES ONLY TWO WORDS\n");
+			return -EINVAL;
+		}
+
+		/*
+		 * This is a simple "hack" to make the stores go into the
+		 * right place.  If he had a single word, we want it to go
+		 * the the second word of the 16-byte PSW, not the 4th.
+		 * Similarly, if we had two words, we want them to go into
+		 * the first and second words of the 16-byte PSW.
+		 */
+		cnt += 2;
+	}
 
 	switch(cnt) {
 		case 4:
