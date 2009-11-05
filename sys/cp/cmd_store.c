@@ -21,10 +21,10 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 	/* consume any extra whitespace */
 	cmd = __consume_ws(cmd);
 
-	ret = parse_addrspec(&guest_addr, NULL, cmd);
-	if (ret) {
+	cmd = parse_addrspec(&guest_addr, NULL, cmd);
+	if (IS_ERR(cmd)) {
 		con_printf(sys->con, "STORE: Invalid addr-spec '%s'\n", cmd);
-		return ret;
+		return PTR_ERR(cmd);
 	}
 
 	/*

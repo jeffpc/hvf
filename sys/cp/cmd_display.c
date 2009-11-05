@@ -1,10 +1,12 @@
-static int parse_addrspec(u64 *val, u64 *len, char *s)
+static char* parse_addrspec(u64 *val, u64 *len, char *s)
 {
 	u64 tmp;
 	int parsed = 0;
 
 	tmp = 0;
-	while(*s != '\0') {
+	while(!(*s == '\0' ||
+		*s == ' ' ||
+		*s == '\t')) {
 		if (*s >= '0' && *s <= '9')
 			tmp = 16*tmp + (*s - '0');
 		else if ((*s >= 'A' && *s <= 'F') ||
@@ -13,7 +15,7 @@ static int parse_addrspec(u64 *val, u64 *len, char *s)
 		else if (*s == '.' && parsed)
 			break;
 		else
-			return -EINVAL;
+			return ERR_PTR(-EINVAL);
 
 		s++;
 		parsed = 1;
@@ -30,7 +32,7 @@ static int parse_addrspec(u64 *val, u64 *len, char *s)
 
 	*val = tmp;
 
-	return (parsed == 1 ? 0 : -EINVAL);
+	return (parsed == 1 ? s : ERR_PTR(-EINVAL));
 }
 
 enum display_fmt {
@@ -188,7 +190,6 @@ fault:
  */
 static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 {
-	int ret;
 	u64 guest_addr;
 	u64 mlen = 0;
 	enum display_fmt fmt;
@@ -210,9 +211,9 @@ static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 			break;
 	}
 
-	ret = parse_addrspec(&guest_addr, &mlen, cmd);
-	if (ret) {
-		con_printf(sys->con, "DISPLAY: Invalid addr-spec '%s'\n", cmd);
+	cmd = parse_addrspec(&guest_addr, &mlen, cmd);
+	if (IS_ERR(cmd)) {
+		con_printf(sys->con, "DISPLAY: Invalid addr-spec\n");
 		return 0;
 	}
 
