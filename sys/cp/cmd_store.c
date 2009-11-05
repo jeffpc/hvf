@@ -1,7 +1,9 @@
 /*
  *!!! STORE STORAGE
  *!! SYNTAX
- *! \tok{\sc STOre} \tok{\sc STOrage} <value> <address>
+ *! \cbstart
+ *! \tok{\sc STOre} \tok{\sc STOrage} <address> <value>
+ *! \cbend
  *!! XATNYS
  *!! AUTH G
  *!! PURPOSE
@@ -13,19 +15,19 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 	u64 guest_addr, host_addr;
 	u64 val = 0;
 
-	/* get the value */
-	cmd = __extract_hex(cmd, &val);
-	if (IS_ERR(cmd))
+	cmd = parse_addrspec(&guest_addr, NULL, cmd);
+	if (IS_ERR(cmd)) {
+		con_printf(sys->con, "STORE: Invalid addr-spec\n");
 		return PTR_ERR(cmd);
+	}
 
 	/* consume any extra whitespace */
 	cmd = __consume_ws(cmd);
 
-	cmd = parse_addrspec(&guest_addr, NULL, cmd);
-	if (IS_ERR(cmd)) {
-		con_printf(sys->con, "STORE: Invalid addr-spec '%s'\n", cmd);
+	/* get the value */
+	cmd = __extract_hex(cmd, &val);
+	if (IS_ERR(cmd))
 		return PTR_ERR(cmd);
-	}
 
 	/*
 	 * round down to the nearest word
