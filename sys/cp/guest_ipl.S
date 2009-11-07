@@ -54,7 +54,7 @@ GUEST_IPL_CODE:
 
 	# let's set up a CCW + an ORB, start the IO, and wait
 
-	MVC	INITCCW(8,r12),0(r0)		# set up the initial CCW
+	MVC	0(8,r0),INITCCW(r12)		# set up the initial CCW
 	OI	ORB+6(r12),0xff			# set the LPM in the ORB
 
 	SSCH	ORB(r12)			# start the IO
