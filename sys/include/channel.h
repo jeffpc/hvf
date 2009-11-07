@@ -6,12 +6,26 @@
  */
 struct ccw {
 	u8 cmd;			/* Command code */
+	u8 flags;		/* Flags */
+	u16 count;		/* Count */
+	u32 addr;		/* Data Address */
+} __attribute__((packed,aligned(8)));
+
+struct ccw0 {
+	u8 cmd;			/* Command code */
+	u8 addr_hi;		/* Data Address (bits 8-15) */
+	u16 addr_lo;		/* Data Address (bits 16-31) */
+	u8 flags;		/* Flags */
+	u8 _res0;
+	u16 count;		/* Count */
+} __attribute__((packed,aligned(8)));
+
 #define CCW_CMD_IPL_READ	0x02
 #define CCW_CMD_NOP		0x03
 #define CCW_CMD_BASIC_SENSE	0x04
 #define CCW_CMD_SENSE_ID	0xe4
 #define CCW_CMD_TIC		0x08
-	u8 flags;		/* Flags */
+
 #define CCW_FLAG_CD		0x80	/* Chain-Data */
 #define CCW_FLAG_CC		0x40	/* Chain-Command */
 #define CCW_FLAG_SLI		0x20	/* Suppress-Length-Indication */
@@ -20,9 +34,6 @@ struct ccw {
 #define CCW_FLAG_IDA		0x04	/* Indirect-Data-Address */
 #define CCW_FLAG_S		0x02	/* Suspend */
 #define CCW_FLAG_MIDA		0x01	/* Modified-Indirect-Data-Address */
-	u16 count;		/* Count */
-	u32 addr;		/* Data Address */
-} __attribute__((packed,aligned(8)));
 
 /*
  * ORB
