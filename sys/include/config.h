@@ -9,4 +9,6 @@
  */
 #define GUEST_IPL_BASE		(16ULL * 1024ULL * 1024ULL)
 
+#define OPER_CONSOLE_CCUU	0x0009
+
 #endif

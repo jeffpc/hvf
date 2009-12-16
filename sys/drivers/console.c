@@ -185,10 +185,12 @@ static int console_flusher(void *data)
  * register_console - generic device registration callback
  * @dev:	console device to register
  */
-int register_console(struct device *dev)
+static int register_console(struct device *dev)
 {
 	struct console *con;
 	struct console_line *cline;
+
+	dev_get(dev);
 
 	con = malloc(sizeof(struct console), ZONE_NORMAL);
 	BUG_ON(!con);
@@ -214,31 +216,56 @@ int register_console(struct device *dev)
 	return 0;
 }
 
-struct console* start_consoles(void)
+static void print_splash(struct console *con)
 {
-	char name[TASK_NAME_LEN+1];
-	struct console *con, *op;
 	int i;
 
+	for(i = 0; splash[i]; i++)
+		con_printf(con, splash[i]);
+
+	con_printf(con, "HVF VERSION " VERSION "\n\n");
+}
+
+struct console* start_oper_console(void)
+{
+	struct device *dev;
+
 	/*
-	 * For now, we only start the operator console
+	 * We only start the operator console
 	 */
 
-	BUG_ON(list_empty(&consoles));
-	op = list_first_entry(&consoles, struct console, consoles);
+	dev = find_device_by_ccuu(OPER_CONSOLE_CCUU);
+	BUG_ON(IS_ERR(dev));
 
-	list_for_each_entry(con, &consoles, consoles) {
-		snprintf(name, TASK_NAME_LEN, "%05X-conflsh", con->dev->sch);
+	return console_enable(dev);
+}
 
-		create_task(name, console_flusher, con);
+void* console_enable(struct device *dev)
+{
+	char name[TASK_NAME_LEN+1];
+	struct console *con;
 
-		for(i = 0; splash[i]; i++)
-			con_printf(con, splash[i]);
+	con = find_console(dev);
+	if (!IS_ERR(con))
+		return con;
 
-		con_printf(con, "HVF VERSION " VERSION "\n\n");
-	}
+	if (register_console(dev))
+		return ERR_PTR(-ENOMEM);
 
-	return op; /* return the operator console */
+	/* try again, this time, we should always find it! */
+	con = find_console(dev);
+	if (IS_ERR(con))
+		return con;
+
+	atomic_inc(&con->dev->in_use);
+
+	snprintf(name, TASK_NAME_LEN, "%05X-conflsh", con->dev->sch);
+
+	create_task(name, console_flusher, con);
+
+	print_splash(con);
+
+	return con;
 }
 
 int con_read_pending(struct console *con)

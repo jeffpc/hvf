@@ -96,6 +96,7 @@ struct device *find_device_by_ccuu(u16 ccuu)
 
 	list_for_each_entry(dev, &devices, devices) {
 		if (dev->ccuu == ccuu) {
+			dev_get(dev);
 			spin_unlock(&devs_lock);
 			return dev;
 		}
@@ -118,6 +119,7 @@ struct device *find_device_by_sch(u32 sch)
 
 	list_for_each_entry(dev, &devices, devices) {
 		if (dev->sch == sch) {
+			dev_get(dev);
 			spin_unlock(&devs_lock);
 			return dev;
 		}
@@ -142,6 +144,7 @@ struct device *find_device_by_type(u16 type, u8 model)
 	list_for_each_entry(dev, &devices, devices) {
 		if (dev->type == type &&
 		    dev->model == model) {
+			dev_get(dev);
 			spin_unlock(&devs_lock);
 			return dev;
 		}
@@ -176,6 +179,9 @@ static int __register_device(struct device *dev, int remove)
 
 found:
 	spin_double_unlock(&devs_lock, &dev_types_lock);
+
+	atomic_set(&dev->refcnt, 1);
+	atomic_set(&dev->in_use, 0);
 
 	dev->dev = type;
 
@@ -341,8 +347,15 @@ void list_devices(struct console *con, void (*f)(struct console*, struct device*
 {
 	struct device *dev;
 
-	list_for_each_entry(dev, &devices, devices)
+	spin_lock(&devs_lock);
+
+	list_for_each_entry(dev, &devices, devices) {
+		dev_get(dev);
 		f(con, dev);
+		dev_put(dev);
+	}
+
+	spin_unlock(&devs_lock);
 }
 
 void register_drivers(void)

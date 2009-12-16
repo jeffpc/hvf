@@ -191,6 +191,7 @@ void __io_int_handler(void)
 		 */
 
 		__cpu_initiated_io(dev, ioop, &irb);
+		dev_put(dev);
 		return;
 	}
 
@@ -205,4 +206,5 @@ void __io_int_handler(void)
 		dev->dev->interrupt(dev, &irb);
 	else
 		__dev_initiated_io(dev, &irb);
+	dev_put(dev);
 }

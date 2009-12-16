@@ -38,9 +38,9 @@ struct console {
 	struct list_head read_lines;
 };
 
-extern int register_console(struct device *dev);
 extern int console_interrupt(struct device *dev, struct irb *irb);
-extern struct console* start_consoles(void);
+extern struct console* start_oper_console(void);
+extern void* console_enable(struct device *dev);
 extern int con_read_pending(struct console *con);
 extern int con_read(struct console *con, u8 *buf, int size);
 extern int con_write(struct console *con, u8 *buf, int len);

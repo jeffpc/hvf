@@ -187,7 +187,7 @@ void start(u64 __memsize)
 	 */
 	get_parsed_tod(&ipltime);
 
-	opcon = start_consoles();
+	opcon = start_oper_console();
 
 	con_printf(opcon, "NOW %02d:%02d:%02d UTC %04d-%02d-%02d\n\n",
 		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,

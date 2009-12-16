@@ -12,6 +12,7 @@ struct device_type {
 	struct list_head types;
 	int (*reg)(struct device *dev);
 	int (*interrupt)(struct device *dev, struct irb *irb);
+	void* (*enable)(struct device *dev);
 	int (*snprintf)(struct device *dev, char *buf, int len);
 	u16 type;
 	u8 model;
@@ -30,6 +31,10 @@ struct device {
 	struct io_op *q_cur;
 	struct list_head q_out;
 	atomic_t attention;
+
+	atomic_t in_use;		/* is the device in use by someone? */
+
+	atomic_t refcnt;		/* internal reference counter */
 
 	union {
 		struct {
@@ -61,6 +66,18 @@ extern void scan_devices(void);
 extern void list_devices(struct console *con,
 			 void (*f)(struct console*, struct device*));
 extern void register_drivers(void);
+
+static inline void dev_get(struct device *dev)
+{
+	BUG_ON(atomic_read(&dev->refcnt) < 1);
+	atomic_inc(&dev->refcnt);
+}
+
+static inline void dev_put(struct device *dev)
+{
+	atomic_dec(&dev->refcnt);
+	BUG_ON(atomic_read(&dev->refcnt) < 1);
+}
 
 /* device specific register functions */
 extern int register_driver_3215(void);
