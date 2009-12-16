@@ -36,8 +36,11 @@ static void display_vdev(struct console *con, struct virt_device *vdev)
 				   vdev->sch);
 			break;
 		case VDEV_DED:
-			con_printf(con, "???? %04X SCH = %05X\n",
-				   vdev->pmcw.dev_num, vdev->sch);
+			con_printf(con, "%-4s %04X ON DEV %04X SCH = %05X\n",
+				   type2name(vdev->type),
+				   vdev->pmcw.dev_num,
+				   vdev->u.dedicate.rdev->ccuu,
+				   vdev->sch);
 			break;
 		case VDEV_SPOOL:
 			con_printf(con, "%-4s %04X %04X SCH = %05X\n",
