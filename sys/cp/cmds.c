@@ -113,6 +113,7 @@ static struct cpcmd logon_commands[] = {
 	{"LOG",		cmd_logon,		NULL},
 	{"LO",		cmd_logon,		NULL},
 	{"L",		cmd_logon,		NULL},
+	{"",		NULL,			NULL},
 };
 
 static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int len)
