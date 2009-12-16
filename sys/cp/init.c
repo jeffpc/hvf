@@ -29,7 +29,9 @@ static int __alloc_guest_devices(struct virt_sys *sys)
 	for(i=0; sys->directory->devices[i].type != VDEV_INVAL; i++) {
 		if (alloc_virt_dev(sys, &sys->directory->devices[i],
 				   0x10000 + i))
-			BUG(); // FIXME: be nicer
+			con_printf(sys->con, "Failed to allocate vdev %04X, SCH = %05X\n",
+				   sys->directory->devices[i].vdev,
+				   0x10000 + i);
 	}
 
 	return 0;
