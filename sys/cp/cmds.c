@@ -50,6 +50,7 @@ static char* type2name(u16 type)
 #include "cmd_helpers.c"
 #include "cmd_beginstop.c"
 #include "cmd_display.c"
+#include "cmd_enable.c"
 #include "cmd_system.c"
 #include "cmd_query.c"
 #include "cmd_store.c"
@@ -69,6 +70,11 @@ static struct cpcmd commands[] = {
 	{"DIS",		NULL,			cmd_tbl_display},
 	{"DI",		NULL,			cmd_tbl_display},
 	{"D",		NULL,			cmd_tbl_display},
+
+	{"ENABLE",	cmd_enable,		NULL},
+	{"ENABL",	cmd_enable,		NULL},
+	{"ENAB",	cmd_enable,		NULL},
+	{"ENA",		cmd_enable,		NULL},
 
 	{"IPL",		cmd_ipl,		NULL},
 	{"IP",		cmd_ipl,		NULL},
