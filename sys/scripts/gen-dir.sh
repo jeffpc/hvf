@@ -1,12 +1,5 @@
 #!/bin/sh
 
-RDR_TYPE="0x3505"
-RDR_MODEL="1"
-PUN_TYPE="0x3525"
-PUN_MODEL="1"
-PRT_TYPE="0x1403"
-PRT_MODEL="1"
-
 if [ $# -ne 2 ]; then
 	echo "Usage: $0 <directory> <outfile>" >&2
 	exit 1
@@ -26,7 +19,7 @@ echo "	}," >> directory.userlist
 parse_line()
 {
 	case "$1" in
-		USERID)
+		USER)
 			[ ! -z "$userid" ] && close_devlist
 
 			echo "static struct directory_vdev __directory_$2[] = {" >> directory.devlist
@@ -37,7 +30,7 @@ parse_line()
 
 			userid="$2"
 			;;
-		CPU)
+		MACHINE)
 			;;
 		STORAGE)
 			tmp=`echo $2 | sed -e 's/[KMG]//g'`
@@ -49,30 +42,27 @@ parse_line()
 			esac
 			echo "		.storage_size = $size," >> directory.userlist
 			;;
-		DEV)
-			case "$3" in
-				CONSOLE)
-					echo "	{ /* CON   */ .type = VDEV_CONS,  .vdev = 0x$2, }," >> directory.devlist
+		CONSOLE)
+			echo "	{ /* CON   */ .type = VDEV_CONS,  .vdev = 0x$2, }," >> directory.devlist
+			;;
+		SPOOL)
+			case "$4" in
+				READER)
+					echo "	{ /* RDR   */ .type = VDEV_SPOOL, .vdev = 0x$2, .u.spool = { .type = 0x$3, .model = 1 }, }," >> directory.devlist
 					;;
-				RDR)
-					echo "	{ /* RDR   */ .type = VDEV_SPOOL, .vdev = 0x$2, .u.spool = { .type = $RDR_TYPE, .model = $RDR_MODEL }, }," >> directory.devlist
+				PUNCH)
+					echo "	{ /* PUN   */ .type = VDEV_SPOOL, .vdev = 0x$2, .u.spool = { .type = 0x$3, .model = 1 }, }," >> directory.devlist
 					;;
-				PUN)
-					echo "	{ /* PUN   */ .type = VDEV_SPOOL, .vdev = 0x$2, .u.spool = { .type = $PUN_TYPE, .model = $PUN_MODEL }, }," >> directory.devlist
+				PRINT)
+					echo "	{ /* PRT   */ .type = VDEV_SPOOL, .vdev = 0x$2, .u.spool = { .type = 0x$3, .model = 1 }, }," >> directory.devlist
 					;;
-				PRT)
-					echo "	{ /* PRT   */ .type = VDEV_SPOOL, .vdev = 0x$2, .u.spool = { .type = $PRT_TYPE, .model = $PRT_MODEL }, }," >> directory.devlist
-					;;
-				MDISK)
-					echo "	{ /* MDISK */ .type = VDEV_MDISK, .vdev = 0x$2, .u.mdisk = { .rdev = 0x$4, .cyloff = $5, .cylcnt = $6, }, }," >> directory.devlist
-					;;
-				DED)
-					echo "	{ /* DED   */ .type = VDEV_DED,   .vdev = 0x$2, .u.dedicate = { .rdev = 0x$4, }, }," >> directory.devlist
-					;;
-				*)
-					echo "Error near:" "$@" >&2
-					exit 3
 			esac
+			;;
+		MDISK)
+			echo "	{ /* MDISK */ .type = VDEV_MDISK, .vdev = 0x$2, .u.mdisk = { .rdev = 0x$6, .cyloff = $4, .cylcnt = $5, }, }," >> directory.devlist
+			;;
+		DEDICATE)
+			echo "	{ /* DED   */ .type = VDEV_DED,   .vdev = 0x$2, .u.dedicate = { .rdev = 0x$3, }, }," >> directory.devlist
 			;;
 		*)
 			echo "Error near:" "$@" >&2
