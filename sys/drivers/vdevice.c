@@ -2,10 +2,30 @@
 #include <list.h>
 #include <vdevice.h>
 
+static int __setup_vdev_ded(struct virt_sys *sys,
+			    struct directory_vdev *dirdev,
+			    struct virt_device *vdev)
+{
+	struct device *rdev;
+
+	rdev = find_device_by_ccuu(dirdev->u.dedicate.rdev);
+	if (IS_ERR(rdev))
+		return PTR_ERR(rdev);
+
+	atomic_inc(&rdev->in_use);
+
+	vdev->u.dedicate.rdev = rdev;
+	vdev->type = rdev->type;
+	vdev->model = rdev->model;
+
+	return 0;
+}
+
 int alloc_virt_dev(struct virt_sys *sys, struct directory_vdev *dirdev,
 		   u32 sch)
 {
 	struct virt_device *vdev;
+	int ret = 0;
 
 	vdev = malloc(sizeof(struct virt_device), ZONE_NORMAL);
 	if (!vdev)
@@ -26,7 +46,8 @@ int alloc_virt_dev(struct virt_sys *sys, struct directory_vdev *dirdev,
 			vdev->model = 0;
 			break;
 		case VDEV_DED:
-			goto free;
+			ret = __setup_vdev_ded(sys, dirdev, vdev);
+			break;
 		case VDEV_SPOOL:
 			vdev->type = dirdev->u.spool.type;
 			vdev->model = dirdev->u.spool.model;
@@ -45,12 +66,13 @@ int alloc_virt_dev(struct virt_sys *sys, struct directory_vdev *dirdev,
 
 	list_add_tail(&vdev->devices, &sys->virt_devs);
 
-	return 0;
+	return ret;
 
 free:
 	free(vdev);
 	return 0;
 
 out:
+	free(vdev);
 	return -EINVAL;
 }

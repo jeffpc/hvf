@@ -12,6 +12,13 @@ struct virt_device {
 	u16 type;			/* 3330, 3215, ... */
 	u8 model;
 
+	union {
+		struct {
+			struct device *rdev;
+					/* real device */
+		} dedicate;
+	} u;
+
 	struct pmcw pmcw;		/* path info */
 	struct scsw scsw;		/* subchannel-status */
 };
