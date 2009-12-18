@@ -19,8 +19,9 @@ static void display_rdev(struct console *con, struct device *dev)
 	if (dev->dev && dev->dev->snprintf)
 		dev->dev->snprintf(dev, buf, 40);
 
-	con_printf(con, "%-4s %04X %04X %sSCH = %05X\n",
+	con_printf(con, "%-4s %04X %04X %s%sSCH = %05X\n",
 		   type2name(dev->type), dev->ccuu, dev->type, buf,
+		   atomic_read(&dev->in_use) ? "" : "FREE ",
 		   dev->sch);
 }
 
