@@ -18,8 +18,6 @@
 #define SPECIAL 32              /* 0x */
 #define LARGE   64              /* use 'ABCDEF' instead of 'abcdef' */
 
-#define isdigit(c)	(((c) >= '0') && ((c) <= '9'))
-
 /* borrowed from Linux */
 # define do_div(n,base) ({                                      \
         u32 __base = (base);                                    \
