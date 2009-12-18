@@ -25,6 +25,7 @@ static char* type2name(u16 type)
 	switch (type) {
 		case 0x1403:	return "PRT";
 		case 0x1732:	return "OSA";
+		case 0x3088:	return "CTCA";
 		case 0x3215:	return "CONS";
 		case 0x3278:	return "GRAF";
 		case 0x3505:	return "RDR";
