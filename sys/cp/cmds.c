@@ -132,7 +132,8 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int
 		}
 
 		/* doesn't match */
-		if (match_len != strnlen(t[i].name, CP_CMD_MAX_LEN))
+		if ((match_len != strnlen(t[i].name, CP_CMD_MAX_LEN)) ||
+		    (!isspace(*inp) && *inp))
 			continue;
 
 		/*
