@@ -110,9 +110,12 @@ static int d3390_read(struct device *dev, u8 *buf, int lba)
 	int rpt = dev->eckd.recs;
 	int rpc = dev->eckd.tracks * rpt;
 
+	if (lba < 1)
+		return -EINVAL;
+
 	cc = lba / rpc;
 	hh = (lba % rpc) / rpt;
-	r = 1 + ((lba % rpc) % rpt);
+	r = (lba % rpc) % rpt;
 
 	/*
 	 * Set up IO op
