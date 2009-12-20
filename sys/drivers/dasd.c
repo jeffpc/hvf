@@ -9,6 +9,24 @@ static int d3390_snprintf(struct device *dev, char* buf, int len)
 	return snprintf(buf, len, "%10d CYL ", dev->eckd.cyls);
 }
 
+static inline unsigned int ceil_quot(unsigned int d1, unsigned int d2)
+{
+        return (d1 + (d2 - 1)) / d2;
+}
+
+static inline int d3390_recs_per_track(int kl, int dl)
+{
+	int dn, kn;
+
+	dn = ceil_quot(dl + 6, 232) + 1;
+	if (kl) {
+		kn = ceil_quot(kl + 6, 232) + 1;
+		return 1729 / (10 + 9 + ceil_quot(kl + 6 * kn, 34) +
+			       9 + ceil_quot(dl + 6 * dn, 34));
+	} else
+		return 1729 / (10 + 9 + ceil_quot(dl + 6 * dn, 34));
+}
+
 static int d3390_reg(struct device *dev)
 {
 	struct io_op ioop;
@@ -54,6 +72,7 @@ static int d3390_reg(struct device *dev)
 		buf[13];
 	dev->eckd.tracks  = (buf[14] << 8) |
 		buf[15];
+	dev->eckd.recs    = d3390_recs_per_track(0, 4096);
 	dev->eckd.sectors = buf[16];
 	dev->eckd.len     = (buf[18] << 8) |
 		buf[19];
@@ -79,12 +98,88 @@ static int d3390_reg(struct device *dev)
 	return 0;
 }
 
+static int d3390_read(struct device *dev, u8 *buf, int lba)
+{
+	struct io_op ioop;
+	struct ccw ccw[4];
+	u8 seek_data[6];
+	u8 search_data[5];
+	int ret;
+
+	u16 cc, hh, r;
+	int rpt = dev->eckd.recs;
+	int rpc = dev->eckd.tracks * rpt;
+
+	cc = lba / rpc;
+	hh = (lba % rpc) / rpt;
+	r = 1 + ((lba % rpc) % rpt);
+
+	/*
+	 * Set up IO op
+	 */
+	ioop.handler = NULL;
+	ioop.dtor = NULL;
+
+	memset(&ioop.orb, 0, sizeof(struct orb));
+	ioop.orb.lpm = 0xff;
+	ioop.orb.addr = ADDR31(ccw);
+	ioop.orb.f = 1;
+
+	memset(ccw, 0, sizeof(ccw));
+
+	/* SEEK */
+	ccw[0].cmd = 0x07;
+	ccw[0].flags = CCW_FLAG_CC | CCW_FLAG_SLI;
+	ccw[0].count = 6;
+	ccw[0].addr = ADDR31(seek_data);
+
+	seek_data[0] = 0;		/* zero */
+	seek_data[1] = 0;		/* zero */
+	seek_data[2] = cc >> 8;		/* Cc */
+	seek_data[3] = cc & 0xff;	/* cC */
+	seek_data[4] = hh >> 8;		/* Hh */
+	seek_data[5] = hh & 0xff;	/* hH */
+
+	/* SEARCH */
+	ccw[1].cmd = 0x31;
+	ccw[1].flags = CCW_FLAG_CC | CCW_FLAG_SLI;
+	ccw[1].count = 5;
+	ccw[1].addr = ADDR31(search_data);
+
+	search_data[0] = cc >> 8;
+	search_data[1] = cc & 0xff;
+	search_data[2] = hh >> 8;
+	search_data[3] = hh & 0xff;
+	search_data[4] = r;
+
+	/* TIC */
+	ccw[2].cmd = 0x08;
+	ccw[2].flags = 0;
+	ccw[2].count = 0;
+	ccw[2].addr = ADDR31(&ccw[1]);
+
+	/* READ DATA */
+	ccw[3].cmd = 0x86;
+	ccw[3].flags = 0;
+	ccw[3].count = 4096;
+	ccw[3].addr = ADDR31(buf);
+
+	/*
+	 * issue IO
+	 */
+	ret = submit_io(dev, &ioop, CAN_SLEEP);
+	return ret;
+}
+
 static struct device_type d3390 = {
 	.types		= LIST_HEAD_INIT(d3390.types),
 	.reg		= d3390_reg,
 	.interrupt	= NULL,
 	.enable		= NULL,
 	.snprintf	= d3390_snprintf,
+
+	.read		= d3390_read,
+
 	.type		= 0x3390,
 	.all_models	= 1,
 };

@@ -45,6 +45,7 @@ struct device {
 			u16 cyls;	/* cylinders */
 			u16 tracks;	/* tracks per cylinder */
 			u16 len;	/* track length */
+			u16 recs;	/* number of records */
 			u8  sectors;	/* # sectors per track */
 			u8  formula;	/* capacity formula */
 			u16 f1,		/* factor f1 */
