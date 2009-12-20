@@ -19,6 +19,13 @@ typedef struct {
 			.queue_lock = SPIN_LOCK_UNLOCKED, \
 		}
 
+static inline void mutex_init(mutex_t *lock)
+{
+	atomic_set(&lock->state, 1);
+	INIT_LIST_HEAD(&lock->queue);
+	lock->queue_lock = SPIN_LOCK_UNLOCKED;
+}
+
 extern void __mutex_lock(mutex_t *lock);
 
 static inline void mutex_lock(mutex_t *lock)
