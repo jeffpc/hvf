@@ -9,6 +9,8 @@
 all:
 	make -C sys
 	make -C nss/8ball
+
+doc:
 	make -C doc/manual
 
 clean:
