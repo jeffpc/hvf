@@ -179,6 +179,8 @@ static int console_flusher(void *data)
 
 		submit_io(con->dev, &ioop, CAN_SLEEP);
 	}
+
+	return 0;
 }
 
 /**

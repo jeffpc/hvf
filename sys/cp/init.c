@@ -187,6 +187,8 @@ static int cp_init(void *data)
 		else
 			schedule();
 	}
+
+	return 0;
 }
 
 static void __con_attn(struct console *con)
