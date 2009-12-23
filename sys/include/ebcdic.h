@@ -10,11 +10,12 @@ extern u8 ebcdic2ascii_table[256];
 static inline void __translate(u8 *buf, int len, const u8 *table)
 {
 	asm volatile(
-		"	sr	%%r0,%%r0\n"		/* test byte = 0 */
+		"	sgr	%%r0,%%r0\n"		/* test byte = 0 */
 		"	la	%%r2,0(%0)\n"		/* buffer */
-		"	lr	%%r3,%2\n"		/* length */
+		"	lgr	%%r3,%2\n"		/* length */
 		"	la	%%r4,0(%1)\n"		/* table */
-		"	tre	%%r2,%%r4\n"
+		"0:	tre	%%r2,%%r4\n"
+		"	brc	1,0b\n"
 		: /* output */
 		: /* input */
 		  "a" (buf),
