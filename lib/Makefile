@@ -1,5 +1,5 @@
-CC=s390x-linux-gcc
-AR=s390x-linux-ar
+AS=$(CROSS_COMPILE)as
+CC=$(CROSS_COMPILE)gcc
 CFLAGS=-g -fno-strict-aliasing -fno-builtin -nostdlib -Wall -m64 -I ../include/ -include ../include/types.h -O2
 NUCLEUSCFLAGS=
 
