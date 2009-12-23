@@ -9,6 +9,8 @@
 #include <slab.h>
 #include <clock.h>
 #include <sched.h>
+#include <vsprintf.h>
+#include <stdarg.h>
 
 int vprintf(struct console *con, const char *fmt, va_list args)
 {
@@ -31,17 +33,6 @@ int vprintf(struct console *con, const char *fmt, va_list args)
 	}
 
 	return ret;
-}
-
-int snprintf(char *buf, int len, const char *fmt, ...)
-{
-	va_list args;
-
-	va_start(args, fmt);
-	len = vsnprintf(buf, len, fmt, args);
-	va_end(args);
-
-	return len;
 }
 
 int con_printf(struct console *con, const char *fmt, ...)

@@ -6,6 +6,7 @@
 #include <disassm.h>
 #include <cp.h>
 #include <cpu.h>
+#include <vsprintf.h>
 
 struct cpcmd {
 	const char name[CP_CMD_MAX_LEN];

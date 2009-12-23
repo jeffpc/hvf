@@ -1,4 +1,5 @@
 #include <disassm.h>
+#include <vsprintf.h>
 
 static struct disassm_instruction l2_01[256] = {	/* 01xx */
 	DA_INST		(0x01, E, PR),

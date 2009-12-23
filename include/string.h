@@ -1,6 +1,37 @@
 #ifndef __STRING_H
 #define __STRING_H
 
+#define memset(d,s,l)	__builtin_memset((d),(s),(l))
+#define memcpy(d,s,l)	__builtin_memcpy((d),(s),(l))
+#define memcmp(d,s,l)	__builtin_memcmp((d),(s),(l))
+extern size_t strnlen(const char *s, size_t count);
+extern int strcmp(const char *cs, const char *ct);
+#define strncmp(a,b,l)	__builtin_strncmp((a),(b),(l))
+extern int strcasecmp(const char *s1, const char *s2);
+extern char *strncpy(char *dest, const char *src, size_t count);
+
+static inline int toupper(int c)
+{
+       /*
+        * TODO: This would break if we ever tried to compile within an EBCDIC
+        * environment
+        */
+       if ((c >= 'a') && (c <= 'z'))
+               c += 'A'-'a';
+       return c;
+}
+
+static inline int tolower(int c)
+{
+       /*
+        * TODO: This would break if we ever tried to compile within an EBCDIC
+        * environment
+        */
+       if ((c >= 'A') && (c <= 'Z'))
+               c -= 'A'-'a';
+       return c;
+}
+
 /*
  * NOTE! This ctype does not handle EOF like the standard C
  * library is required to. (Taken from include/linux/ctype.h)
@@ -30,40 +61,5 @@ extern unsigned char _ascii_ctype[];
 #define isspace(c)      ((__ismask(c)&(_S)) != 0)
 #define isupper(c)      ((__ismask(c)&(_U)) != 0)
 #define isxdigit(c)     ((__ismask(c)&(_D|_X)) != 0)
-
-/*
- * string.h equivalents
- */
-#define memset(s,c,n)	__builtin_memset((s),(c),(n))
-#define memcmp(d,s,l)	__builtin_memcmp((d),(s),(l))
-#define memcpy(d,s,l)	__builtin_memcpy((d),(s),(l))
-extern size_t strnlen(const char *s, size_t count);
-extern int strcmp(const char *cs, const char *ct);
-extern int strncmp(const char *cs, const char *ct, int len);
-extern int strcasecmp(const char *s1, const char *s2);
-extern char *strncpy(char *dest, const char *src, size_t count);
-
-static inline unsigned char toupper(unsigned char c)
-{
-	/*
-	 * TODO: This would break if we ever tried to compile within an EBCDIC
-	 * environment
-	 */
-	if ((c >= 'a') && (c <= 'z'))
-		c += 'A'-'a';
-	return c;
-}
-
-static inline unsigned char tolower(unsigned char c)
-{
-	/*
-	 * TODO: This would break if we ever tried to compile within an EBCDIC
-	 * environment
-	 */
-	if ((c >= 'A') && (c <= 'Z'))
-		c -= 'A'-'a';
-	return c;
-}
-
 
 #endif

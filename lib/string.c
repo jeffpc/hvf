@@ -35,24 +35,7 @@ int strcmp(const char *cs, const char *ct)
 }
 
 /**
- * strncmp - Compare two strings
- * @cs: One string
- * @ct: Another string
- * @len: max length
- */
-int strncmp(const char *cs, const char *ct, int len)
-{
-	signed char __res;
-
-	while (1) {
-		if ((__res = *cs - *ct++) != 0 || !*cs++ || len--)
-			break;
-	}
-	return __res;
-}
-
-/**
- * strcmp - Compare two strings ignoring case
+ * strcasecmp - Compare two strings ignoring case
  * @s1: One string
  * @s2: Another string
  */
@@ -82,15 +65,15 @@ int strcasecmp(const char *s1, const char *s2)
  */
 char *strncpy(char *dest, const char *src, size_t count)
 {
-	char *tmp = dest;
+       char *tmp = dest;
 
-	while (count) {
-		if ((*tmp = *src) != 0)
-			src++;
-		tmp++;
-		count--;
-	}
-	return dest;
+       while (count) {
+               if ((*tmp = *src) != 0)
+                       src++;
+               tmp++;
+               count--;
+       }
+       return dest;
 }
 
 /* ASCII character info */

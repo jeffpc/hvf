@@ -1,1 +1,0 @@
-objs-lib := vsprintf.o

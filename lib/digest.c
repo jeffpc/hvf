@@ -6,6 +6,7 @@
  */
 
 #include <errno.h>
+#include <string.h>
 #include <digest.h>
 
 static void sha1_init(struct digest_ctx *ctx)

@@ -1,5 +1,6 @@
 #include <interrupt.h>
 #include <ebcdic.h>
+#include <vsprintf.h>
 
 static char abend_msg_buf[1024];
 

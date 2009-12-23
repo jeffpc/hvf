@@ -15,7 +15,7 @@ V=0
 DISPLAYVERSION=$(shell ./scripts/extract-version.sh)
 
 MAKEFLAGS += -rR --no-print-directory
-CFLAGS=-DVERSION=\"$(DISPLAYVERSION)\" -g -fno-strict-aliasing -fno-builtin -nostdinc -nostdlib -Wall -m64 -I include/ -I ../include/ -O2 -include ../include/types.h
+CFLAGS=-DVERSION=\"$(DISPLAYVERSION)\" -g -fno-strict-aliasing -fno-builtin -nostdlib -Wall -m64 -I include/ -I ../include/ -O2 -include ../include/types.h
 NUCLEUSCFLAGS=-include include/nucleus.h
 LDFLAGS=-m elf64_s390
 
@@ -24,7 +24,7 @@ LIBS=clock digest string
 export AS CC LD OBJCOPY
 export MAKEFLAGS CFLAGS NUCLEUSCFLAGS LDFLAGS
 
-TOP_DIRS=nucleus/ mm/ fs/ lib/ drivers/ cp/
+TOP_DIRS=nucleus/ mm/ fs/ drivers/ cp/
 
 .PHONY: all build clean mrproper cleanup hvfclean iplclean tags
 .PHONY: ipl/ $(TOP_DIRS)
@@ -45,7 +45,6 @@ clean:
 	@$(MAKE) DIR=nucleus/ cleanup V=$V
 	@$(MAKE) DIR=mm/ cleanup V=$V
 	@$(MAKE) DIR=fs/ cleanup V=$V
-	@$(MAKE) DIR=lib/ cleanup V=$V
 	@$(MAKE) DIR=drivers/ cleanup V=$V
 	@$(MAKE) DIR=cp/ cleanup V=$V
 	$(call clean,hvf)

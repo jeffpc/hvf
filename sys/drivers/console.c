@@ -3,6 +3,7 @@
 #include <sched.h>
 #include <directory.h>
 #include <splash.h>
+#include <vsprintf.h>
 
 /*
  * List of all consoles on the system

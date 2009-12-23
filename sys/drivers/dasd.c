@@ -3,6 +3,7 @@
 #include <list.h>
 #include <io.h>
 #include <sched.h>
+#include <vsprintf.h>
 
 static int d3390_snprintf(struct device *dev, char* buf, int len)
 {

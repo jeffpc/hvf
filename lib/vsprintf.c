@@ -2,7 +2,11 @@
  * A number of things found in this file were borrowed from the Linux Kernel
  */
 
-#include <page.h>
+#include <string.h>
+#include <stdarg.h>
+#include <vsprintf.h>
+
+#define unlikely(x)	(x)
 
 /*
  * The following constants should not be available to any users outside this
@@ -269,7 +273,7 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 
 			case 's':
 				s = va_arg(args, char *);
-				if ((unsigned long)s < PAGE_SIZE)
+				if ((unsigned long)s < VSPRINTF_PAGE_SIZE)
 					s = "<NULL>";
 
 				len = strnlen(s, precision);
@@ -387,3 +391,13 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 	return str-buf;
 }
 
+int snprintf(char *buf, int len, const char *fmt, ...)
+{
+	va_list args;
+
+	va_start(args, fmt);
+	len = vsnprintf(buf, len, fmt, args);
+	va_end(args);
+
+	return len;
+}

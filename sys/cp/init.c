@@ -11,6 +11,7 @@
 #include <vdevice.h>
 #include <cpu.h>
 #include <mutex.h>
+#include <vsprintf.h>
 
 /* This is used to con_printf to the operator about various async events -
  * e.g., user logon
