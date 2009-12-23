@@ -1,1 +1,1 @@
-objs-lib := string.o vsprintf.o clock.o digest.o
+objs-lib := string.o vsprintf.o digest.o

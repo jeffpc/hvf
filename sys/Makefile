@@ -15,9 +15,11 @@ V=0
 DISPLAYVERSION=$(shell ./scripts/extract-version.sh)
 
 MAKEFLAGS += -rR --no-print-directory
-CFLAGS=-DVERSION=\"$(DISPLAYVERSION)\" -g -fno-strict-aliasing -fno-builtin -nostdinc -nostdlib -Wall -m64 -I include/ -O2 -include ../include/types.h
+CFLAGS=-DVERSION=\"$(DISPLAYVERSION)\" -g -fno-strict-aliasing -fno-builtin -nostdinc -nostdlib -Wall -m64 -I include/ -I ../include/ -O2 -include ../include/types.h
 NUCLEUSCFLAGS=-include include/nucleus.h
 LDFLAGS=-m elf64_s390
+
+LIBS=clock
 
 export AS CC LD OBJCOPY
 export MAKEFLAGS CFLAGS NUCLEUSCFLAGS LDFLAGS
@@ -34,7 +36,7 @@ all: build hvf
 	@$(MAKE) ipl/ V=$V
 
 hvf: $(patsubst %/,%/built-in.o,$(TOP_DIRS))
-	$(call link-hvf,$^,$@)
+	$(call link-hvf,$^ $(patsubst %,../lib/%.a,$(LIBS)),$@)
 
 docs:
 	./scripts/gen-docs.sh

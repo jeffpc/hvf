@@ -89,7 +89,8 @@ struct datetime *parse_tod(struct datetime *dt, u64 tod)
 	}
 
 	/* The month should be 1 or 7! */
-	BUG_ON((dt->dm != 1) && (dt->dm != 7));
+	if ((dt->dm != 1) && (dt->dm != 7))
+		return NULL;
 
 	/*
 	 * At this point, we have a TOD value to add to a struct datetime.

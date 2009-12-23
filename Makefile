@@ -7,6 +7,7 @@
 #
 
 all:
+	make -C lib
 	make -C sys
 	make -C nss/8ball
 
@@ -14,6 +15,7 @@ doc:
 	make -C doc/manual
 
 clean:
+	make -C lib clean
 	make -C sys clean
 	make -C nss/8ball clean
 	make -C doc/manual clean
