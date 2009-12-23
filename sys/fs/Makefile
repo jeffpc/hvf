@@ -1,1 +1,1 @@
-objs-fs := bdev.o
+objs-fs := bdev.o edf.o
