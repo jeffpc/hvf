@@ -92,6 +92,7 @@ extern unsigned char _ascii_ctype[];
  * string.h equivalents
  */
 #define memset(s,c,n)	__builtin_memset((s),(c),(n))
+#define memcmp(d,s,l)	__builtin_memcmp((d),(s),(l))
 #define memcpy(d,s,l)	__builtin_memcpy((d),(s),(l))
 extern size_t strnlen(const char *s, size_t count);
 extern int strcmp(const char *cs, const char *ct);
