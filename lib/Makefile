@@ -1,24 +1,27 @@
 CC=s390x-linux-gcc
 AR=s390x-linux-ar
 CFLAGS=-g -fno-strict-aliasing -fno-builtin -nostdlib -Wall -m64 -I ../include/ -include ../include/types.h -O2
+NUCLEUSCFLAGS=
 
 LIBS=clock.a		\
      digest.a		\
      string.a
 
+include ../sys/scripts/Makefile.commands
+
 all: $(LIBS)
 
 clock.a: clock.o
-	$(AR) rc $@ $^
+	$(call ar,$@,$^)
 
 digest.a: digest.o
-	$(AR) rc $@ $^
+	$(call ar,$@,$^)
 
 string.a: string.o vsprintf.o
-	$(AR) rc $@ $^
+	$(call ar,$@,$^)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(call c-to-o,$<,$@)
 
 clean:
-	rm -f *.o *.a
+	$(call clean,*.o *.a)

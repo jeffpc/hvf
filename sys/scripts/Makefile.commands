@@ -1,3 +1,4 @@
+cmd-ar=$(AR) rc $(1) $(2)
 cmd-c-to-o=$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -c -o $(2) $(1)
 cmd-c-to-s=$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -S -o $(2) $(1)
 cmd-c-to-o-ipl=$(CC) $(CFLAGS) -DBLOCK_SIZE=$(3) -DBYTES_TO_READ=$(4) $(5) -c -o $(2) $(1)
@@ -17,6 +18,7 @@ cmd-cscope=cscope -R -b
 cmd-gendir=bash scripts/gen-dir.sh $(1) $(2)
 
 ifeq ($V,1)
+ar=$(cmd-ar)
 c-to-o=$(cmd-c-to-o)
 c-to-s=$(cmd-c-to-s)
 c-to-o-ipl=$(cmd-c-to-o-ipl)
@@ -35,6 +37,7 @@ rclean=$(cmd-rclean)
 cscope=$(cmd-cscope)
 gendir=$(cmd-gendir)
 else
+ar=@echo "  [AR]      $(1)"; $(cmd-ar)
 c-to-o=@echo "  [CC]      $(2)"; $(cmd-c-to-o)
 c-to-s=@echo "  [CC]      $(2)"; $(cmd-c-to-s)
 c-to-o-ipl=@echo "  [CC]      $(2)"; $(cmd-c-to-o-ipl)
