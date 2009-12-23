@@ -5,6 +5,7 @@
  * details.
  */
 
+#include <errno.h>
 #include <digest.h>
 
 static void sha1_init(struct digest_ctx *ctx)
@@ -63,7 +64,6 @@ static void __sha1_update(struct digest_ctx *ctx, u8 *data, u64 len, int final)
 			 * didn't have enough data to fill it in...so just
 			 * use KLMD on the internal buffer!
 			 */
-			BUG_ON(len);
 			data = ctx->sha1.buf;
 			len = ctx->sha1.buflen;
 		}
