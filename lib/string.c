@@ -2,6 +2,8 @@
  * Copyright (c) 2007,2008 Josef 'Jeff' Sipek
  */
 
+#include <string.h>
+
 /**
  * strnlen - Find the length of a length-limited string
  * @s: The string to be sized

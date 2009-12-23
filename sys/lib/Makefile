@@ -1,1 +1,1 @@
-objs-lib := string.o vsprintf.o
+objs-lib := vsprintf.o
