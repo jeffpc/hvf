@@ -277,10 +277,14 @@ void load_nucleus(void)
 	/*
 	 * These are all stored in registers
 	 */
+	register u32 iplsch;
 	register int i;
 	register Elf64_Ehdr *nucleus_elf;
 	register Elf64_Shdr *section;
-	register void (*start_sym)(u64);
+	register void (*start_sym)(u64,u32);
+
+	/* Save the IPL device subchannel id */
+	iplsch = *((u32*) 0xb8);
 
 	/*
 	 * Read entire ELF to temporary location
@@ -349,5 +353,5 @@ void load_nucleus(void)
 	 * Now, jump to the nucleus entry point
 	 */
 	start_sym = (void*) nucleus_elf->e_entry;
-	start_sym(sense_memsize());
+	start_sym(sense_memsize(), iplsch);
 }

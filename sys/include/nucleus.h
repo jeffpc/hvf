@@ -11,7 +11,7 @@ extern volatile u64 ticks;
 extern struct datetime ipltime;
 
 /* The beginning of it all... */
-extern void start(u64 __memsize);
+extern void start(u64 __memsize, u32 __iplsch);
 
 /* borrowed from Linux */
 #define container_of(ptr, type, member) ({                      \

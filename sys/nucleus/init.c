@@ -78,7 +78,7 @@ static void idle_task_body(void)
 /*
  * This is where everything starts
  */
-void start(u64 __memsize)
+void start(u64 __memsize, u32 __iplsch)
 {
 	u64 first_free_page;
 	u64 struct_page_bytes;
