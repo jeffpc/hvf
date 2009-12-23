@@ -7,6 +7,3 @@ hvf
 loader_rdr.bin
 loader_tape.bin
 cscope.out
-*.swp
-*.orig
-*.rej
