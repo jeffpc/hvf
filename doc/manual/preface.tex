@@ -2,42 +2,35 @@
 This document includes information about HVF user and developer interfaces,
 as well as some internal details.
 
-Chapter~\ref{chap:directory} describes the handling of the directory.
-Including the syntax of the directory file.
-
-Chapter~\ref{chap:commands} describes each CP command in detail.  Each
-command includes a syntax diagram, as well as other information such as
-purpose, notes, and examples.
-
-Chapter~\ref{chap:prog} describes the interfaces a developer can use to
-communicate with the hypervisor.
-
 \cbstart
-Chapter~\ref{chap:nss} describes the design of the Named Saved Segment (NSS)
-feature.  Additionally, it also describes the NSS supplied with HVF.
+Part~\ref{part:cp} describes the configuration, commands, and other
+details of the HVF control program.
+
+Part~\ref{part:supplied-nss} describes the supplied named saved segments;
+their usage, design, as well as any error conditions and codes.
+
+Part~\ref{part:appendices} describes any other potentially useful
+information that in not strictly related to any particular part of HVF.
 \cbend
-
-Chapter~\ref{chap:abi} describes HVF's internal ABI.
-
-Appendix~\ref{chap:license} includes a copy of the GNU General Public
-License (version 2) under which HVF is licensed.
 
 \cbstart
 \section*{Summary of Changes in Second Edition}
+Reorganized the entire manual into several parts, each with chapters.
+
 Updated various command descriptions to reflect new behaviors.
 
-Added a chapter describing the proposed NSS support (chapter~\ref{chap:nss}).
+Added a chapter describing the proposed NSS support (chapter~\ref{chap:cp-nss}).
 
 Expanded the Register Assignment section to detail the differences between
 C~code and assembly, and expanded the table to document floating point
-registers (section~\ref{sec:registers}).
+registers (appendix~\ref{sec:registers}).
 
-Added a section describing the s390 and s390x ABI Stack Frame Layouts
-(section~\ref{sec:stackframe}).
+Added an appendix describing the s390 and s390x ABI Stack Frame Layouts
+(appendix~\ref{sec:stackframe}).
 
 Expanded ELF file format description.  It now includes a verbal description
 of the ELF file format.  Additionally, the section header has been defined
-and described in detail (section~\ref{sec:elf}).
+and described in detail (appendix~\ref{sec:elf}).
 
 Fixed various spelling and clarity issues.
 \cbend

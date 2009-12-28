@@ -19,3 +19,5 @@ clean:
 	make -C sys clean
 	make -C nss/8ball clean
 	make -C doc/manual clean
+
+.PHONY: all doc clean
