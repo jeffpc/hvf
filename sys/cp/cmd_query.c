@@ -127,6 +127,24 @@ static int cmd_query_time(struct virt_sys *sys, char *cmd, int len)
 }
 
 /*
+ *!!! QUERY ARCHMODE
+ *!! SYNTAX
+ *! \tok{\sc Query} \tok{\sc ARCHMODE}
+ *!! XATNYS
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the virtual machine's current architecture mode.
+ */
+static int cmd_query_archmode(struct virt_sys *sys, char *cmd, int len)
+{
+	char *mode = (VCPU_ZARCH(sys->task->cpu)) ? "z/Arch" : "ESA390";
+
+	con_printf(sys->con, "ARCHMODE = %s\n", mode);
+
+	return 0;
+}
+
+/*
  *!!! QUERY VIRTUAL
  *!! SYNTAX
  *! \tok{\sc Query} \tok{\sc Virtual}
@@ -215,6 +233,8 @@ static int cmd_query_names(struct virt_sys *sys, char *cmd, int len)
 }
 
 static struct cpcmd cmd_tbl_query[] = {
+	{"ARCHMODE",	cmd_query_archmode,	NULL},
+
 	{"CPLEVEL",	cmd_query_cplevel,	NULL},
 
 	{"TIME",	cmd_query_time,		NULL},
