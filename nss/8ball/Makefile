@@ -1,6 +1,6 @@
-LD=s390x-linux-ld
-OBJCOPY=s390x-linux-objcopy
-AS=s390x-linux-as
+LD=$(CROSS_COMPILE)ld
+AS=$(CROSS_COMPILE)as
+OBJCOPY=$(CROSS_COMPILE)objcopy
 
 all:
 	$(AS) -o 8ball.o 8ball.S
