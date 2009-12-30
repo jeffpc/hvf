@@ -2,7 +2,7 @@
 # Copyright (c) 2007 Josef 'Jeff' Sipek
 #
 
-#include <loader.h>
+#include "loader.h"
 
 .text
 	.align	4
