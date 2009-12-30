@@ -94,7 +94,7 @@ BEGIN{
 mkdir -p doc/commands/txt
 mkdir -p doc/commands/html
 
-for srcf in cp/cmd_*.c ; do
+for srcf in shell/cmd_*.c ; do
 	echo "Inspecting $srcf..."
 	write_docs $srcf txt
 	write_docs $srcf html

@@ -24,7 +24,7 @@ LIBS=clock digest string
 export AS CC LD OBJCOPY
 export MAKEFLAGS CFLAGS NUCLEUSCFLAGS LDFLAGS
 
-TOP_DIRS=nucleus/ mm/ fs/ drivers/ cp/
+TOP_DIRS=nucleus/ mm/ fs/ drivers/ shell/
 
 .PHONY: all build clean mrproper cleanup hvfclean iplclean tags
 .PHONY: ipl/ $(TOP_DIRS)
@@ -46,10 +46,10 @@ clean:
 	@$(MAKE) DIR=mm/ cleanup V=$V
 	@$(MAKE) DIR=fs/ cleanup V=$V
 	@$(MAKE) DIR=drivers/ cleanup V=$V
-	@$(MAKE) DIR=cp/ cleanup V=$V
+	@$(MAKE) DIR=shell/ cleanup V=$V
 	$(call clean,hvf)
 	$(call clean,loader_*.bin ipl/*.o ipl/*.rto ipl/.*.o ipl/ipl_tape.S ipl/ipl_rdr_ccws.S)
-	$(call clean,cp/directory_structs.c)
+	$(call clean,shell/directory_structs.c)
 	$(call rclean,doc/commands)
 
 mrproper: clean
