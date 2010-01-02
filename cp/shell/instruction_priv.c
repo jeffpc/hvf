@@ -1,8 +1,8 @@
 #include <list.h>
 #include <sched.h>
-#include <cp.h>
 #include <vdevice.h>
 #include <vcpu.h>
+#include <shell.h>
 
 static int handle_msch(struct virt_sys *sys)
 {

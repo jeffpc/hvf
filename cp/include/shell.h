@@ -1,9 +1,9 @@
-#ifndef __CP_H
-#define __CP_H
+#ifndef __SHELL_H
+#define __SHELL_H
 
 #include <directory.h>
 
-#define CP_CMD_MAX_LEN	8
+#define SHELL_CMD_MAX_LEN	8
 
 /*
  * This file should contain only externally (from CP's point of view)
@@ -11,10 +11,10 @@
  */
 extern struct console *oper_con;
 
-extern void spawn_oper_cp(struct console *con);
-extern void spawn_user_cp(struct console *con, struct user *u);
-extern int invoke_cp_cmd(struct virt_sys *sys, char *cmd, int len);
-extern int invoke_cp_logon(struct console *con, char *cmd, int len);
+extern void spawn_oper_shell(struct console *con);
+extern void spawn_user_shell(struct console *con, struct user *u);
+extern int invoke_shell_cmd(struct virt_sys *sys, char *cmd, int len);
+extern int invoke_shell_logon(struct console *con, char *cmd, int len);
 
 extern void list_users(struct console *con, void (*f)(struct console *con,
 						      struct virt_sys *sys));
@@ -34,7 +34,7 @@ extern int handle_instruction_priv(struct virt_sys *sys);
 
 typedef int (*intercept_handler_t)(struct virt_sys *sys);
 
-#define CP_CMD_AUTH(s,a)	do { \
+#define SHELL_CMD_AUTH(s,a)	do { \
 					if ((s)->directory->auth > (a)) \
 						return -EPERM; \
 				} while(0)

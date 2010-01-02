@@ -239,7 +239,7 @@ static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
 	u32 *val;
 	int i;
 
-	CP_CMD_AUTH(sys, 'E');
+	SHELL_CMD_AUTH(sys, 'E');
 
 	val = (u32*) &sys->task->cpu->sie_cb;
 

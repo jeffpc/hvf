@@ -18,7 +18,7 @@ static int cmd_logon(struct virt_sys *data, char *cmd, int len)
 		return 0;
 	}
 
-	spawn_user_cp(con, u);
+	spawn_user_shell(con, u);
 	con_printf(oper_con, "%s %04X LOGON AS %-8s\n",
 		   type2name(con->dev->type), con->dev->ccuu, u->userid);
 

@@ -5,13 +5,13 @@
 #include <buddy.h>
 #include <slab.h>
 #include <dat.h>
-#include <cp.h>
 #include <clock.h>
 #include <ebcdic.h>
 #include <vdevice.h>
 #include <cpu.h>
 #include <mutex.h>
 #include <vsprintf.h>
+#include <shell.h>
 
 /* This is used to con_printf to the operator about various async events -
  * e.g., user logon
@@ -80,7 +80,7 @@ static void process_logon_cmd(struct console *con)
 	 * we got a command to process!
 	 */
 
-	ret = invoke_cp_logon(con, (char*) cmd, ret);
+	ret = invoke_shell_logon(con, (char*) cmd, ret);
 	if (!ret)
 		return;
 
@@ -107,7 +107,7 @@ static void process_cmd(struct virt_sys *sys)
 	/*
 	 * we got a command to process!
 	 */
-	ret = invoke_cp_cmd(sys, (char*) cmd, ret);
+	ret = invoke_shell_cmd(sys, (char*) cmd, ret);
 	switch (ret) {
 		case 0:
 			/* all fine */
@@ -130,7 +130,7 @@ static void process_cmd(struct virt_sys *sys)
 	}
 }
 
-static int cp_init(void *data)
+static int shell_init(void *data)
 {
 	struct virt_sys *sys = data;
 	struct virt_cpu *cpu;
@@ -219,7 +219,7 @@ static void __con_attn(struct console *con)
 	}
 }
 
-static int cp_con_attn(void *data)
+static int shell_con_attn(void *data)
 {
 	for(;;) {
 		schedule();
@@ -230,7 +230,7 @@ static int cp_con_attn(void *data)
 	return 0;
 }
 
-void spawn_oper_cp(struct console *con)
+void spawn_oper_shell(struct console *con)
 {
 	struct virt_sys *sys;
 
@@ -247,17 +247,17 @@ void spawn_oper_cp(struct console *con)
 
 	sys->print_ts = 1; /* print timestamps */
 
-	sys->task = create_task("OPERATOR-vcpu0", cp_init, sys);
+	sys->task = create_task("OPERATOR-vcpu0", shell_init, sys);
 	BUG_ON(IS_ERR(sys->task));
 
-	BUG_ON(IS_ERR(create_task("console-attn", cp_con_attn, NULL)));
+	BUG_ON(IS_ERR(create_task("console-attn", shell_con_attn, NULL)));
 
 	mutex_lock(&online_users_lock);
 	list_add_tail(&sys->online_users, &online_users);
 	mutex_unlock(&online_users_lock);
 }
 
-void spawn_user_cp(struct console *con, struct user *u)
+void spawn_user_shell(struct console *con, struct user *u)
 {
 	char tname[TASK_NAME_LEN+1];
 	struct virt_sys *sys;
@@ -289,7 +289,7 @@ void spawn_user_cp(struct console *con, struct user *u)
 	sys->print_ts = 1; /* print timestamps */
 
 	snprintf(tname, TASK_NAME_LEN, "%s-vcpu0", u->userid);
-	sys->task = create_task(tname, cp_init, sys);
+	sys->task = create_task(tname, shell_init, sys);
 	if (IS_ERR(sys->task))
 		goto err_free;
 

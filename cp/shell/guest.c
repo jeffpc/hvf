@@ -1,7 +1,7 @@
 #include <directory.h>
 #include <sched.h>
 #include <dat.h>
-#include <cp.h>
+#include <shell.h>
 
 /*
  * FIXME:

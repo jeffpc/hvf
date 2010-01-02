@@ -13,7 +13,7 @@
 #include <console.h>
 #include <interrupt.h>
 #include <magic.h>
-#include <cp.h>
+#include <shell.h>
 
 static struct psw new_io_psw = {
 	.ea	= 1,
@@ -193,7 +193,7 @@ void start(u64 __memsize, u32 __iplsch)
 		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
 		   ipltime.dm, ipltime.dd);
 
-	spawn_oper_cp(opcon);
+	spawn_oper_shell(opcon);
 
 	/*
 	 * THIS IS WHERE THE IDLE TASK BEGINS

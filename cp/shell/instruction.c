@@ -1,5 +1,5 @@
 #include <sched.h>
-#include <cp.h>
+#include <shell.h>
 
 static const intercept_handler_t instruction_funcs[256] = {
 	[0xb2] = handle_instruction_priv,	/* assorted priv. insts */

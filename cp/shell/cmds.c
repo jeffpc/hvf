@@ -4,12 +4,12 @@
 #include <mm.h>
 #include <sched.h>
 #include <disassm.h>
-#include <cp.h>
 #include <cpu.h>
 #include <vsprintf.h>
+#include <shell.h>
 
 struct cpcmd {
-	const char name[CP_CMD_MAX_LEN];
+	const char name[SHELL_CMD_MAX_LEN];
 
 	/* handle function pointer */
 	int (*fnx)(struct virt_sys *sys, char *cmd, int len);
@@ -118,7 +118,7 @@ static struct cpcmd logon_commands[] = {
 	{"",		NULL,			NULL},
 };
 
-static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int len)
+static int __invoke_shell_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int len)
 {
 	int i, ret;
 
@@ -133,7 +133,7 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int
 		}
 
 		/* doesn't match */
-		if ((match_len != strnlen(t[i].name, CP_CMD_MAX_LEN)) ||
+		if ((match_len != strnlen(t[i].name, SHELL_CMD_MAX_LEN)) ||
 		    (!isspace(*inp) && *inp))
 			continue;
 
@@ -149,7 +149,7 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int
 			match_len++;
 
 		if (t[i].sub) {
-			ret = __invoke_cp_cmd(t[i].sub, sys, cmd + match_len, len - match_len);
+			ret = __invoke_shell_cmd(t[i].sub, sys, cmd + match_len, len - match_len);
 			return (ret == -ENOENT) ? -ESUBENOENT : ret;
 		}
 
@@ -159,12 +159,12 @@ static int __invoke_cp_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int
 	return -ENOENT;
 }
 
-int invoke_cp_cmd(struct virt_sys *sys, char *cmd, int len)
+int invoke_shell_cmd(struct virt_sys *sys, char *cmd, int len)
 {
-	return __invoke_cp_cmd(commands, sys, cmd, len);
+	return __invoke_shell_cmd(commands, sys, cmd, len);
 }
 
-int invoke_cp_logon(struct console *con, char *cmd, int len)
+int invoke_shell_logon(struct console *con, char *cmd, int len)
 {
-	return __invoke_cp_cmd(logon_commands, (struct virt_sys*) con, cmd, len);
+	return __invoke_shell_cmd(logon_commands, (struct virt_sys*) con, cmd, len);
 }
