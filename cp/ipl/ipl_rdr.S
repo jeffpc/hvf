@@ -1,3 +1,10 @@
+/*
+ * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ *
+ * This file is released under the GPLv2.  See the COPYING file for more
+ * details.
+ */
+
 # During the system IPL, 24 bytes are read from the device.
 #
 # NOTE: zArch IPLs in ESA/390 mode.

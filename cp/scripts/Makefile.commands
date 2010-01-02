@@ -1,4 +1,10 @@
 cmd-ar=$(AR) rc $(1) $(2)
+#
+# (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+#
+# This file is released under the GPLv2.  See the COPYING file for more
+# details.
+#
 cmd-c-to-o=$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -c -o $(2) $(1)
 cmd-c-to-s=$(CC) $(CFLAGS) $(NUCLEUSCFLAGS) -S -o $(2) $(1)
 cmd-c-to-o-ipl=$(CC) $(CFLAGS) -DBLOCK_SIZE=$(3) -DBYTES_TO_READ=$(4) $(5) -c -o $(2) $(1)

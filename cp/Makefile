@@ -1,6 +1,11 @@
 #
 # HVF: Hobbyist Virtualization Facility
 #
+# (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+#
+# This file is released under the GPLv2.  See the COPYING file for more
+# details.
+#
 
 VERSION=0.16-rc2
 

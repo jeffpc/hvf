@@ -1,3 +1,10 @@
+/*
+ * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ *
+ * This file is released under the GPLv2.  See the COPYING file for more
+ * details.
+ */
+
 static char* parse_addrspec(u64 *val, u64 *len, char *s)
 {
 	u64 tmp;

@@ -1,3 +1,10 @@
+/*
+ * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ *
+ * This file is released under the GPLv2.  See the COPYING file for more
+ * details.
+ */
+
 #include <slab.h>
 #include <list.h>
 #include <vdevice.h>
