@@ -250,6 +250,8 @@ static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
 
 	val = (u32*) &sys->task->cpu->sie_cb;
 
+	con_printf(sys->con, "SIECB FOR %s AT %p\n",
+		   sys->directory->userid, val);
 	for(i=0; i<(sizeof(struct sie_cb)/sizeof(u32)); i+=4)
 		con_printf(sys->con, "%03lX  %08X %08X %08X %08X\n",
 			   i*sizeof(u32), val[i], val[i+1], val[i+2],
