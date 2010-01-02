@@ -1,0 +1,25 @@
+pre v0.15:
+  - bug #91
+  - bug #98
+
+pre v0.16:
+  - SIE
+    - virtualize devices (VDEV_DED)
+    - virtualize console (VDEV_CONS)
+    - virtualize spool (VDEV_SPOOL)
+    - virtualize minidisks (VDEV_MDISK)
+    - virtualize linked devices (VDEV_LINK)
+  - directory
+    - multiple users
+    - password
+    - virtual device info
+  - multi-console generic console layer
+    - have a queue with all consoles vs. have a thread per console?
+
+whenever:
+  - figure out how to make an aws tape
+  - build
+    - fix `make foo/bar.o` and `make foo/bar.s`
+  - DAT
+    - allow more than 2 GB of storage to be used
+    - check for FIXMEs related to <2GB memory usage
