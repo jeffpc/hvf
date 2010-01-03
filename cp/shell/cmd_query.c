@@ -239,6 +239,21 @@ static int cmd_query_names(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+/*
+ *!!! QUERY USERID
+ *!! SYNTAX
+ *! \tok{\sc Query} \tok{\sc USERID}
+ *!! XATNYS
+ *!! AUTH G
+ *!! PURPOSE
+ *! Displays the current user id.
+ */
+static int cmd_query_userid(struct virt_sys *sys, char *cmd, int len)
+{
+	con_printf(sys->con, "%s\n", sys->directory->userid);
+	return 0;
+}
+
 static struct cpcmd cmd_tbl_query[] = {
 	{"ARCHMODE",	cmd_query_archmode,	NULL},
 
@@ -264,5 +279,7 @@ static struct cpcmd cmd_tbl_query[] = {
 	{"NAM",		cmd_query_names,	NULL},
 
 	{"TASK",	cmd_query_task,		NULL},
+
+	{"USERID",	cmd_query_userid,	NULL},
 	{"",		NULL,			NULL},
 };
