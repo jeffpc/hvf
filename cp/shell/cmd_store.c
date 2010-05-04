@@ -240,8 +240,8 @@ static int cmd_store_ar(struct virt_sys *sys, char *cmd, int len)
  *! \item[hexword...]
  *!   \textbf{For an ESA/390 guest:}
  *!
- *!   Alters all or part of the PSW with the data specified in hexword1
- *!   and hexword2.  If only hexword2 is specified, it is stored to PSW bits
+ *!   Alters all or part of the PSW with the data specified in hexword3
+ *!   and hexword4.  If only hexword4 is specified, it is stored to PSW bits
  *!   32-63.  If hexword3 and hexword4 are specified, hexword3 is stored to
  *!   PSW bits 0-31, and hexword4 to PSW bits 32-63.
  *!
