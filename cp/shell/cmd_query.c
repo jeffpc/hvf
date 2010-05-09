@@ -175,25 +175,90 @@ static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+static void __cmd_query_real_cpus(struct virt_sys *sys)
+{
+	con_printf(sys->con, "CPU %02d  ID  %016llX RUNNING\n",
+		   getcpuaddr(),
+		   getcpuid());
+}
+
+static void __cmd_query_real_stor(struct virt_sys *sys)
+{
+	con_printf(sys->con, "STORAGE = %lluM\n", memsize >> 20);
+}
+
+enum {
+	QUERY_CPUS    = 1 << 0,
+	QUERY_STOR    = 1 << 1,
+	QUERY_DEVS    = 1 << 2,
+	QUERY_DEVNUM  = 1 << 3,
+};
+
 /*
  *!!! QUERY REAL
  *!! SYNTAX
  *! \tok{\sc Query} \tok{\sc Real}
+ *! \begin{stack}
+ *!   \\
+ *!   \tok{\sc\bf ALL} \\
+ *!   \tok{\sc CPUS} \\
+ *!   \tok{\sc STORage} \\
+ *!   <rdev>
+ *! \end{stack}
  *!! XATNYS
  *!! AUTH A
  *!! PURPOSE
- *! Lists all of the host's real devices
+ *! \cbstart
+ *! Lists the host's real devices, CPUs, and storage
+ *! \cbend
+ *!! NOTES
+ *! \cbstart
+ *! \item Specifying real device numbers is not supported at the moment.
+ *! Instead, use QUERY REAL ALL to display all devices attached to the
+ *! system.
+ *! \cbend
+ *!! SETON
  */
 static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
 {
+	int what = 0;
+	u64 devnum;
+
 	SHELL_CMD_AUTH(sys, 'A');
 
-	con_printf(sys->con, "CPU %02d  ID  %016llX RUNNING\n",
-		   getcpuaddr(),
-		   getcpuid());
-	con_printf(sys->con, "STORAGE = %lluM\n", memsize >> 20);
+	if (strnlen(cmd, len) == 0) {
+		what = QUERY_CPUS | QUERY_STOR | QUERY_DEVS;
+	} else if (!strcasecmp(cmd, "ALL")) {
+		what = QUERY_CPUS | QUERY_STOR | QUERY_DEVS;
+	} else if (!strcasecmp(cmd, "CPUS")) {
+		what = QUERY_CPUS;
+	} else if (!strcasecmp(cmd, "STOR") ||
+		   !strcasecmp(cmd, "STORA") ||
+		   !strcasecmp(cmd, "STORAG") ||
+		   !strcasecmp(cmd, "STORAGE")) {
+		what = QUERY_STOR;
+	} else {
+		cmd = __extract_hex(cmd, &devnum);
+		if (IS_ERR(cmd))
+			return PTR_ERR(cmd);
 
-	list_devices(sys->con, display_rdev);
+		/* sch number must be: X'0000____' */
+		if (devnum & ~0xffffull)
+			return -EINVAL;
+
+		what = QUERY_DEVNUM;
+	}
+
+	if (what & QUERY_CPUS)
+		__cmd_query_real_cpus(sys);
+
+	if (what & QUERY_STOR)
+		__cmd_query_real_stor(sys);
+
+	if (what & QUERY_DEVS)
+		list_devices(sys->con, display_rdev);
+	if (what & QUERY_DEVNUM)
+		con_printf(sys->con, "not implemented\n");
 
 	return 0;
 }
