@@ -29,7 +29,7 @@ static void __init_buddy_alloc(u64 base, int pages, int max_order,
 		INIT_LIST_HEAD(&orders[order]);
 
 		if (pages & (1 << order)) {
-			p = page_num_to_ptr(base >> PAGE_SHIFT);
+			p = addr_to_page(base);
 
 			list_add(&p->buddy, &orders[order]);
 
