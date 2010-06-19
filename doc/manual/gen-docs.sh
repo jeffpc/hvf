@@ -115,7 +115,7 @@ BEGIN{
 rm -f cp-cmd-list.tex
 mkdir -p tex/
 
-for srcf in ../../sys/cp/cmd_*.c ; do
+for srcf in ../../cp/shell/cmd_*.c ; do
 	echo "Inspecting $srcf..."
 	write_docs $srcf tex
 	#write_docs $srcf txt

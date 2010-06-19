@@ -1,4 +1,4 @@
 @TDF
-/home/jeffpc/hvf/sys/loader_tape.bin      FIXED RECSIZE 1024
-/home/jeffpc/hvf/sys/hvf                  FIXED RECSIZE 4096
+/home/jeffpc/hvf/cp/loader_tape.bin      FIXED RECSIZE 1024
+/home/jeffpc/hvf/cp/hvf                  FIXED RECSIZE 4096
 EOT

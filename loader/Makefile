@@ -5,7 +5,7 @@ LD=$(CROSS_COMPILE)ld
 CFLAGS=-g -fno-strict-aliasing -fno-builtin -nostdlib -Wall -m64 -I ../include/ -O2 -include ../include/types.h
 NUCLEUSCFLAGS=
 
-include ../sys/scripts/Makefile.commands
+include ../cp/scripts/Makefile.commands
 
 all: eckd.rto loader.rto
 

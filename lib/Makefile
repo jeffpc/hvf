@@ -7,7 +7,7 @@ LIBS=clock.a		\
      digest.a		\
      string.a
 
-include ../sys/scripts/Makefile.commands
+include ../cp/scripts/Makefile.commands
 
 all: $(LIBS)
 
