@@ -7,7 +7,7 @@
 # details.
 #
 
-VERSION=0.16-rc2
+VERSION=0.16-rc3
 
 AS=$(CROSS_COMPILE)as
 CC=$(CROSS_COMPILE)gcc
