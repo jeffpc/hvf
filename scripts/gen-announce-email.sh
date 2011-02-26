@@ -16,7 +16,7 @@ HVF <<REV>> is available for download.
 HVF is a hypervisor OS for z/Architecture systems.
 
 Tarballs:
-http://www.josefsipek.net/projects/hvf/src/
+http://hvf.31bits.net/src/
 
 Git repo:
 git://repo.or.cz/hvf.git
@@ -34,4 +34,4 @@ Changes since <<PREV_REV>>:
 DONE
 ) | sed -e "s/<<REV>>/$rev/g" -e "s/<<PREV_REV>>/$prev_rev/g"
 
-git-log --no-merges $prev_rev..$rev | git-shortlog
+git log --no-merges $prev_rev..$rev | git shortlog | cat
