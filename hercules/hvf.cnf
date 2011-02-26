@@ -31,7 +31,7 @@ LEGACYSENSEID   OFF           # Hercules shouldn't let us do Sense-ID on
 #---    ----    --------------------
 
 # Card Reader
-000C    3505    ../cp/loader_rdr.bin ../cp/hvf ebcdic multifile intrq
+000C    3505    ../installer/rdr.rto ../installer/loader.rto ebcdic multifile autopad intrq
 
 # Card Punch
 000D    3525    punch00d.txt ascii
