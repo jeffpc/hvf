@@ -24,14 +24,14 @@ CFLAGS=-DVERSION=\"$(DISPLAYVERSION)\" -g -fno-strict-aliasing -fno-builtin -nos
 NUCLEUSCFLAGS=-include include/nucleus.h
 LDFLAGS=-m elf64_s390
 
-LIBS=clock digest string
+LIBS=clock digest string ebcdic
 
 export AS CC LD OBJCOPY
 export MAKEFLAGS CFLAGS NUCLEUSCFLAGS LDFLAGS
 
 TOP_DIRS=nucleus/ mm/ fs/ drivers/ shell/
 
-.PHONY: all build clean mrproper cleanup hvfclean tags
+.PHONY: all build clean mrproper cleanup tags
 .PHONY: $(TOP_DIRS)
 
 include scripts/Makefile.commands

@@ -38,14 +38,7 @@ __do_io:
 /*
 7) Enable the PSW for I/O interrupts and go into wait state (you need bits 6, 12 & 14 set to 1 in the PSW : X'020A000000000000' is a good example)
 */
-	LA	%r3, RETURN(%r4)	# interrupt return address
-	#STG	%r1, WAITPSW+8(%r4)	
-
 	LPSWE	WAITPSW(%r4)
-
-RETURN:
-	SR	%r2, %r2	# return 0
-	BR	%r14		# Done, let's go back to C!
 
 #
 # The IO interrupt handler
@@ -63,11 +56,6 @@ IOHANDLER:
 
 	TSCH	IRB(%r4)
 
-	# check the SCSW.. If CE Only : LPSW Old I/O PSW
-	L	%r1, IRB+5(%r4)
-	NILL	%r1, 0x04
-	BC	8, IONOTDONE(%r4)	# not device end => LPSWE
-
 /*
 FIXME: we should do more checking!
 
@@ -76,8 +64,18 @@ FIXME: we should do more checking!
 13) If device end : I/O Completed.. Perform post I/O stuff (like advancing your pointers) and back to step 3
 */
 
-	# return to the "caller"
-	BR	%r3
+	# unit check? (end of media?)
+	L	%r1,IRB+5(%r4)
+	LA	%r0,0x02
+	NR	%r0,%r1
+	LA	%r2,1			# return 1 - end of medium
+	BCR	4,%r14			# unit chk => return
+
+	# check the SCSW.. If CE Only : LPSW Old I/O PSW
+	LA	%r0,0x04
+	NR	%r0,%r1
+	LA	%r2,0			# means IO done
+	BCR	4,%r14			# device end => return
 
 IONOTDONE:
 	LPSWE	0x170
