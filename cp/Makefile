@@ -31,7 +31,7 @@ export MAKEFLAGS CFLAGS NUCLEUSCFLAGS LDFLAGS
 
 TOP_DIRS=nucleus/ mm/ fs/ drivers/ shell/
 
-.PHONY: all build clean mrproper cleanup hvfclean iplclean tags
+.PHONY: all build clean mrproper cleanup tags
 .PHONY: ipl/ $(TOP_DIRS)
 
 include scripts/Makefile.commands
@@ -106,12 +106,12 @@ ipl/ipl_rdr_ccws.S: ipl/setmode.rto ipl/loader_rdr.rto
 ipl/loader_%.rto: ipl/loader_%.o
 	$(call objcopy-tdr,$<,$@)
 
-ipl/loader_tape.o: ipl/loader.c ipl/loader_asm.o hvf
-	$(call c-to-o-ipl,ipl/loader.c,ipl/loader_c_tape.o,4096,`stat -c %s hvf`,-DTAPE_SEEK)
+ipl/loader_tape.o: ipl/loader.c ipl/loader_asm.o
+	$(call c-to-o-ipl,ipl/loader.c,ipl/loader_c_tape.o,4096,-DTAPE_SEEK)
 	$(call link-ipl,ipl/loader_c_tape.o ipl/loader_asm.o,$@)
 
-ipl/loader_rdr.o: ipl/loader.c ipl/loader_asm.o hvf
-	$(call c-to-o-ipl,ipl/loader.c,ipl/loader_c_rdr.o,80,`stat -c %s hvf`,)
+ipl/loader_rdr.o: ipl/loader.c ipl/loader_asm.o
+	$(call c-to-o-ipl,ipl/loader.c,ipl/loader_c_rdr.o,80,)
 	$(call link-ipl,ipl/loader_c_rdr.o ipl/loader_asm.o,$@)
 
 ipl/%.rto: ipl/%.o

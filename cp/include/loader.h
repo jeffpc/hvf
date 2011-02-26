@@ -18,7 +18,7 @@ extern unsigned char ORB[32];
 /*
  * It is easier to write this thing in assembly...
  */
-extern void __do_io();
+extern int __do_io();
 extern void PGMHANDLER();
 
 extern void load_nucleus(void);

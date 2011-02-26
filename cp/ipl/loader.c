@@ -5,14 +5,6 @@
  * details.
  */
 
-#ifndef BYTES_TO_READ
-#error missing BYTES_TO_READ
-#endif
-
-#if BYTES_TO_READ > 0x300000
-#error The nucleus size is limited to 3MB
-#endif
-
 #ifndef BLOCK_SIZE
 #error missing BLOCK_SIZE
 #endif
@@ -251,7 +243,8 @@ static inline void readnucleus(void)
 	/*
 	 * Seek to the next tape mark
 	 */
-	__do_io();
+	if (__do_io())
+		die();
 #endif
 
 	/*
@@ -265,13 +258,12 @@ static inline void readnucleus(void)
 	read_ccw[7] = ((unsigned char) (BLOCK_SIZE & 0xff));
 
 	base = (unsigned long) TEMP_BASE;
-	for( ;
-	    (base - (unsigned long)TEMP_BASE) < BYTES_TO_READ;
-	    base += BLOCK_SIZE) {
+	for(;; base += BLOCK_SIZE) {
 		read_ccw[1] = ((unsigned char) (base >> 16));
 		read_ccw[2] = ((unsigned char) (base >> 8) & 0xff);
 		read_ccw[3] = ((unsigned char) (base & 0xff));
-		__do_io();
+		if (__do_io())
+			break;
 	}
 }
 
