@@ -13,6 +13,7 @@ all: rdr.rto loader.rto
 clean:
 	rm -f *.o
 	rm -f *.rto
+	rm -f rdr.S
 
 loader.o: setmode.o loader_c.o loader_asm.o cpio.o
 	$(call link-ipl,$^ $(patsubst %,../lib/%.a,$(LIBS)),$@)
