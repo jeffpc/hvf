@@ -117,6 +117,12 @@ static char *data_ccw =
 "	.byte	0x02, 0x%02X, 0x%02X, 0x%02X\n"
 "	.byte	0x%02X, 0x00, 0x00, 0x50\n";
 
+static char *pad_ccw =
+"\n"
+"# PAD-CCW %d\n"
+"	.byte	0x00, 0x00, 0x00, 0x00\n"
+"	.byte	0x00, 0x00, 0x00, 0x00\n";
+
 #define ADDR(x)		(((x)[0]<<16) | \
 			 ((x)[1]<<8)  | \
 			 ((x)[2]))
@@ -217,8 +223,11 @@ int main(int argc, char **argv)
 	i = 0;
 	j = 1;
 	while(1) {
-		if (i % 10 == 1)
+		if (i % 10 == 1) {
+			if (j>data_cards)
+				break;
 			printf(card_head, card++);
+		}
 
 		if (i == 0) {
 			printf(psw_tail, ADDR(ccw_addr), ADDRS(ccw_addr), CHAIN,
@@ -231,9 +240,9 @@ int main(int argc, char **argv)
 			       (j == data_cards) ? 0 : CHAIN);
 			__add(addr, 80);
 			j++;
-
-			if (j>data_cards)
-				break;
+		} else {
+			printf(pad_ccw, j-data_cards);
+			j++;
 		}
 
 		__add(ccw_addr, 80);
