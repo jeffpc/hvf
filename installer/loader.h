@@ -183,6 +183,9 @@ struct schib {
 
 #define ADDR31(x)	((u32) (u64) (x))
 
+extern void wto(char *str);
+extern void wtor(char *str, char *inp, int buflen);
+
 extern int __do_io(u32 sch);
 extern void __wait_for_attn();
 extern void PGMHANDLER();
@@ -191,6 +194,10 @@ extern void IOHANDLER();
 extern void load_nucleus(void);
 
 extern struct orb ORB;
+
+extern u64 ipl_sch;
+extern u64 con_sch;
+extern u64 dasd_sch;
 
 static inline int store_sch(u32 sch, struct schib *schib)
 {

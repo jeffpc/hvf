@@ -27,9 +27,9 @@ static u64 pgm_new_psw[2] = {
 	0x0000000180000000ULL, (u64) &PGMHANDLER,
 };
 
-static u64 ipl_sch;
-static u64 con_sch;
-static u64 dasd_sch;
+u64 ipl_sch;
+u64 con_sch;
+u64 dasd_sch;
 
 #if 0
 static void read_blk(void *ptr, u32 lba)
