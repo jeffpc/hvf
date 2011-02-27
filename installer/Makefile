@@ -15,7 +15,7 @@ clean:
 	rm -f *.o
 	rm -f *.rto
 
-loader.o: setmode.o loader_c.o loader_asm.o
+loader.o: setmode.o loader_c.o loader_asm.o cpio.o
 	$(call link-ipl,$^ $(patsubst %,../lib/%.a,$(LIBS)),$@)
 
 %.o: %.c

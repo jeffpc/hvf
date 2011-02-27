@@ -1,17 +1,5 @@
-#include <stdio.h>
+#include "loader.h"
 #include <string.h>
-
-typedef unsigned long long u64;
-typedef signed long long s64;
-
-typedef unsigned int u32;
-typedef signed int s32;
-
-typedef unsigned short u16;
-typedef signed short s16;
-
-typedef unsigned char u8;
-typedef signed char s8;
 
 struct cpio_hdr {
 	u8	magic[6];
@@ -35,7 +23,7 @@ struct table {
 	int	text;
 };
 
-struct table table[] = {
+static struct table table[] = {
 	{"HVF     ", "DIRECT  ", 80, 1},
 	{"SYSTEM  ", "CONFIG  ", 80, 1},
 	{""        , ""        , -1, -1},
@@ -51,17 +39,13 @@ static u32 getnumber(u8 *data, int digits)
 	return ret;
 }
 
-void readcard(u8 *buf)
+static void readcard(u8 *buf)
 {
-	int i;
-
-	for(i=0; i<80; i++)
-		buf[i] = getchar();
 }
 
-u8 dasd_buf[1024 * 1024];
 void load()
 {
+	u8 *dasd_buf = TEMP_BASE;
 	struct cpio_hdr *hdr = (void*) dasd_buf;
 	int fill;
 
@@ -88,7 +72,7 @@ void load()
 		    !strncmp("TRAILER!!!", (char*) hdr->data, 10))
 			break;
 
-		printf("processing '%s' of %u bytes\n", hdr->data, filesize);
+		//printf("processing '%s' of %u bytes\n", hdr->data, filesize);
 
 		// FIXME: save the filename
 
@@ -101,16 +85,11 @@ void load()
 			fill += 80;
 		}
 
-		printf("write %u bytes to dasd\n", filesize);
+		//printf("write %u bytes to dasd\n", filesize);
 
 		// FIXME: do dasd io
 
 		fill -= filesize;
 		memmove(dasd_buf, dasd_buf + filesize, fill);
 	}
-}
-
-void main()
-{
-	load();
 }
