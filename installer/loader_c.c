@@ -47,6 +47,7 @@ static u64 pgm_new_psw[2] = {
 	0x0000000180000000ULL, (u64) &PGMHANDLER,
 };
 
+static u64 ipl_sch;
 static u64 con_sch;
 static u64 dasd_sch;
 
@@ -335,6 +336,9 @@ static void init_io(void)
 void load_nucleus(void)
 {
 	char inp[160];
+
+	/* Save the IPL device subchannel id */
+	ipl_sch = *((u32*) 0xb8);
 
 	memcpy((void*) 0x1d0, pgm_new_psw_diswait, 16);
 	memcpy((void*) 0x1f0, io_new_psw, 16);
