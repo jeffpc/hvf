@@ -15,26 +15,6 @@ extern struct orb ORB;
 static u8 *buf = (u8*) (16 * 1024);
 static u32 *ptrbuf = (u32*) (20 * 1024);
 
-/*
- * halt the cpu
- *
- * NOTE: we don't care about not clobbering registers as when this
- * code executes, the CPU will be stopped.
- */
-static inline void die(void)
-{
-	asm volatile(
-		"SR	%r1, %r1	# not used, but should be zero\n"
-		"SR	%r3, %r3 	# CPU Address\n"
-		"SIGP	%r1, %r3, 0x05	# Signal, order 0x05\n"
-	);
-
-	/*
-	 * Just in case SIGP fails
-	 */
-	for(;;);
-}
-
 static u64 pgm_new_psw_diswait[2] = {
 	0x0002000180000000ULL, 0,
 };
