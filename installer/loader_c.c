@@ -375,19 +375,17 @@ void load_nucleus(void)
 		wto("Formatting skipped.\n");
 
 	/*
-	 * FIXME: read entire archive to temporary location
+	 * read through the archive and decide what to do with each file
 	 */
-	//read_archive();
-
-	/*
-	 * FIXME: start going though the archive, deciding what to do with
-	 * each file
-	 */
+	unload_archive();
 
 	/*
 	 * FIXME: inform the user that we're done, and load a psw with the
 	 * right magic
 	 */
+
+	wto("\nInstallation complete.\n");
+	wto("You can now IPL from the DASD.\n");
 
 	for(;;);
 	die();

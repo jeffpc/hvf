@@ -247,6 +247,8 @@ static inline int modify_sch(u32 sch, struct schib *schib)
 	return 0;
 }
 
+extern void unload_archive(void);
+
 /*
  * EDF related structs & macros
  */

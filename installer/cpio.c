@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2007-2011 Josef 'Jeff' Sipek
+ */
 #include "loader.h"
 #include <string.h>
 
@@ -17,6 +20,7 @@ struct cpio_hdr {
 };
 
 struct table {
+	char	*arch;
 	char	fn[8];
 	char	ft[8];
 	int	lrecl;
@@ -24,10 +28,14 @@ struct table {
 };
 
 static struct table table[] = {
-	{"HVF     ", "DIRECT  ", 80, 1},
-	{"SYSTEM  ", "CONFIG  ", 80, 1},
-	{""        , ""        , -1, -1},
+	{"hvf.direct",	"HVF     ", "DIRECT  ", 80, 1},
+	{"hvf.config",	"SYSTEM  ", "CONFIG  ", 80, 1},
+	{"",		""        , ""        , -1, -1},
 };
+
+static void save_file(struct table *te, int filesize, u8 *buf)
+{
+}
 
 static u32 getnumber(u8 *data, int digits)
 {
@@ -41,16 +49,36 @@ static u32 getnumber(u8 *data, int digits)
 
 static void readcard(u8 *buf)
 {
+	int ret;
+	struct ccw ccw;
+
+	ccw.cmd   = 0x02;
+	ccw.flags = 0;
+	ccw.count = 80;
+	ccw.addr  = ADDR31(buf);
+
+	ORB.param = 0x12345678,
+	ORB.f     = 1,
+	ORB.lpm   = 0xff,
+	ORB.addr  = ADDR31(&ccw);
+
+	ret = __do_io(ipl_sch);
+	if (ret)
+		die();
 }
 
-void load()
+void unload_archive(void)
 {
 	u8 *dasd_buf = TEMP_BASE;
 	struct cpio_hdr *hdr = (void*) dasd_buf;
+	int save;
 	int fill;
+	int i;
 
 	u32 filesize;
 	u32 namesize;
+
+	wto("\n");
 
 	fill = 0;
 	while(1) {
@@ -72,9 +100,25 @@ void load()
 		    !strncmp("TRAILER!!!", (char*) hdr->data, 10))
 			break;
 
-		//printf("processing '%s' of %u bytes\n", hdr->data, filesize);
+		save = 0;
+		for(i=0; table[i].lrecl != -1; i++) {
+			if (!strcmp((char*) hdr->data, table[i].arch)) {
+				save = 1;
+				break;
+			}
+		}
 
-		// FIXME: save the filename
+		if (save) {
+			wto("processing '");
+			wto((char*) hdr->data);
+			wto("' => '");
+			wto(table[i].fn);
+			wto("'\n");
+		} else {
+			wto("skipping   '");
+			wto((char*) hdr->data);
+			wto("'\n");
+		}
 
 		fill -= (sizeof(struct cpio_hdr) + namesize);
 		memmove(hdr, hdr->data + namesize, fill);
@@ -85,9 +129,8 @@ void load()
 			fill += 80;
 		}
 
-		//printf("write %u bytes to dasd\n", filesize);
-
-		// FIXME: do dasd io
+		if (save)
+			save_file(&table[i], filesize, dasd_buf);
 
 		fill -= filesize;
 		memmove(dasd_buf, dasd_buf + filesize, fill);
