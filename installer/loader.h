@@ -6,7 +6,7 @@
 /*
  * "Config" values
  */
-#define TEMP_BASE	((unsigned char*) 0x100000) /* 1MB */
+#define TEMP_BASE	((unsigned char*) 0x200000) /* 2MB */
 
 #define CON_DEVNUM	0x0009
 
