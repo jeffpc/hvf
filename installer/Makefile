@@ -9,7 +9,6 @@ LIBS=string ebcdic
 include ../cp/scripts/Makefile.commands
 
 all: rdr.rto loader.rto
-	./check.sh
 
 clean:
 	rm -f *.o
@@ -17,6 +16,9 @@ clean:
 
 loader.o: setmode.o loader_c.o loader_asm.o cpio.o
 	$(call link-ipl,$^ $(patsubst %,../lib/%.a,$(LIBS)),$@)
+
+rdr.S: loader.rto
+	../build/ccw_gen 00080000 80100000 `stat -c %s $<` 100000 080000 > $@
 
 %.o: %.c
 	$(call c-to-o,$<,$@)
