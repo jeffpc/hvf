@@ -185,6 +185,7 @@ struct schib {
 
 extern void wto(char *str);
 extern void wtor(char *str, char *inp, int buflen);
+extern void read_blk(void *ptr, u32 lba);
 
 extern int __do_io(u32 sch);
 extern void __wait_for_attn();
@@ -326,5 +327,8 @@ struct FST {
 
 extern void init_malloc(void *ptr);
 extern void *malloc(u32 size);
+
+extern void mount_fs();
+extern int find_file(char *fn, char *ft, struct FST *fst);
 
 #endif

@@ -30,11 +30,22 @@ struct table {
 static struct table table[] = {
 	{"hvf.direct",	"HVF     ", "DIRECT  ", 80, 1},
 	{"hvf.config",	"SYSTEM  ", "CONFIG  ", 80, 1},
+//	{"hvf.elf",	"HVF     ", "ELF     ", 4096, 0},
 	{"",		""        , ""        , -1, -1},
 };
 
 static void save_file(struct table *te, int filesize, u8 *buf)
 {
+	struct FST fst;
+	int ret;
+
+	ret = find_file(te->fn, te->ft, &fst);
+	if (!ret) {
+		wto("File '");
+		wto(te->fn);
+		wto("' already exists on the device.\n");
+		die();
+	}
 }
 
 static u32 getnumber(u8 *data, int digits)

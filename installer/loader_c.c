@@ -31,8 +31,7 @@ u64 ipl_sch;
 u64 con_sch;
 u64 dasd_sch;
 
-#if 0
-static void read_blk(void *ptr, u32 lba)
+void read_blk(void *ptr, u32 lba)
 {
 	struct ccw ccw[4];
 
@@ -91,61 +90,9 @@ static void read_blk(void *ptr, u32 lba)
 	/*
 	 * issue IO
 	 */
-	__do_io(dasd_sch);
+	if (__do_io(dasd_sch))
+		die();
 }
-
-/*
- * read the entire nucleus into TEMP_BASE
- */
-static inline void readnucleus(void)
-{
-	int i, found;
-	u32 nfst;
-
-	read_blk(buf, EDF_LABEL_BLOCK_NO);
-
-	if ((ADT->IDENT != __ADTIDENT) ||
-	    (ADT->DBSIZ != EDF_SUPPORTED_BLOCK_SIZE) ||
-	    (ADT->OFFST != 0) ||
-	    (ADT->FSTSZ != sizeof(struct FST)))
-		die();
-
-	nfst = ADT->NFST;
-
-	read_blk(buf, ADT->DOP);
-
-	if (FST->NLVL != 0)
-	       die(); // FIXME
-
-	for(i=0,found=0; i<nfst; i++) {
-		if ((!memcmp(FST[i].FNAME, CP_FN, 8)) &&
-		    (!memcmp(FST[i].FTYPE, CP_FT, 8))) {
-			memcpy(&fst, &FST[i], sizeof(struct FST));
-			found = 1;
-			break;
-		}
-	}
-
-	if (!found)
-		die();
-
-	if (fst.PTRSZ != 4 ||
-	    fst.LRECL != 4096 ||
-	    fst.RECFM != FSTDFIX)
-		die();
-
-	/* Don't allow more than 3MB to be read */
-	if ((FST->AIC * FST->LRECL) > (3ULL * 1024 * 1024))
-		die();
-
-	/* Since we're assuming that NLVL==1, there's only 1 pointer block */
-	read_blk(ptrbuf, fst.FOP);
-
-	/* Read all the blocks pointed to by the ptr block */
-	for(i=0; i<fst.AIC; i++)
-		read_blk(TEMP_BASE + (4096 * i), ptrbuf[i]);
-}
-#endif
 
 struct senseid_struct {
 	u8 __reserved;
@@ -370,7 +317,7 @@ void load_nucleus(void)
 		 * 2) setup EDF
 		 */
 
-		wto("done.\n");
+		wto("done. (Not yet implemented)\n");
 	} else
 		wto("Formatting skipped.\n");
 
@@ -378,6 +325,11 @@ void load_nucleus(void)
 	 * initialize the memory allocator
 	 */
 	init_malloc(TEMP_BASE);
+
+	/*
+	 * mount the EDF volume
+	 */
+	mount_fs();
 
 	/*
 	 * read through the archive and decide what to do with each file
