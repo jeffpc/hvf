@@ -233,7 +233,7 @@ int main(int argc, char **argv)
 			printf(psw_tail, ADDR(ccw_addr), ADDRS(ccw_addr), CHAIN,
 			       ADDR(ccw_addr), ADDRS(ccw_addr));
 			printf(pad);
-		} else if (i<(data_cards+9)/10) {
+		} else if (i<=(data_cards+9)/10) {
 			printf(cp_ccw, i+2, ADDRS(ccw_addr));
 		} else if (j<=data_cards) {
 			printf(data_ccw, j, ADDRS(addr),
