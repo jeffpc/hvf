@@ -324,4 +324,7 @@ struct FST {
 	u8    reserved[2];
 };
 
+extern void init_malloc(void *ptr);
+extern void *malloc(u32 size);
+
 #endif

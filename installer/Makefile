@@ -15,7 +15,7 @@ clean:
 	rm -f *.rto
 	rm -f rdr.S
 
-loader.o: setmode.o loader_c.o loader_asm.o cpio.o
+loader.o: setmode.o loader_c.o loader_asm.o cpio.o malloc.o
 	$(call link-ipl,$^ $(patsubst %,../lib/%.a,$(LIBS)),$@)
 
 rdr.S: loader.rto

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2011 Josef 'Jeff' Sipek
+ * Copyright (c) 2011 Josef 'Jeff' Sipek
  */
 #include "loader.h"
 #include <string.h>
@@ -69,14 +69,17 @@ static void readcard(u8 *buf)
 
 void unload_archive(void)
 {
-	u8 *dasd_buf = TEMP_BASE;
-	struct cpio_hdr *hdr = (void*) dasd_buf;
+	struct cpio_hdr *hdr;
+	u8 *dasd_buf;
 	int save;
 	int fill;
 	int i;
 
 	u32 filesize;
 	u32 namesize;
+
+	dasd_buf = malloc(2*1024*1024);
+	hdr = (void*) dasd_buf;
 
 	wto("\n");
 

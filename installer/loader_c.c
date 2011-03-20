@@ -375,6 +375,11 @@ void load_nucleus(void)
 		wto("Formatting skipped.\n");
 
 	/*
+	 * initialize the memory allocator
+	 */
+	init_malloc(TEMP_BASE);
+
+	/*
 	 * read through the archive and decide what to do with each file
 	 */
 	unload_archive();
