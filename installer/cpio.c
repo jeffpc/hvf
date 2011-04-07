@@ -3,6 +3,7 @@
  */
 #include "loader.h"
 #include <string.h>
+#include <ebcdic.h>
 
 struct cpio_hdr {
 	u8	magic[6];
@@ -38,6 +39,7 @@ static void save_file(struct table *te, int filesize, u8 *buf)
 {
 	struct FST fst;
 	int ret;
+	int rec;
 
 	ret = find_file(te->fn, te->ft, &fst);
 	if (!ret) {
@@ -45,6 +47,34 @@ static void save_file(struct table *te, int filesize, u8 *buf)
 		wto(te->fn);
 		wto("' already exists on the device.\n");
 		die();
+	}
+
+	ret = create_file(te->fn, te->ft, te->lrecl, &fst);
+	if (ret) {
+		wto("Could not create file '");
+		wto(te->fn);
+		wto("'.\n");
+		die();
+	}
+
+	if (te->text)
+		ascii2ebcdic(buf, filesize);
+
+	for(rec=0; rec<(filesize/te->lrecl); rec++) {
+		char pbuf[100];
+		snprintf(pbuf, 100, "rec %03x at %p\n", rec,
+			 buf + (rec * te->lrecl));
+		wto(pbuf);
+		append_record(&fst, buf + (rec * te->lrecl));
+	}
+
+	if (filesize % te->lrecl) {
+		u8 buf2[te->lrecl];
+
+		memset(buf2, 0, te->lrecl);
+		memcpy(buf2, buf + (rec * te->lrecl), te->lrecl);
+
+		append_record(&fst, buf2);
 	}
 }
 

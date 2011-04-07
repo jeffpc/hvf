@@ -26,7 +26,8 @@ struct block_map {
 };
 
 static union adt_u *adt;
-static struct FST directory;
+static struct FST *directory;
+static struct FST *allocmap;
 
 static LIST_HEAD(block_map);
 
@@ -122,10 +123,10 @@ int find_file(char *fn, char *ft, struct FST *fst)
 	ascii2ebcdic(FN, 8);
 	ascii2ebcdic(FT, 8);
 
-	for(blk=0; blk<directory.ADBC; blk++) {
+	for(blk=0; blk<directory->ADBC; blk++) {
 		FST = read_file_blk(DIRECTOR_FN, DIRECTOR_FT, 0, blk);
 
-		for(rec=0; rec<(adt->adt.DBSIZ / directory.LRECL); rec++) {
+		for(rec=0; rec<adt->adt.NFST; rec++) {
 			if ((!memcmp(FST[rec].FNAME, FN, 8)) &&
 			    (!memcmp(FST[rec].FTYPE, FT, 8))) {
 				memcpy(fst, &FST[rec], sizeof(struct FST));
@@ -135,6 +136,27 @@ int find_file(char *fn, char *ft, struct FST *fst)
 	}
 
 	return -1;
+}
+
+static void update_directory(struct FST *fst)
+{
+	struct FST *FST;
+	int rec;
+	int blk;
+
+	for(blk=0; blk<directory->ADBC; blk++) {
+		FST = read_file_blk(DIRECTOR_FN, DIRECTOR_FT, 0, blk);
+
+		for(rec=0; rec<adt->adt.NFST; rec++) {
+			if ((!memcmp(FST[rec].FNAME, fst->FNAME, 8)) &&
+			    (!memcmp(FST[rec].FTYPE, fst->FTYPE, 8))) {
+				memcpy(&FST[rec], fst, sizeof(struct FST));
+				return;
+			}
+		}
+	}
+
+	die();
 }
 
 static int file_blocks_at_level(u32 ADBC, int level)
@@ -153,14 +175,14 @@ static int file_blocks_at_level(u32 ADBC, int level)
 
 static void __read_file(struct FST *fst)
 {
-	const u32 ptrs_per_block = adt->adt.DBSIZ / 4;
+	const u32 ptrs_per_block = adt->adt.DBSIZ / fst->PTRSZ;
 	u32 *blk_ptrs;
 	int level;
 
 	int blocks;
 	int i,j;
 
-	if (!fst[0].NLVL) {
+	if (!fst->NLVL) {
 		block_map_add(fst->FNAME, fst->FTYPE, 0, 0, fst->FOP);
 		return;
 	}
@@ -197,6 +219,133 @@ static void __read_file(struct FST *fst)
 	}
 }
 
+int create_file(char *fn, char *ft, int lrecl, struct FST *fst)
+{
+	struct FST *dir;
+	u32 blk;
+	u32 off;
+
+	/* first, fill in the FST */
+	memset(fst, 0, sizeof(struct FST));
+
+	memcpy(fst->FNAME, fn, 8);
+	memcpy(fst->FTYPE, ft, 8);
+
+	ascii2ebcdic(fst->FNAME, 8);
+	ascii2ebcdic(fst->FTYPE, 8);
+
+	fst->FMODE[0] = '\xc1'; // EBCDIC 'A'
+	fst->FMODE[1] = '\xf1'; // EBCDIC '1'
+	fst->RECFM    = FSTDFIX; // fixed record size
+	fst->LRECL    = lrecl;
+	fst->PTRSZ    = 4;
+
+	/* now, find a free spot in the directory */
+	blk = directory->AIC / adt->adt.NFST;
+	off = directory->AIC % adt->adt.NFST;
+
+	if (!off) {
+		// FIXME: add a block to the directory
+		die();
+	}
+
+	dir = read_file_blk(DIRECTOR_FN, DIRECTOR_FT, 0, blk);
+	if (dir[off].FNAME[0])
+		die();
+
+	memcpy(&dir[off], fst, sizeof(struct FST));
+	directory->AIC++;
+
+	return 0;
+}
+
+u8 bad[300] = {1,};
+
+static u32 __get_free_block()
+{
+	u32 blk;
+	u8 *buf;
+	u32 i;
+	u32 bit;
+
+	for(blk=0; blk<allocmap->ADBC; blk++) {
+		buf = read_file_blk(allocmap->FNAME, allocmap->FTYPE, 0, blk);
+
+		for(i=0; i<adt->adt.DBSIZ; i++) {
+			if (buf[i] == 0xff)
+				continue;
+
+			if ((buf[i] & ~0x01) == 0) bit = 7;
+			if ((buf[i] & ~0x02) == 0) bit = 6;
+			if ((buf[i] & ~0x04) == 0) bit = 5;
+			if ((buf[i] & ~0x08) == 0) bit = 4;
+			if ((buf[i] & ~0x10) == 0) bit = 3;
+			if ((buf[i] & ~0x20) == 0) bit = 2;
+			if ((buf[i] & ~0x40) == 0) bit = 1;
+			if ((buf[i] & ~0x80) == 0) bit = 0;
+
+			return ((blk * adt->adt.DBSIZ * 8) + bit) + 1;
+		}
+	}
+
+	die();
+	return 0;
+}
+
+static void __append_block(struct FST *fst)
+{
+	/* no data blocks yet */
+	if (!fst->ADBC) {
+		fst->ADBC = 1;
+		fst->NLVL = 0;
+		fst->FOP  = __get_free_block();
+
+		block_map_add(fst->FNAME, fst->FTYPE, 0, 0, fst->FOP);
+		return;
+	}
+
+	// FIXME
+	die();
+}
+
+void append_record(struct FST *fst, u8 *buf)
+{
+	u32 foff;
+	u32 blk;
+	u32 off;
+	u32 rem;
+
+	u8 *dbuf;
+
+	if (fst->RECFM != FSTDFIX)
+		die();
+
+	foff = fst->AIC * fst->LRECL;
+
+	blk = foff / adt->adt.DBSIZ;
+	off = foff % adt->adt.DBSIZ;
+	rem = adt->adt.DBSIZ - off;
+
+	/* need to add another block */
+	if ((blk == fst->ADBC) || (rem < fst->LRECL))
+		__append_block(fst);
+
+	dbuf = read_file_blk(fst->FNAME, fst->FTYPE, 0, blk);
+
+	if (rem >= fst->LRECL) {
+		memcpy(dbuf + off, buf, fst->LRECL);
+	} else {
+		memcpy(dbuf + off, buf, rem);
+
+		dbuf = read_file_blk(fst->FNAME, fst->FTYPE, 0, blk+1);
+		memcpy(dbuf, buf + rem, fst->LRECL - rem);
+	}
+
+	fst->AIC++;
+
+	update_directory(fst);
+}
+
 void mount_fs()
 {
 	struct FST *fst;
@@ -223,7 +372,8 @@ void mount_fs()
 	    (fst[1].RECFM != FSTDFIX))
 		die();
 
-	memcpy(&directory, fst, sizeof(struct FST));
+	directory = fst;
+	allocmap  = fst+1;
 
 	__read_file(&fst[0]); /* the directory */
 	__read_file(&fst[1]); /* the alloc map */

@@ -318,6 +318,7 @@ void load_nucleus(void)
 		 */
 
 		wto("done. (Not yet implemented)\n");
+		die();
 	} else
 		wto("Formatting skipped.\n");
 
