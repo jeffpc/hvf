@@ -294,6 +294,11 @@ static u32 __get_free_block()
 
 static void __append_block(struct FST *fst)
 {
+	u32 *buf;
+	u32 lba, prevlba;
+	u32 blk;
+	u8 lvl;
+
 	/* no data blocks yet */
 	if (!fst->ADBC) {
 		fst->ADBC = 1;
@@ -301,6 +306,38 @@ static void __append_block(struct FST *fst)
 		fst->FOP  = __get_free_block();
 
 		block_map_add(fst->FNAME, fst->FTYPE, 0, 0, fst->FOP);
+		return;
+	}
+
+	/* need to add another level */
+	if (fst->ADBC == (file_blocks_at_level(fst->ADBC, fst->NLVL) *
+			  (adt->adt.DBSIZ / 4))) {
+		for(lvl=0; lvl<=fst->NLVL; lvl++, prevlba=lba) {
+			lba = __get_free_block();
+			blk = file_blocks_at_level(fst->ADBC+1, lvl);
+
+			block_map_add(fst->FNAME, fst->FTYPE, lvl, blk, lba);
+
+			if (!lvl)
+				continue;
+
+			buf = read_file_blk(fst->FNAME, fst->FTYPE, lvl, blk);
+
+			*buf = prevlba;
+		}
+
+		lba = __get_free_block();
+		block_map_add(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0, lba);
+
+		buf = read_file_blk(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0);
+
+		buf[0] = fst->FOP;
+		buf[1] = prevlba;
+
+		fst->FOP = lba;
+
+		fst->NLVL++;
+		fst->ADBC++;
 		return;
 	}
 
