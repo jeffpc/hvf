@@ -23,6 +23,9 @@ struct block_map {
 	/* value */
 	u32 lba;
 	void *buf;
+
+	/* dirty list */
+	int dirty;
 };
 
 static union adt_u *adt;
@@ -82,6 +85,7 @@ static void block_map_add(u8 *fn, u8 *ft, u8 level, u32 blk_no, u32 lba)
 
 	map->lba = lba;
 	map->buf = NULL;
+	map->dirty = 0;
 
 	list_add(&map->list, &block_map);
 }
@@ -104,6 +108,17 @@ static void *read_file_blk(u8 *fn, u8 *ft, u8 level, u32 blk)
 	read_blk(map->buf, map->lba);
 
 	return map->buf;
+}
+
+static void blk_set_dirty(u8 *fn, u8 *ft, u8 level, u32 blk)
+{
+	struct block_map *map;
+
+	map = block_map_find(fn, ft, level, blk);
+	if (!map || !map->buf)
+		die();
+
+	map->dirty = 1;
 }
 
 /*
@@ -151,6 +166,7 @@ static void update_directory(struct FST *fst)
 			if ((!memcmp(FST[rec].FNAME, fst->FNAME, 8)) &&
 			    (!memcmp(FST[rec].FTYPE, fst->FTYPE, 8))) {
 				memcpy(&FST[rec], fst, sizeof(struct FST));
+				blk_set_dirty(DIRECTOR_FN, DIRECTOR_FT, 0, blk);
 				return;
 			}
 		}
@@ -256,6 +272,9 @@ int create_file(char *fn, char *ft, int lrecl, struct FST *fst)
 	memcpy(&dir[off], fst, sizeof(struct FST));
 	directory->AIC++;
 
+	blk_set_dirty(DIRECTOR_FN, DIRECTOR_FT, 0, 0);
+	blk_set_dirty(DIRECTOR_FN, DIRECTOR_FT, 0, blk);
+
 	return 0;
 }
 
@@ -283,6 +302,8 @@ static u32 __get_free_block()
 			if ((buf[i] & ~0x20) == 0) bit = 2;
 			if ((buf[i] & ~0x40) == 0) bit = 1;
 			if ((buf[i] & ~0x80) == 0) bit = 0;
+
+			// FIXME: set the bit
 
 			return ((blk * adt->adt.DBSIZ * 8) + bit) + 1;
 		}
@@ -322,14 +343,17 @@ static void __append_block(struct FST *fst)
 				continue;
 
 			buf = read_file_blk(fst->FNAME, fst->FTYPE, lvl, blk);
+			blk_set_dirty(fst->FNAME, fst->FTYPE, lvl, blk);
 
 			*buf = prevlba;
+
 		}
 
 		lba = __get_free_block();
 		block_map_add(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0, lba);
 
 		buf = read_file_blk(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0);
+		blk_set_dirty(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0);
 
 		buf[0] = fst->FOP;
 		buf[1] = prevlba;
@@ -371,11 +395,14 @@ void append_record(struct FST *fst, u8 *buf)
 
 	if (rem >= fst->LRECL) {
 		memcpy(dbuf + off, buf, fst->LRECL);
+		blk_set_dirty(fst->FNAME, fst->FTYPE, 0, blk);
 	} else {
 		memcpy(dbuf + off, buf, rem);
+		blk_set_dirty(fst->FNAME, fst->FTYPE, 0, blk);
 
 		dbuf = read_file_blk(fst->FNAME, fst->FTYPE, 0, blk+1);
 		memcpy(dbuf, buf + rem, fst->LRECL - rem);
+		blk_set_dirty(fst->FNAME, fst->FTYPE, 0, blk+1);
 	}
 
 	fst->AIC++;
