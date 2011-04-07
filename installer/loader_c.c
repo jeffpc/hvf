@@ -31,7 +31,7 @@ u64 ipl_sch;
 u64 con_sch;
 u64 dasd_sch;
 
-void read_blk(void *ptr, u32 lba)
+void __readwrite_blk(void *ptr, u32 lba, int rwccw)
 {
 	struct ccw ccw[4];
 
@@ -81,8 +81,8 @@ void read_blk(void *ptr, u32 lba)
 	ccw[2].count = 0;
 	ccw[2].addr = ADDR31(&ccw[1]);
 
-	/* READ DATA */
-	ccw[3].cmd = 0x86;
+	/* READ/WRITE DATA */
+	ccw[3].cmd = rwccw;
 	ccw[3].flags = 0;
 	ccw[3].count = 4096;
 	ccw[3].addr = ADDR31(ptr);
@@ -336,6 +336,11 @@ void load_nucleus(void)
 	 * read through the archive and decide what to do with each file
 	 */
 	unload_archive();
+
+	/*
+	 * currently, we haven't written anything to disk; flush everything
+	 */
+	writeback_buffers();
 
 	/*
 	 * FIXME: inform the user that we're done, and load a psw with the

@@ -121,6 +121,24 @@ static void blk_set_dirty(u8 *fn, u8 *ft, u8 level, u32 blk)
 	map->dirty = 1;
 }
 
+void writeback_buffers()
+{
+	struct block_map *cur;
+	char buf[100];
+
+	list_for_each_entry(cur, &block_map, list) {
+		if (!cur->dirty)
+			continue;
+
+		if (!cur->buf)
+			die();
+
+		snprintf(buf, 100, "wb: %10d %p\n", cur->lba, cur->buf);
+		wto(buf);
+		write_blk(cur->buf, cur->lba);
+	}
+}
+
 /*
  * fills in *fst with existing file info and returns 0, or if file doesn't
  * exist, returns -1
@@ -278,7 +296,7 @@ int create_file(char *fn, char *ft, int lrecl, struct FST *fst)
 	return 0;
 }
 
-u8 bad[300] = {1,};
+//u8 bad[300] = {1,};
 
 static u32 __get_free_block()
 {
@@ -303,7 +321,9 @@ static u32 __get_free_block()
 			if ((buf[i] & ~0x40) == 0) bit = 1;
 			if ((buf[i] & ~0x80) == 0) bit = 0;
 
-			// FIXME: set the bit
+			buf[i] |= (0x80 >> bit);
+
+			blk_set_dirty(allocmap->FNAME, allocmap->FTYPE, 0, blk);
 
 			return ((blk * adt->adt.DBSIZ * 8) + bit) + 1;
 		}

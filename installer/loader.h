@@ -185,7 +185,9 @@ struct schib {
 
 extern void wto(char *str);
 extern void wtor(char *str, char *inp, int buflen);
-extern void read_blk(void *ptr, u32 lba);
+extern void __readwrite_blk(void *ptr, u32 lba, int rwccw);
+#define read_blk(ptr, lba)	__readwrite_blk((ptr), (lba), 0x86)
+#define write_blk(ptr, lba)	__readwrite_blk((ptr), (lba), 0x05)
 
 extern int __do_io(u32 sch);
 extern void __wait_for_attn();
@@ -330,5 +332,7 @@ extern void *malloc(u32 size);
 
 extern void mount_fs();
 extern int find_file(char *fn, char *ft, struct FST *fst);
+
+extern void writeback_buffers();
 
 #endif
