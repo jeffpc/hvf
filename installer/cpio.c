@@ -46,6 +46,7 @@ static void save_file(struct table *te, int filesize, u8 *buf)
 		wto("File '");
 		wto(te->fn);
 		wto("' already exists on the device.\n");
+		wto("The device has been left unmodified.\n");
 		die();
 	}
 
