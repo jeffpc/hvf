@@ -255,10 +255,6 @@ static void __read_file(struct FST *fst)
 
 int create_file(char *fn, char *ft, int lrecl, struct FST *fst)
 {
-	struct FST *dir;
-	u32 blk;
-	u32 off;
-
 	/* first, fill in the FST */
 	memset(fst, 0, sizeof(struct FST));
 
@@ -274,29 +270,12 @@ int create_file(char *fn, char *ft, int lrecl, struct FST *fst)
 	fst->LRECL    = lrecl;
 	fst->PTRSZ    = 4;
 
-	/* now, find a free spot in the directory */
-	blk = directory->AIC / adt->adt.NFST;
-	off = directory->AIC % adt->adt.NFST;
-
-	if (!off) {
-		// FIXME: add a block to the directory
-		die();
-	}
-
-	dir = read_file_blk(DIRECTOR_FN, DIRECTOR_FT, 0, blk);
-	if (dir[off].FNAME[0])
-		die();
-
-	memcpy(&dir[off], fst, sizeof(struct FST));
-	directory->AIC++;
-
-	blk_set_dirty(DIRECTOR_FN, DIRECTOR_FT, 0, 0);
-	blk_set_dirty(DIRECTOR_FN, DIRECTOR_FT, 0, blk);
+	append_record(directory, (u8*) fst);
 
 	return 0;
 }
 
-//u8 bad[300] = {1,};
+u8 bad[100] = {1,};
 
 static u32 __get_free_block()
 {

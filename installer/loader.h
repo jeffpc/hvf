@@ -332,6 +332,8 @@ extern void *malloc(u32 size);
 
 extern void mount_fs();
 extern int find_file(char *fn, char *ft, struct FST *fst);
+extern int create_file(char *fn, char *ft, int lrecl, struct FST *fst);
+extern void append_record(struct FST *fst, u8 *buf);
 
 extern void writeback_buffers();
 
