@@ -29,10 +29,10 @@ struct table {
 };
 
 static struct table table[] = {
-	{"hvf.direct",	"HVF     ", "DIRECT  ", 80, 1},
-	{"hvf.config",	"SYSTEM  ", "CONFIG  ", 80, 1},
-//	{"hvf.elf",	"HVF     ", "ELF     ", 4096, 0},
-	{"",		""        , ""        , -1, -1},
+	{"hvf.directory",	"HVF     ", "DIRECT  ", 80, 1},
+	{"hvf.config",		"SYSTEM  ", "CONFIG  ", 80, 1},
+//	{"hvf",			"HVF     ", "ELF     ", 4096, 0},
+	{"",			""        , ""        , -1, -1},
 };
 
 static void save_file(struct table *te, int filesize, u8 *buf)
