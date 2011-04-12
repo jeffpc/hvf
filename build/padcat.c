@@ -11,9 +11,9 @@ void cat(char *fn)
 
 	f = fopen(fn, "rb");
 	if (!f) {
-		fprintf(stderr, "Could not open file \"%s\". Skipping.\n",
+		fprintf(stderr, "Could not open file \"%s\".\n",
 			fn);
-		return;
+		exit(1);
 	}
 
 	do {
