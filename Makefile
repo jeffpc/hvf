@@ -13,8 +13,11 @@ all:
 	make -C nss/8ball
 	make -C loader
 	make -C installer
-	./build/mkarchive cp/hvf.directory text 80 \
+	./build/mkarchive \
+		cp/hvf.directory text 80 \
 		cp/hvf bin \
+		loader/eckd.rto bin \
+		loader/loader.rto bin \
 		> installer/archive.cpio
 	./build/padcat installer/rdr.rto installer/loader.rto installer/archive.cpio > installer.bin
 

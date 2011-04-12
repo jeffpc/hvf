@@ -32,6 +32,8 @@ static struct table table[] = {
 	{"hvf.directory",	"HVF     ", "DIRECT  ", 80, 1},
 	{"hvf.config",		"SYSTEM  ", "CONFIG  ", 80, 1},
 //	{"hvf",			"HVF     ", "ELF     ", 4096, 0},
+	{"eckd.rto",		"ECKDLOAD", "BIN     ", 4096, 0},
+	{"loader.rto",		"DASDLOAD", "BIN     ", 4096, 0},
 	{"",			""        , ""        , -1, -1},
 };
 
