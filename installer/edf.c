@@ -275,8 +275,6 @@ int create_file(char *fn, char *ft, int lrecl, struct FST *fst)
 	return 0;
 }
 
-u8 bad[100] = {1,};
-
 static u32 __get_free_block()
 {
 	u32 blk;
