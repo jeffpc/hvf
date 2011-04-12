@@ -91,8 +91,12 @@ static u32 getnumber(u8 *data, int digits)
 
 static void readcard(u8 *buf)
 {
+	static int eof;
 	int ret;
 	struct ccw ccw;
+
+	if (eof)
+		return;
 
 	ccw.cmd   = 0x02;
 	ccw.flags = 0;
@@ -105,6 +109,11 @@ static void readcard(u8 *buf)
 	ORB.addr  = ADDR31(&ccw);
 
 	ret = __do_io(ipl_sch);
+	if (ret == 0x01) {
+		eof = 1;
+		return;  // end of media
+	}
+
 	if (ret)
 		die();
 }

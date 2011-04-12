@@ -1,24 +1,8 @@
 #
-# Copyright (c) 2007 Josef 'Jeff' Sipek
+# Copyright (c) 2007-2011 Josef 'Jeff' Sipek
 #
 
 #include "loader.h"
-
-.text
-	.align	4
-.globl __do_io
-	.type	__do_io, @function
-__do_io:
-	LGR	%r1,%r2			# load subsystem ID
-
-	LA	%r2, 1			# error return code
-
-	LARL	%r4,ORB
-	SSCH	0(%r4)			# issue IO
-	BCR	7, %r14			# return on error
-
-	LARL	%r4,WAITPSW		# wait for the interrupt
-	LPSWE	0(%r4)
 
 .text
 	.align	4
@@ -28,8 +12,24 @@ __wait_for_attn:
 	LARL	%r4,WAITPSW		# wait for the interrupt
 	LPSWE	0(%r4)
 
+# int __do_io(u32 sch);
+	.align	4
+.globl __do_io
+	.type	__do_io, @function
+__do_io:
+	LGR	%r1,%r2			# load subsystem ID
+
+	LA	%r2,0xfff		# error return code
+
+	LARL	%r4,ORB
+	SSCH	0(%r4)			# issue IO
+	BCR	7, %r14			# return on error
+
+	LARL	%r4,WAITPSW		# wait for the interrupt
+	LPSWE	0(%r4)
+
 #
-# The IO interrupt handler
+# The IO interrupt handler; it's very much like a continuation of __do_io
 #
 .globl IOHANDLER
 IOHANDLER:
@@ -46,33 +46,26 @@ IOHANDLER:
 	LARL	%r4,IRB
 	TSCH	0(%r4)
 
-	# load status
+	# check the Channel Status for != 0
 	XGR	%r2,%r2
-	IC	%r2,8(%r4)
+	IC	%r2,9(%r4)
+	NILL	%r2,0xbf		# get rid of SLI
+	LTR	%r2,%r2
+	BCR	7,%r14			# error, let's bail
 
-	# attention?
-	LR	%r1,%r2
-	NILL	%r1,0x80
-	BCR	4,%r14			# attention => return
+	# check the Device Status
+	XGR	%r1,%r1
+	IC	%r1,8(%r4)
 
-	# unit check?
-	LR	%r1,%r2
-	NILL	%r1,0x02
-	BCR	4,%r14			# unit check => return
+	# unit check, unit except?
+	LR	%r2,%r1
+	NILL	%r2,0x03
+	BCR	4,%r14			# error return
 
-	# device end?
-	LR	%r1,%r2
-	XGR	%r2,%r2			# zero the return code
-	NILL	%r1,0x04
-	BCR	4,%r14			# device end => return
-
-/*
-FIXME: we should do more checking!
-
-11) If Unit check or Channel Status|=0 : An I/O error occurred and act accordingly
-12) If unit exception : End of media (for tape & cards) and act accordingly
-13) If device end : I/O Completed.. Perform post I/O stuff (like advancing your pointers) and back to step 3
-*/
+	# attention, DE?
+	XGR	%r2,%r2
+	NILL	%r1,0x84
+	BCR	4,%r14			# ok return
 
 IONOTDONE:
 	LPSWE	0x170

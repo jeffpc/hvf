@@ -110,7 +110,7 @@ static int dev_dasd(void)
 	struct senseid_struct id;
 
 	ccw.cmd   = 0xe4;
-	ccw.flags = 0;
+	ccw.flags = CCW_FLAG_SLI;
 	ccw.count = sizeof(struct senseid_struct);
 	ccw.addr  = ADDR31(&id);
 
@@ -228,7 +228,7 @@ void wtor(char *str, char *inp, int buflen)
 
 	/* read user input */
 	ccw.cmd   = 0x0a;
-	ccw.flags = 0;
+	ccw.flags = CCW_FLAG_SLI;
 	ccw.count = buflen;
 	ccw.addr  = ADDR31(inp);
 
