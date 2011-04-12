@@ -13,6 +13,10 @@ all:
 	make -C nss/8ball
 	make -C loader
 	make -C installer
+	./build/mkarchive cp/hvf.directory text 80 \
+		cp/hvf bin \
+		> installer/archive.cpio
+	./build/padcat installer/rdr.rto installer/loader.rto installer/archive.cpio > installer.bin
 
 doc:
 	make -C doc/manual
@@ -25,5 +29,7 @@ clean:
 	make -C loader clean
 	make -C installer clean
 	make -C doc/manual clean
+	rm -f installer/archive.cpio
+	rm -f installer.bin
 
 .PHONY: all doc clean
