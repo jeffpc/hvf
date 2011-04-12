@@ -34,6 +34,7 @@ static struct table table[] = {
 //	{"hvf",			"HVF     ", "ELF     ", 4096, 0},
 	{"eckd.rto",		"ECKDLOAD", "BIN     ", 4096, 0},
 	{"loader.rto",		"DASDLOAD", "BIN     ", 4096, 0},
+	{"installed_files.txt",	"HVF     ", "TEXT    ", 80, 1},
 	{"",			""        , ""        , -1, -1},
 };
 
@@ -122,6 +123,7 @@ static void readcard(u8 *buf)
 
 void unload_archive(void)
 {
+	char printbuf[132];
 	struct cpio_hdr *hdr;
 	u8 *dasd_buf;
 	int save;
@@ -165,15 +167,13 @@ void unload_archive(void)
 		}
 
 		if (save) {
-			wto("processing '");
-			wto((char*) hdr->data);
-			wto("' => '");
-			wto(table[i].fn);
-			wto("'\n");
+			snprintf(printbuf, 132, "processing '%.8s' '%.8s' => '%s'\n",
+				 table[i].fn, table[i].fn + 8, (char*) hdr->data);
+			wto(printbuf);
 		} else {
-			wto("skipping   '");
-			wto((char*) hdr->data);
-			wto("'\n");
+			snprintf(printbuf, 132, "skipping   '%s'\n",
+				 (char*) hdr->data);
+			wto(printbuf);
 		}
 
 		fill -= (sizeof(struct cpio_hdr) + namesize);

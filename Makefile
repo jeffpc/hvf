@@ -18,6 +18,7 @@ all:
 		cp/hvf bin \
 		loader/eckd.rto bin \
 		loader/loader.rto bin \
+		doc/installed_files.txt text 80 \
 		> installer/archive.cpio
 	./build/padcat installer/rdr.rto installer/loader.rto installer/archive.cpio > installer.bin
 
