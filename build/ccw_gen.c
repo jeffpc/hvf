@@ -117,11 +117,11 @@ static char *data_ccw =
 "	.byte	0x02, 0x%02X, 0x%02X, 0x%02X\n"
 "	.byte	0x%02X, 0x00, 0x00, 0x50\n";
 
-static char *pad_ccw =
+static char *nop_ccw =
 "\n"
-"# PAD-CCW %d\n"
-"	.byte	0x00, 0x00, 0x00, 0x00\n"
-"	.byte	0x00, 0x00, 0x00, 0x00\n";
+"# NOP-CCW %d\n"
+"	.byte	0x03, 0x00, 0x00, 0x08\n"
+"	.byte	0x60, 0x00, 0x00, 0x01\n";
 
 #define ADDR(x)		(((x)[0]<<16) | \
 			 ((x)[1]<<8)  | \
@@ -222,32 +222,31 @@ int main(int argc, char **argv)
 	card = 2;
 	i = 0;
 	j = 1;
-	while(1) {
-		if (i % 10 == 1) {
-			if (j>data_cards)
-				break;
-			printf(card_head, card++);
-		}
 
-		if (i == 0) {
-			printf(psw_tail, ADDR(ccw_addr), ADDRS(ccw_addr), CHAIN,
-			       ADDR(ccw_addr), ADDRS(ccw_addr));
-			printf(pad);
-		} else if (i<=(data_cards+9)/10) {
-			printf(cp_ccw, i+2, ADDRS(ccw_addr));
-		} else if (j<=data_cards) {
-			printf(data_ccw, j, ADDRS(addr),
-			       (j == data_cards) ? 0 : CHAIN);
-			__add(addr, 80);
-			j++;
-		} else {
-			printf(pad_ccw, j-data_cards);
-			j++;
-		}
+	printf(psw_tail, ADDR(ccw_addr), ADDRS(ccw_addr), CHAIN,
+	       ADDR(ccw_addr), ADDRS(ccw_addr));
+	printf(pad);
+	__add(ccw_addr, 80);
 
+	for(i=0; i<=((data_cards+9)/10) + (((data_cards+9)/10)+9)/10 - 2; i++) {
+		printf(cp_ccw, i+3, ADDRS(ccw_addr));
 		__add(ccw_addr, 80);
+	}
+
+	while (i % 10) {
+		printf(nop_ccw, i);
 		i++;
 	}
 
+	for(i=1; i<=data_cards; i++) {
+		printf(data_ccw, i, ADDRS(addr),
+		       (i == data_cards) ? 0 : CHAIN);
+
+		__add(addr, 80);
+	}
+
+	return 0;
+
+	printf(card_head, card++);
 	return 0;
 }
