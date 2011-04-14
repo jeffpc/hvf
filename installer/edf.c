@@ -289,20 +289,26 @@ static u32 __get_free_block()
 			if (buf[i] == 0xff)
 				continue;
 
-			if ((buf[i] & ~0x01) == 0) bit = 7;
-			if ((buf[i] & ~0x02) == 0) bit = 6;
-			if ((buf[i] & ~0x04) == 0) bit = 5;
-			if ((buf[i] & ~0x08) == 0) bit = 4;
-			if ((buf[i] & ~0x10) == 0) bit = 3;
-			if ((buf[i] & ~0x20) == 0) bit = 2;
-			if ((buf[i] & ~0x40) == 0) bit = 1;
-			if ((buf[i] & ~0x80) == 0) bit = 0;
+			if ((buf[i] & 0x80) == 0) { bit = 7; goto found; }
+			if ((buf[i] & 0x40) == 0) { bit = 6; goto found; }
+			if ((buf[i] & 0x20) == 0) { bit = 5; goto found; }
+			if ((buf[i] & 0x10) == 0) { bit = 4; goto found; }
+			if ((buf[i] & 0x08) == 0) { bit = 3; goto found; }
+			if ((buf[i] & 0x04) == 0) { bit = 2; goto found; }
+			if ((buf[i] & 0x02) == 0) { bit = 1; goto found; }
+			if ((buf[i] & 0x01) == 0) { bit = 0; goto found; }
 
-			buf[i] |= (0x80 >> bit);
+			continue; /* this is not necessary since we check
+				     for 0xff right away, but GCC really
+				     likes to complain about possibly
+				     uninitialized use of 'bit' */
+
+found:
+			buf[i] |= (1 << bit);
 
 			blk_set_dirty(allocmap->FNAME, allocmap->FTYPE, 0, blk);
 
-			return ((blk * adt->adt.DBSIZ * 8) + bit) + 1;
+			return ((blk * adt->adt.DBSIZ * 8) + (i * 8) + bit) + 1;
 		}
 	}
 
