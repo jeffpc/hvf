@@ -8,6 +8,8 @@
 #ifndef __STRING_H
 #define __STRING_H
 
+#include <vsprintf.h>
+
 #define memset(d,s,l)	__builtin_memset((d),(s),(l))
 #define memcpy(d,s,l)	__builtin_memcpy((d),(s),(l))
 extern void *memmove(void *dest, const void *src, size_t count);
