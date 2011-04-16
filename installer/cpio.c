@@ -26,20 +26,22 @@ struct table {
 	char	ft[8];
 	int	lrecl;
 	int	text;
+	u32	lba; /* 0 means undef */
 };
 
 static struct table table[] = {
-	{"hvf.directory",	"HVF     ", "DIRECT  ", 80, 1},
-	{"hvf.config",		"SYSTEM  ", "CONFIG  ", 80, 1},
-//	{"hvf",			"HVF     ", "ELF     ", 4096, 0},
-	{"eckd.rto",		"ECKDLOAD", "BIN     ", 4096, 0},
-	{"loader.rto",		"DASDLOAD", "BIN     ", 4096, 0},
-	{"installed_files.txt",	"HVF     ", "TEXT    ", 80, 1},
-	{"",			""        , ""        , -1, -1},
+	{"hvf.directory",	"HVF     ", "DIRECT  ", 80,   1, 0},
+	{"hvf.config",		"SYSTEM  ", "CONFIG  ", 80,   1, 0},
+//	{"hvf",			"HVF     ", "ELF     ", 4096, 0, 0},
+	{"eckd.rto",		"ECKDLOAD", "BIN     ", 4096, 0, 1},
+	{"loader.rto",		"DASDLOAD", "BIN     ", 4096, 0, 2},
+	{"installed_files.txt",	"HVF     ", "TEXT    ", 80,   1, 0},
+	{"",			""        , ""        , -1,  -1, 0},
 };
 
 static void save_file(struct table *te, int filesize, u8 *buf)
 {
+	char pbuf[100];
 	struct FST fst;
 	int ret;
 	int rec;
@@ -64,8 +66,16 @@ static void save_file(struct table *te, int filesize, u8 *buf)
 	if (te->text)
 		ascii2ebcdic(buf, filesize);
 
+	if (te->lba) {
+		if (filesize > te->lrecl)
+			die();
+		snprintf(pbuf, 100, "special file, writing copy of data to LBA %d\n",
+			 te->lba);
+		wto(pbuf);
+		write_blk(buf, te->lba);
+	}
+
 	for(rec=0; rec<(filesize/te->lrecl); rec++) {
-		char pbuf[100];
 		snprintf(pbuf, 100, "rec %03x at %p\n", rec,
 			 buf + (rec * te->lrecl));
 		wto(pbuf);
