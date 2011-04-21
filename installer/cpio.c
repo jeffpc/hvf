@@ -86,8 +86,11 @@ static void save_file(struct table *te, int filesize, u8 *buf)
 		u8 buf2[te->lrecl];
 
 		memset(buf2, 0, te->lrecl);
-		memcpy(buf2, buf + (rec * te->lrecl), te->lrecl);
+		memcpy(buf2, buf + (rec * te->lrecl), filesize % te->lrecl);
 
+		snprintf(pbuf, 100, "rec %03x at %p\n", rec,
+			 buf + (rec * te->lrecl));
+		wto(pbuf);
 		append_record(&fst, buf2);
 	}
 }
