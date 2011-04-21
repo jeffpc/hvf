@@ -40,6 +40,23 @@ int strcmp(const char *cs, const char *ct)
 }
 
 /**
+ * strncmp - Compare two strings
+ * @cs: One string
+ * @ct: Another string
+ * @len: max length
+ */
+int strncmp(const char *cs, const char *ct, int len)
+{
+        signed char __res;
+
+        while (1) {
+                if ((__res = *cs - *ct++) != 0 || !*cs++ || len--)
+                        break;
+        }
+        return __res;
+}
+
+/**
  * strcasecmp - Compare two strings ignoring case
  * @s1: One string
  * @s2: Another string
@@ -79,6 +96,35 @@ char *strncpy(char *dest, const char *src, size_t count)
                count--;
        }
        return dest;
+}
+
+/**
+ * memmove - Copy one area of memory to another
+ * @dest: Where to copy to
+ * @src: Where to copy from
+ * @count: The size of the area.
+ *
+ * Unlike memcpy(), memmove() copes with overlapping areas.
+ */
+void *memmove(void *dest, const void *src, size_t count)
+{
+	char *tmp;
+	const char *s;
+
+	if (dest <= src) {
+		tmp = dest;
+		s = src;
+		while (count--)
+			*tmp++ = *s++;
+	} else {
+		tmp = dest;
+		tmp += count;
+		s = src;
+		s += count;
+		while (count--)
+			*--tmp = *--s;
+	}
+	return dest;
 }
 
 /* ASCII character info */

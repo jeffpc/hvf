@@ -1,0 +1,17 @@
+HVF installer creates the following files:
+
+This file (listing everything installed):
+  HVF      TEXT
+
+The directory:
+  HVF      DIRECT
+
+The system configuration file:
+  SYSTEM   CONFIG
+
+The nucleus:
+  HVF      ELF
+
+The nucleus loader:
+  DASDLOAD BIN
+  ECKDLOAD BIN

@@ -8,12 +8,15 @@
 #ifndef __STRING_H
 #define __STRING_H
 
+#include <vsprintf.h>
+
 #define memset(d,s,l)	__builtin_memset((d),(s),(l))
 #define memcpy(d,s,l)	__builtin_memcpy((d),(s),(l))
+extern void *memmove(void *dest, const void *src, size_t count);
 #define memcmp(d,s,l)	__builtin_memcmp((d),(s),(l))
 extern size_t strnlen(const char *s, size_t count);
 extern int strcmp(const char *cs, const char *ct);
-#define strncmp(a,b,l)	__builtin_strncmp((a),(b),(l))
+extern int strncmp(const char *cs, const char *ct, int len);
 extern int strcasecmp(const char *s1, const char *s2);
 extern char *strncpy(char *dest, const char *src, size_t count);
 

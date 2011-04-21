@@ -1,0 +1,6 @@
+*.o
+*.rto
+
+rdr.S
+
+archive.cpio

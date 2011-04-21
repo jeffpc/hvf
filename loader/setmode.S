@@ -1,10 +1,10 @@
-/*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
- *
- * This file is released under the GPLv2.  See the COPYING file for more
- * details.
- */
+#
+# Copyright (c) 2007-2009 Josef 'Jeff' Sipek
+#
 
+.globl MAIN
+	.type	MAIN, @function
+MAIN:
 #
 # At this point, the machine is running in ESA390 mode. Let's load a new
 # PSW, making it switch to 64-bit mode
@@ -51,8 +51,4 @@
 	SLL	%r15, 20
 	AHI	%r15, -160
 
-#
-# Padding to make the entire file 0x20 bytes
-#
-	BCR	0, %r7
-	BCR	0, %r7
+	BRC	15,load_nucleus
