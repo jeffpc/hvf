@@ -86,9 +86,19 @@ struct orb {
 } __attribute__((packed,aligned(4)));
 
 enum SCSW_FC {
-	FC_CLEAR	= 0x10,
-	FC_HALT		= 0x20,
-	FC_START	= 0x40,
+	FC_CLEAR	= 0x1,
+	FC_HALT		= 0x2,
+	FC_START	= 0x4,
+};
+
+enum SCSW_AC {
+	AC_RESUME       = 0x40,
+	AC_START        = 0x20,
+	AC_HALT         = 0x10,
+	AC_CLEAR        = 0x08,
+	AC_SCH_ACT      = 0x04,
+	AC_DEV_ACT      = 0x02,
+	AC_SUSP         = 0x01,
 };
 
 enum SCSW_SC {
