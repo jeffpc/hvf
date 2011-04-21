@@ -140,4 +140,9 @@ static inline int virt2phy_current(u64 virt, u64 *phy)
 	return 0;
 }
 
+#define memcpy_to_guest(gaddr, ptr, len)	__memcpy_tofrom_guest((gaddr), (ptr), (len), 0)
+#define memcpy_from_guest(gaddr, ptr, len)	__memcpy_tofrom_guest((gaddr), (ptr), (len), 1)
+
+extern int __memcpy_tofrom_guest(u64 guest_addr, void *data, u64 *len, int from);
+
 #endif

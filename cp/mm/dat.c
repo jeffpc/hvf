@@ -132,3 +132,39 @@ void load_as(struct address_space *as)
 	  "m" (cr1)
 	);
 }
+
+/* memcpy that pays attention to page boundary crossing; *len contains the
+ * number of bytes to copy on entry, and at return, the number of bytes
+ * copied */
+int __memcpy_tofrom_guest(u64 guest_addr, void *data, u64 *len, int from)
+{
+	u8 *_data = data;
+	u64 host_addr;
+	u64 copy_len;
+	u64 copied;
+	int ret = 0;
+
+	for(copied = 0; *len; ) {
+		/* walk the page tables to find the real page frame */
+		ret = virt2phy_current(guest_addr, &host_addr);
+		if (ret)
+			break;
+
+		/* copy this much this time around... until the end of the page, or
+		 * the while thing that's left
+		 */
+		copy_len = min(PAGE_SIZE - (host_addr & PAGE_MASK), *len);
+
+		/* COPY! */
+		if (from)
+			memcpy(_data + copied, (void*)host_addr, copy_len);
+		else
+			memcpy((void*)host_addr, _data + copied, copy_len);
+
+		copied += copy_len;
+		*len -= copy_len;
+	}
+
+	*len = copied;
+	return ret;
+}
