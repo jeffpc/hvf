@@ -36,6 +36,7 @@ static struct table table[] = {
 	{"eckd.rto",		"ECKDLOAD", "BIN     ", 4096, 0, 1},
 	{"loader.rto",		"DASDLOAD", "BIN     ", 4096, 0, 2},
 	{"installed_files.txt",	"HVF     ", "TEXT    ", 80,   1, 0},
+	{"8ball",		"8BALL   ", "NSS     ", 4096, 0, 0},
 	{"",			""        , ""        , -1,  -1, 0},
 };
 

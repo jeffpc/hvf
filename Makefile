@@ -19,6 +19,7 @@ all:
 		loader/eckd.rto bin \
 		loader/loader.rto bin \
 		doc/installed_files.txt text 80 \
+		nss/8ball/8ball bin \
 		> installer/archive.cpio
 	./build/padcat installer/rdr.rto installer/loader.rto installer/archive.cpio > installer.bin
 
