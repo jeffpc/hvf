@@ -323,6 +323,7 @@ found:
 
 static void __append_block(struct FST *fst)
 {
+	struct block_map *map;
 	u32 *buf;
 	u32 lba, prevlba;
 	u32 blk;
@@ -338,43 +339,54 @@ static void __append_block(struct FST *fst)
 		return;
 	}
 
-	/* need to add another level */
-	if (fst->ADBC == (file_blocks_at_level(fst->ADBC, fst->NLVL) *
-			  (adt->adt.DBSIZ / 4))) {
-		for(lvl=0; lvl<=fst->NLVL; lvl++, prevlba=lba) {
-			lba = __get_free_block();
-			blk = file_blocks_at_level(fst->ADBC+1, lvl);
+	for(lvl=0; lvl<=fst->NLVL; lvl++, prevlba=lba) {
+		blk = file_blocks_at_level(fst->ADBC+1, lvl);
 
-			block_map_add(fst->FNAME, fst->FTYPE, lvl, blk, lba);
+		map = block_map_find(fst->FNAME, fst->FTYPE, lvl, blk-1);
+		if (map) {
+			int x;
 
 			if (!lvl)
-				continue;
+				die();
 
-			buf = read_file_blk(fst->FNAME, fst->FTYPE, lvl, blk);
-			blk_set_dirty(fst->FNAME, fst->FTYPE, lvl, blk);
+			buf = read_file_blk(fst->FNAME, fst->FTYPE, lvl,
+					    blk-1);
+			blk_set_dirty(fst->FNAME, fst->FTYPE, lvl, blk-1);
 
-			*buf = prevlba;
+			x = file_blocks_at_level(fst->ADBC+1, lvl-1) %
+				(adt->adt.DBSIZ / 4);
+			buf[x-1] = prevlba;
 
+			fst->ADBC++;
+			return;
 		}
 
 		lba = __get_free_block();
-		block_map_add(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0, lba);
 
-		buf = read_file_blk(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0);
-		blk_set_dirty(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0);
+		block_map_add(fst->FNAME, fst->FTYPE, lvl, blk-1, lba);
 
-		buf[0] = fst->FOP;
-		buf[1] = prevlba;
+		if (!lvl)
+			continue;
 
-		fst->FOP = lba;
+		buf = read_file_blk(fst->FNAME, fst->FTYPE, lvl, blk-1);
+		blk_set_dirty(fst->FNAME, fst->FTYPE, lvl, blk-1);
 
-		fst->NLVL++;
-		fst->ADBC++;
-		return;
+		*buf = prevlba;
 	}
 
-	// FIXME
-	die();
+	lba = __get_free_block();
+	block_map_add(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0, lba);
+
+	buf = read_file_blk(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0);
+	blk_set_dirty(fst->FNAME, fst->FTYPE, fst->NLVL+1, 0);
+
+	buf[0] = fst->FOP;
+	buf[1] = prevlba;
+
+	fst->FOP = lba;
+
+	fst->NLVL++;
+	fst->ADBC++;
 }
 
 void append_record(struct FST *fst, u8 *buf)
@@ -393,15 +405,15 @@ void append_record(struct FST *fst, u8 *buf)
 
 	blk = foff / adt->adt.DBSIZ;
 	off = foff % adt->adt.DBSIZ;
-	rem = adt->adt.DBSIZ - off;
+	rem = (fst->ADBC * adt->adt.DBSIZ) - foff;
 
 	/* need to add another block */
-	if ((blk == fst->ADBC) || (rem < fst->LRECL))
+	if (rem < fst->LRECL)
 		__append_block(fst);
 
 	dbuf = read_file_blk(fst->FNAME, fst->FTYPE, 0, blk);
 
-	if (rem >= fst->LRECL) {
+	if (!rem || (rem >= fst->LRECL)) {
 		memcpy(dbuf + off, buf, fst->LRECL);
 		blk_set_dirty(fst->FNAME, fst->FTYPE, 0, blk);
 	} else {
