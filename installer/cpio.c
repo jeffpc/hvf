@@ -32,7 +32,7 @@ struct table {
 static struct table table[] = {
 	{"hvf.directory",	"HVF     ", "DIRECT  ", 80,   1, 0},
 	{"hvf.config",		"SYSTEM  ", "CONFIG  ", 80,   1, 0},
-//	{"hvf",			"HVF     ", "ELF     ", 4096, 0, 0},
+	{"hvf",			"HVF     ", "ELF     ", 4096, 0, 0},
 	{"eckd.rto",		"ECKDLOAD", "BIN     ", 4096, 0, 1},
 	{"loader.rto",		"DASDLOAD", "BIN     ", 4096, 0, 2},
 	{"installed_files.txt",	"HVF     ", "TEXT    ", 80,   1, 0},
