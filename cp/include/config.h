@@ -18,4 +18,10 @@
 
 #define OPER_CONSOLE_CCUU	0x0009
 
+#define CONFIG_LRECL			80
+#define CONFIG_FILE_NAME		"SYSTEM  "
+#define CONFIG_FILE_TYPE		"CONFIG  "
+
+extern int load_config();
+
 #endif

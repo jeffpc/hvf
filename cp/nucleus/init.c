@@ -186,6 +186,12 @@ void start(u64 __memsize, u32 __iplsch)
 	init_sched();
 
 	/*
+	 * Load the config file
+	 */
+	if (load_config(__iplsch))
+		BUG();
+
+	/*
 	 * IPL is more or less done
 	 */
 	get_parsed_tod(&ipltime);
