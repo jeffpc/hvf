@@ -1,10 +1,10 @@
-\chapter{Named Saved Segments}
+\chapter{Named Saved Systems}
 \label{chap:cp-nss}
 \cbstart
 \note{HVF does not currently support NSS IPL and therefore the following is
 	the description of the design to be implemented.}
 
-A Named Saved Segment (NSS) is saved storage image that can be IPLed under a
+A Named Saved System (NSS) is saved storage image that can be IPLed under a
 given name.  The image can be reloaded and execution resumed.
 
 The contents of the storage image may be thought of as the contents of
@@ -22,7 +22,7 @@ Additionally, these static pages, if unmodified by the guest, do not have to
 be paged out.  Instead, they may be simply discarded and later reloaded from
 the NSS.
 
-\section{Named Saved Segment File Format}
+\section{Named Saved System File Format}
 Each NSS is saved in a single file using the ELF file format.  (See
 section~\ref{sec:elf} for ELF file format details.)
 
