@@ -27,7 +27,6 @@ static int __verify_io_op(struct io_op *ioop)
 static void __reset_reserved_fields(struct io_op *ioop)
 {
 	ioop->orb.__zero1 = 0;
-	ioop->orb.__zero2 = 0;
 
 	ioop->orb.__reserved1 = 0;
 	ioop->orb.__reserved2 = 0;

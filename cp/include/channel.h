@@ -60,13 +60,13 @@ struct orb {
 	   i:1,			/* Initial-Status-Interruption Control */
 	   a:1,			/* Address-Limit-Checking control */
 	   u:1,			/* Suppress-Suspend-Interruption Control */
-	   __zero1:1,
+	   b:1,			/* Channel-Program Type Control */
 	   h:1,			/* Format-2-IDAW Control */
 	   t:1;			/* 2K-IDAW Control */
 	u8 lpm;			/* Logical-Path Mask */
 	u8 l:1,			/* Incorrect-Length-Suppression Mode */
 	   d:1,			/* Modified-CCW-Indirect-Data-Addressing Control */
-	   __zero2:5,
+	   __zero1:5,
 	   x:1;			/* ORB-Extension Control */
 
 	/* word 2 */
