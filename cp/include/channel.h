@@ -115,8 +115,8 @@ struct scsw {
 	    n:1;		/* Path no operational */
 	u16 __zero:1,
 	    fc:3,		/* Function control */
-	    ac:8,		/* Activity control */
-	    sc:4;		/* Status control */
+	    ac:7,		/* Activity control */
+	    sc:5;		/* Status control */
 
 	/* word 1 */
 	u32 addr;		/* CCW Address */
