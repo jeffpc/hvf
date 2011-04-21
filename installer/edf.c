@@ -95,8 +95,13 @@ static void *read_file_blk(u8 *fn, u8 *ft, u8 level, u32 blk)
 	struct block_map *map;
 
 	map = block_map_find(fn, ft, level, blk);
-	if (!map)
+	if (!map) {
+		char buf[128];
+		snprintf(buf,128,"%s could not find block %d at level %d\n",
+			 __func__, blk, level);
+		wto(buf);
 		die();
+	}
 
 	if (map->buf)
 		return map->buf;
