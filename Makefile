@@ -14,7 +14,8 @@ all:
 	make -C loader
 	make -C installer
 	./build/mkarchive \
-		cp/hvf.directory text 80 \
+		cp/config/hvf.directory text 80 \
+		cp/config/system.config text 80 \
 		cp/hvf bin \
 		loader/eckd.rto bin \
 		loader/loader.rto bin \

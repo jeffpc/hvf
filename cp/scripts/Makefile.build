@@ -37,5 +37,5 @@ all: $(DIR)/built-in.o
 
 shell/directory.c: shell/directory_structs.c
 
-shell/directory_structs.c: hvf.directory
+shell/directory_structs.c: config/hvf.directory
 	$(call gendir,$<,$@)
