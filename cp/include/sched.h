@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -13,6 +13,7 @@
 #include <dat.h>
 #include <clock.h>
 #include <interrupt.h>
+#include <ldep.h>
 
 #define CAN_SLEEP		1	/* safe to sleep */
 #define CAN_LOOP		2	/* safe to busy-wait */
@@ -115,6 +116,10 @@ struct task {
 	int state;			/* state */
 
 	char name[TASK_NAME_LEN+1];	/* task name */
+
+	/* lock dependency tracking */
+	int nr_locks;
+	struct held_lock lock_stack[LDEP_STACK_SIZE];
 };
 
 struct virt_sys {

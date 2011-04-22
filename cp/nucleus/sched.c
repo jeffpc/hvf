@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -67,6 +67,8 @@ static void __init_task(struct task *task, void *f, void *data, void *stack)
 	task->regs.gpr[15] = ((u64) stack) + PAGE_SIZE - STACK_FRAME_SIZE;
 
 	task->state = TASK_SLEEPING;
+
+	task->nr_locks = 0;
 }
 
 /**

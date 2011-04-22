@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -25,8 +25,9 @@
  */
 struct console *oper_con;
 
+static LOCK_CLASS(online_users_lc);
 static LIST_HEAD(online_users);
-static UNLOCKED_MUTEX(online_users_lock);
+static UNLOCKED_MUTEX(online_users_lock, &online_users_lc);
 
 static int __alloc_guest_devices(struct virt_sys *sys)
 {

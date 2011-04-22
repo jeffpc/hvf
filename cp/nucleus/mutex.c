@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -8,7 +8,7 @@
 #include <mutex.h>
 
 /* slow-path mutex locking */
-void __mutex_lock(mutex_t *lock)
+void __mutex_lock_slow(mutex_t *lock)
 {
 	spin_lock(&lock->queue_lock);
 

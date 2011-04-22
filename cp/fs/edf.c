@@ -13,6 +13,9 @@
 #include <ebcdic.h>
 #include <edf.h>
 
+static LOCK_CLASS(edf_fs);
+static LOCK_CLASS(edf_file);
+
 struct fs *edf_mount(struct device *dev, int nosched)
 {
 	struct page *page;
@@ -37,7 +40,7 @@ struct fs *edf_mount(struct device *dev, int nosched)
 	if (ret)
 		goto out_free;
 
-	mutex_init(&fs->lock);
+	mutex_init(&fs->lock, &edf_fs);
 	INIT_LIST_HEAD(&fs->files);
 	fs->dev = dev;
 	fs->tmp_buf = tmp;
@@ -125,7 +128,7 @@ struct file *edf_lookup(struct fs *fs, char *fn, char *ft)
 		goto out_unlock;
 	}
 
-	mutex_init(&file->lock);
+	mutex_init(&file->lock, &edf_file);
 	list_add_tail(&file->files, &fs->files);
 
 	mutex_unlock(&fs->lock);
