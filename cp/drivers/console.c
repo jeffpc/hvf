@@ -244,7 +244,7 @@ struct console* start_oper_console(void)
 	 * We only start the operator console
 	 */
 
-	dev = find_device_by_ccuu(OPER_CONSOLE_CCUU);
+	dev = find_device_by_ccuu(sysconf.oper_con);
 	BUG_ON(IS_ERR(dev));
 
 	return console_enable(dev);
