@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -90,6 +90,8 @@ struct fs {
 	mutex_t lock;
 	struct device *dev;
 	void *tmp_buf;
+
+	int nosched;
 };
 
 struct file {
@@ -100,7 +102,7 @@ struct file {
 	char *buf;
 };
 
-extern struct fs *edf_mount(struct device *dev);
+extern struct fs *edf_mount(struct device *dev, int nosched);
 extern struct file *edf_lookup(struct fs *fs, char *fn, char *ft);
 extern int edf_read_rec(struct file *file, char *buf, u32 recno);
 

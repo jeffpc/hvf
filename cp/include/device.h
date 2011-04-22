@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -23,7 +23,7 @@ struct device_type {
 	int (*snprintf)(struct device *dev, char *buf, int len);
 
 	/* the following ops are for the bdev wrapper layer */
-	int (*read)(struct device *dev, u8 *buf, int len);
+	int (*read)(struct device *dev, u8 *buf, int len, int nosched);
 
 	u16 type;
 	u8 model;

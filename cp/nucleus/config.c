@@ -1,3 +1,10 @@
+/*
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ *
+ * This file is released under the GPLv2.  See the COPYING file for more
+ * details.
+ */
+
 #include <device.h>
 #include <bdev.h>
 #include <edf.h>
@@ -26,7 +33,7 @@ int load_config(u32 iplsch)
 		return PTR_ERR(dev);
 
 	/* mount the fs */
-	fs = edf_mount(dev);
+	fs = edf_mount(dev, 1);
 	if (IS_ERR(fs))
 		return PTR_ERR(fs);
 

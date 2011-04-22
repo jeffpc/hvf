@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -13,7 +13,7 @@
 #include <ebcdic.h>
 #include <edf.h>
 
-struct fs *edf_mount(struct device *dev)
+struct fs *edf_mount(struct device *dev, int nosched)
 {
 	struct page *page;
 	void *tmp;
@@ -30,8 +30,10 @@ struct fs *edf_mount(struct device *dev)
 	if (!fs)
 		goto out_free;
 
+	fs->nosched = nosched;
+
 	/* First, read & verify the label */
-	ret = bdev_read_block(dev, tmp, EDF_LABEL_BLOCK_NO);
+	ret = bdev_read_block(dev, tmp, EDF_LABEL_BLOCK_NO, nosched);
 	if (ret)
 		goto out_free;
 
@@ -102,7 +104,8 @@ struct file *edf_lookup(struct fs *fs, char *fn, char *ft)
 	file->buf = page_to_addr(page);
 
 	/* oh well, must do it the hard way ... read from disk */
-	ret = bdev_read_block(fs->dev, fs->tmp_buf, fs->ADT.ADTDOP);
+	ret = bdev_read_block(fs->dev, fs->tmp_buf, fs->ADT.ADTDOP,
+			      fs->nosched);
 	if (ret)
 		goto out_unlock;
 
@@ -154,7 +157,7 @@ int edf_read_rec(struct file *file, char *buf, u32 recno)
 	fop = file->FST.FSTFOP;
 	lrecl = file->FST.FSTLRECL;
 
-	ret = bdev_read_block(fs->dev, file->buf, fop);
+	ret = bdev_read_block(fs->dev, file->buf, fop, fs->nosched);
 	if (ret)
 		goto out;
 

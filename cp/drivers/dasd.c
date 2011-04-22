@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -106,7 +106,7 @@ static int d3390_reg(struct device *dev)
 	return 0;
 }
 
-static int d3390_read(struct device *dev, u8 *buf, int lba)
+static int d3390_read(struct device *dev, u8 *buf, int lba, int nosched)
 {
 	struct io_op ioop;
 	struct ccw ccw[4];
@@ -180,7 +180,7 @@ static int d3390_read(struct device *dev, u8 *buf, int lba)
 	/*
 	 * issue IO
 	 */
-	ret = submit_io(dev, &ioop, CAN_SLEEP);
+	ret = submit_io(dev, &ioop, nosched ? CAN_LOOP : CAN_SLEEP);
 	return ret;
 }
 
