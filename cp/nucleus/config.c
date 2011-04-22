@@ -10,12 +10,141 @@
 #include <edf.h>
 #include <ebcdic.h>
 
-static int parse_config_stmnt(char *stmnt)
+struct sysconf sysconf;
+
+int __get_u16(char *s, u16 *d)
 {
+	u16 ret = 0;
+
+	if (!*s)
+		return -1;
+
+	for(; *s; s++) {
+		if ((*s >= '0') && (*s <= '9'))
+			ret = (ret << 4) | (*s - '0');
+		else if ((*s >= 'A') && (*s <= 'F'))
+			ret = (ret << 4) | (*s - 'A' + 10);
+		else {
+			BUG();
+			return -2;
+		}
+	}
+
+	*d = ret;
+
+	return 0;
+}
+
+static int __parse_operator(char *s)
+{
+	char *t1, *t2;
+
+	if ((t1 = strsep(&s, " ")) == NULL)
+		return -EINVAL;
+
+	if ((t2 = strsep(&s, " ")) == NULL)
+		return -EINVAL;
+
+	if (!strcmp(t1, "CONSOLE")) {
+		return __get_u16(t2, &sysconf.oper_con);
+	} else if (!strcmp(t1, "USERID")) {
+		strncpy(sysconf.oper_userid, t2, 8);
+		sysconf.oper_userid[8] = '\0';
+	} else
+		return -EINVAL;
+
+	return 0;
+}
+
+static int __parse_rdev(char *s)
+{
+	u16 devnum, devtype;
+	int ret;
+
+	char *t1, *t2;
+
+	if ((t1 = strsep(&s, " ")) == NULL)
+		return -EINVAL;
+
+	if ((t2 = strsep(&s, " ")) == NULL)
+		return -EINVAL;
+
+	ret = __get_u16(t1, &devnum);
+	if (ret)
+		return ret;
+
+	ret = __get_u16(t2, &devtype);
+	if (ret)
+		return ret;
+
+	/* FIXME: save the <devnum,devtype> pair */
+
+	return 0;
+}
+
+static int __parse_logo(char *s)
+{
+	int ret;
+
+	char *conn, *_devtype, *fn, *ft;
+	u16 devtype;
+
+	if ((conn = strsep(&s, " ")) == NULL)
+		return -EINVAL;
+
+	if ((_devtype = strsep(&s, " ")) == NULL)
+		return -EINVAL;
+
+	ret = __get_u16(_devtype, &devtype);
+	if (ret)
+		return ret;
+
+	if ((fn = strsep(&s, " ")) == NULL)
+		return -EINVAL;
+
+	if ((ft = strsep(&s, " ")) == NULL)
+		return -EINVAL;
+
+	/* FIXME: save the <conn, devtype, fn, ft> pair */
+
+	return 0;
+}
+
+int parse_config_stmnt(char *stmnt)
+{
+	char *s = stmnt;
+	char *tok;
+
 	if (stmnt[0] == '*')
 		return 0; /* comment */
 
-	return 0;
+	if (stmnt[0] == '\0')
+		return 0; /* empty line */
+
+	if ((tok = strsep(&s, " ")) != NULL) {
+		if (!strcmp(tok, "OPERATOR"))
+			return __parse_operator(s);
+		else if (!strcmp(tok, "RDEV"))
+			return __parse_rdev(s);
+		else if (!strcmp(tok, "LOGO"))
+			return __parse_logo(s);
+		else
+			BUG();
+	}
+
+	BUG();
+	return -EINVAL;
+}
+
+static void null_terminate(char *s, int lrecl)
+{
+	int i;
+
+	for(i=lrecl-1; i>=0; i--)
+		if (s[i] != ' ')
+			break;
+
+	s[i+1] = '\0';
 }
 
 int load_config(u32 iplsch)
@@ -23,9 +152,13 @@ int load_config(u32 iplsch)
 	struct device *dev;
 	struct fs *fs;
 	struct file *file;
-	char buf[CONFIG_LRECL];
+	char buf[CONFIG_LRECL+1];
 	int ret;
 	int i;
+
+	memset(&sysconf, 0, sizeof(struct sysconf));
+	INIT_LIST_HEAD(&sysconf.rdevs);
+	INIT_LIST_HEAD(&sysconf.logos);
 
 	/* find the real device */
 	dev = find_device_by_sch(iplsch);
@@ -50,10 +183,16 @@ int load_config(u32 iplsch)
 
 		ebcdic2ascii((u8 *) buf, CONFIG_LRECL);
 
+		/* FIXME: uppercase everything */
+
+		null_terminate(buf, CONFIG_LRECL);
+
 		ret = parse_config_stmnt(buf);
 		if (ret)
 			return ret;
 	}
+
+	/* FIXME: load all the logo files */
 
 	return 0;
 }
