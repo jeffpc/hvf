@@ -240,6 +240,7 @@ static int shell_con_attn(void *data)
 void spawn_oper_shell(struct console *con)
 {
 	struct virt_sys *sys;
+	char tn[32];
 
 	oper_con = con;
 
@@ -249,12 +250,13 @@ void spawn_oper_shell(struct console *con)
 	sys->con = con;
 	con->sys = sys;
 
-	sys->directory = find_user_by_id("operator");
+	sys->directory = find_user_by_id(sysconf.oper_userid);
 	BUG_ON(IS_ERR(sys->directory));
 
 	sys->print_ts = 1; /* print timestamps */
 
-	sys->task = create_task("OPERATOR-vcpu0", shell_init, sys);
+	snprintf(tn, 32, "%s-vcpu0", sysconf.oper_userid);
+	sys->task = create_task(tn, shell_init, sys);
 	BUG_ON(IS_ERR(sys->task));
 
 	BUG_ON(IS_ERR(create_task("console-attn", shell_con_attn, NULL)));
