@@ -186,6 +186,11 @@ void start(u64 __memsize, u32 __iplsch)
 	init_sched();
 
 	/*
+	 * Start tracking locking dependencies
+	 */
+	ldep_on();
+
+	/*
 	 * Load the config file
 	 */
 	if (load_config(__iplsch))
