@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -205,7 +205,7 @@ void start(u64 __memsize, u32 __iplsch)
 	spawn_oper_shell(opcon);
 
 	/*
-	 * THIS IS WHERE THE IDLE TASK BEGINS
+	 * THIS IS WHERE THE IDLE TASK BEGINS, NOW WE CAN USE schedule()
 	 */
 
 	idle_task_body();
