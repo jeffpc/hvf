@@ -41,7 +41,7 @@ static inline void lpswe(void *psw)
 }
 
 #define BUG()		do { \
-				asm volatile(".byte 0x00,0x00" : : : "memory"); \
+				asm volatile(".byte 0x00,0x00,0x00,0x00" : : : "memory"); \
 			} while(0)
 #define BUG_ON(cond)	do { \
 				if (unlikely(cond)) \
