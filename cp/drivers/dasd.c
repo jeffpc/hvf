@@ -106,7 +106,7 @@ static int d3390_reg(struct device *dev)
 	return 0;
 }
 
-static int d3390_read(struct device *dev, u8 *buf, int lba, int nosched)
+static int d3390_read(struct device *dev, u8 *buf, int lba)
 {
 	struct io_op ioop;
 	struct ccw ccw[4];
@@ -180,7 +180,7 @@ static int d3390_read(struct device *dev, u8 *buf, int lba, int nosched)
 	/*
 	 * issue IO
 	 */
-	ret = submit_io(dev, &ioop, nosched ? CAN_LOOP : CAN_SLEEP);
+	ret = submit_io(dev, &ioop, CAN_SLEEP);
 	return ret;
 }
 

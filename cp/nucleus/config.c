@@ -166,7 +166,7 @@ int load_config(u32 iplsch)
 		return PTR_ERR(dev);
 
 	/* mount the fs */
-	fs = edf_mount(dev, 1);
+	fs = edf_mount(dev);
 	if (IS_ERR(fs))
 		return PTR_ERR(fs);
 

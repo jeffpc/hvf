@@ -16,7 +16,7 @@
 static LOCK_CLASS(edf_fs);
 static LOCK_CLASS(edf_file);
 
-struct fs *edf_mount(struct device *dev, int nosched)
+struct fs *edf_mount(struct device *dev)
 {
 	struct page *page;
 	void *tmp;
@@ -33,10 +33,8 @@ struct fs *edf_mount(struct device *dev, int nosched)
 	if (!fs)
 		goto out_free;
 
-	fs->nosched = nosched;
-
 	/* First, read & verify the label */
-	ret = bdev_read_block(dev, tmp, EDF_LABEL_BLOCK_NO, nosched);
+	ret = bdev_read_block(dev, tmp, EDF_LABEL_BLOCK_NO);
 	if (ret)
 		goto out_free;
 
@@ -107,8 +105,7 @@ struct file *edf_lookup(struct fs *fs, char *fn, char *ft)
 	file->buf = page_to_addr(page);
 
 	/* oh well, must do it the hard way ... read from disk */
-	ret = bdev_read_block(fs->dev, fs->tmp_buf, fs->ADT.ADTDOP,
-			      fs->nosched);
+	ret = bdev_read_block(fs->dev, fs->tmp_buf, fs->ADT.ADTDOP);
 	if (ret)
 		goto out_unlock;
 
@@ -160,7 +157,7 @@ int edf_read_rec(struct file *file, char *buf, u32 recno)
 	fop = file->FST.FSTFOP;
 	lrecl = file->FST.FSTLRECL;
 
-	ret = bdev_read_block(fs->dev, file->buf, fop, fs->nosched);
+	ret = bdev_read_block(fs->dev, file->buf, fop);
 	if (ret)
 		goto out;
 

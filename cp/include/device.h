@@ -23,7 +23,7 @@ struct device_type {
 	int (*snprintf)(struct device *dev, char *buf, int len);
 
 	/* the following ops are for the bdev wrapper layer */
-	int (*read)(struct device *dev, u8 *buf, int len, int nosched);
+	int (*read)(struct device *dev, u8 *buf, int len);
 
 	u16 type;
 	u8 model;
