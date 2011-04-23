@@ -36,6 +36,23 @@ static int __get_stack_slot()
 	return 0;
 }
 
+static void ldep_warn_head(char *lockname, void *addr)
+{
+	con_printf(NULL, "task '%s' is trying to acquire lock:\n",
+		   current->name);
+	con_printf(NULL, " (%s), at: %p\n\n", lockname, addr);
+}
+
+static void ldep_warn_recursive(char *lockname, void *addr, struct held_lock *held)
+{
+	con_printf(NULL, "[INFO: possible recursive locking detected]\n");
+
+	ldep_warn_head(lockname, addr);
+
+	con_printf(NULL, "but task is already holding lock:\n\n");
+	con_printf(NULL, " (%s), at: %p\n\n", held->lockname, held->ra);
+}
+
 static void print_held_locks()
 {
 	struct held_lock *cur;
@@ -54,12 +71,27 @@ void ldep_lock(void *lock, struct lock_class *c, char *lockname)
 	void *ra = __builtin_return_address(0);
 	struct held_lock *cur;
 	unsigned long mask;
+//	int ret;
+	int i;
 
 	// LOCK
 	spin_lock_intsave(&__lock, &mask);
 
 	if (!ldep_enabled)
 		goto out;
+
+	if (current->nr_locks) {
+		/* check for recursive locking */
+		for(i=0; i<current->nr_locks; i++) {
+			cur = &current->lock_stack[i];
+			if (cur->lclass != c)
+				continue;
+
+			ldep_warn_recursive(lockname, ra, cur);
+			ldep_enabled = 0;
+			goto out;
+		}
+	}
 
 	/* ok, no issues, add the lock we're trying to get to the stack */
 	if (__get_stack_slot())
@@ -69,6 +101,7 @@ void ldep_lock(void *lock, struct lock_class *c, char *lockname)
 	cur->ra = ra;
 	cur->lock = lock;
 	cur->lockname = lockname;
+	cur->lclass = c;
 
 out:
 	// UNLOCK

@@ -11,9 +11,10 @@
 #define LDEP_STACK_SIZE 10
 
 struct held_lock {
-	void *ra;		/* return address */
-	void *lock;		/* the lock */
-	char *lockname;		/* name of this lock */
+	void *ra;			/* return address */
+	void *lock;			/* the lock */
+	char *lockname;			/* name of this lock */
+	struct lock_class *lclass;	/* the class for this lock */
 };
 
 struct lock_class {
