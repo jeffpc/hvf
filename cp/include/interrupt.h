@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -89,7 +89,8 @@ extern void set_timer(void);
  */
 #define SVC_SCHEDULE		0
 #define SVC_SCHEDULE_BLOCKED	1
-#define NR_SVC			2
+#define SVC_SCHEDULE_EXIT	2
+#define NR_SVC			3
 extern u64 svc_table[NR_SVC];
 
 /* Interrupt handlers */

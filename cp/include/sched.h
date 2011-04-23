@@ -21,6 +21,7 @@
 #define TASK_RUNNING		0
 #define TASK_SLEEPING		1
 #define TASK_LOCKED		2
+#define TASK_ZOMBIE		3
 
 #define STACK_FRAME_SIZE	160
 
@@ -115,6 +116,8 @@ struct task {
 
 	int state;			/* state */
 
+	void *stack;			/* the stack */
+
 	char name[TASK_NAME_LEN+1];	/* task name */
 
 	/* lock dependency tracking */
@@ -143,6 +146,7 @@ extern void __schedule(struct psw *,
 		       int newstate);	/* scheduler helper - use with caution */
 extern void __schedule_svc(void);
 extern void __schedule_blocked_svc(void);
+extern void __schedule_exit_svc(void);
 
 extern void make_runnable(struct task *task);
 
@@ -209,6 +213,25 @@ static inline void schedule_blocked(void)
 	: /* output */
 	: /* input */
 	  "i" (SVC_SCHEDULE_BLOCKED)
+	);
+}
+
+/**
+ * exit - schedule with the intent to terminate the current task
+ */
+static inline void exit(void)
+{
+	/*
+	 * if we are not interruptable, we shouldn't call any functions that
+	 * may sleep - schedule() is guaranteed to sleep :)
+	 */
+	BUG_ON(!interruptable());
+
+	asm volatile(
+		"	svc	%0\n"
+	: /* output */
+	: /* input */
+	  "i" (SVC_SCHEDULE_EXIT)
 	);
 }
 

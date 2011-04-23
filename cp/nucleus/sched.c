@@ -32,15 +32,9 @@ static void start_task(int (*f)(void*), void *data)
 	if (f)
 		(*f)(data);
 
-	/*
-	 * Done, now, it's time to cleanup
-	 *
-	 * FIXME:
-	 *  - delete from processes list
-	 *  - free stack page
-	 *  - free struct
-	 *  - schedule
-	 */
+	exit();
+
+	/* unreachable */
 	BUG();
 }
 
@@ -67,6 +61,8 @@ static void __init_task(struct task *task, void *f, void *data, void *stack)
 	task->regs.gpr[15] = ((u64) stack) + PAGE_SIZE - STACK_FRAME_SIZE;
 
 	task->state = TASK_SLEEPING;
+
+	task->stack = stack;
 
 	task->nr_locks = 0;
 }
@@ -224,8 +220,6 @@ void __schedule(struct psw *old_psw, int newstate)
 	 * Add back on the queue
 	 */
 	prev->state = newstate;
-	if (newstate != TASK_LOCKED)
-		list_add_tail(&prev->run_queue, &runnable);
 
 	/*
 	 * If the previous task didn't use it's full slice, force idle_task
@@ -233,6 +227,19 @@ void __schedule(struct psw *old_psw, int newstate)
 	 */
 	if (prev->slice_end_time >= (ticks + SCHED_TICKS_PER_SLICE))
 		force_idle = prev->slice_end_time;
+
+	switch(newstate) {
+		case TASK_ZOMBIE:
+			list_del(&prev->proc_list);
+			free_pages(prev->stack, 0);
+			free(prev);
+			break;
+		case TASK_LOCKED:
+			break;
+		default:
+			list_add_tail(&prev->run_queue, &runnable);
+			break;
+	}
 
 go:
 	/*
@@ -256,6 +263,14 @@ void __schedule_svc(void)
 void __schedule_blocked_svc(void)
 {
 	__schedule(SVC_INT_OLD_PSW, TASK_LOCKED);
+}
+
+/**
+ * __schedule_blocked__svc - wrapper for the supervisor-service call handler
+ */
+void __schedule_exit_svc(void)
+{
+	__schedule(SVC_INT_OLD_PSW, TASK_ZOMBIE);
 }
 
 /*
