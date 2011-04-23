@@ -78,6 +78,35 @@ static void idle_task_body(void)
 	BUG();
 }
 
+static int __finish_loading(void *data)
+{
+	struct console *opcon; /* operator's console */
+	u32 iplsch;
+
+	iplsch = (u32) (u64) data;
+
+	/*
+	 * Load the config file
+	 */
+	if (load_config(iplsch))
+		BUG();
+
+	/*
+	 * IPL is more or less done
+	 */
+	get_parsed_tod(&ipltime);
+
+	opcon = start_oper_console();
+
+	con_printf(opcon, "NOW %02d:%02d:%02d UTC %04d-%02d-%02d\n\n",
+		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
+		   ipltime.dm, ipltime.dd);
+
+	spawn_oper_shell(opcon);
+
+	return 0;
+}
+
 /*
  * This is where everything starts
  */
@@ -86,7 +115,6 @@ void start(u64 __memsize, u32 __iplsch)
 	u64 first_free_page;
 	u64 struct_page_bytes;
 	struct psw psw;
-	struct console *opcon; /* operator's console */
 
 	/*
 	 * ticks starts at 0
@@ -191,26 +219,12 @@ void start(u64 __memsize, u32 __iplsch)
 	ldep_on();
 
 	/*
-	 * Load the config file
+	 * Create a thread that'll finish setting everything up for us
 	 */
-	if (load_config(__iplsch))
-		BUG();
+	create_task("*finish-loading", __finish_loading, (void*) (u64) __iplsch);
 
 	/*
-	 * IPL is more or less done
-	 */
-	get_parsed_tod(&ipltime);
-
-	opcon = start_oper_console();
-
-	con_printf(opcon, "NOW %02d:%02d:%02d UTC %04d-%02d-%02d\n\n",
-		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
-		   ipltime.dm, ipltime.dd);
-
-	spawn_oper_shell(opcon);
-
-	/*
-	 * THIS IS WHERE THE IDLE TASK BEGINS, NOW WE CAN USE schedule()
+	 * THIS IS WHERE THE IDLE TASK BEGINS
 	 */
 
 	idle_task_body();
