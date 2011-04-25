@@ -89,8 +89,10 @@ static struct cpcmd commands[] = {
 	{"IP",		cmd_ipl,		NULL},
 	{"I",		cmd_ipl,		NULL},
 
+	{"LOGIN",	cmd_logon_fail,		NULL},
 	{"LOGON",	cmd_logon_fail,		NULL},
 	{"LOGO",	cmd_logon_fail,		NULL},
+	{"LOGI",	cmd_logon_fail,		NULL},
 	{"LOG",		cmd_logon_fail,		NULL},
 	{"LO",		cmd_logon_fail,		NULL},
 	{"L",		cmd_logon_fail,		NULL},
@@ -117,7 +119,9 @@ static struct cpcmd commands[] = {
 };
 
 static struct cpcmd logon_commands[] = {
+	{"LOGIN",	cmd_logon,		NULL},
 	{"LOGON",	cmd_logon,		NULL},
+	{"LOGI",	cmd_logon,		NULL},
 	{"LOGO",	cmd_logon,		NULL},
 	{"LOG",		cmd_logon,		NULL},
 	{"LO",		cmd_logon,		NULL},
