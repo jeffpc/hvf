@@ -86,6 +86,7 @@ static void display_task(struct console *con, struct task *task)
 		case TASK_RUNNING:  state = 'R'; break;
 		case TASK_SLEEPING: state = 'S'; break;
 		case TASK_LOCKED:   state = 'L'; break;
+		case TASK_ZOMBIE:   state = 'Z'; break;
 		default:            state = '?'; break;
 	}
 
