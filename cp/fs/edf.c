@@ -171,28 +171,22 @@ struct file *edf_lookup(struct fs *fs, char *fn, char *ft)
 
 	for(blk=0; blk<fs->dir->FST.ADBC; blk++) {
 		fst = bcache_read(fs->dir, 0, blk);
-		if (IS_ERR(fst))
+		if (IS_ERR(fst)) {
+			ret = PTR_ERR(fst);
 			goto out_free;
+		}
 
 		for(i=0; i<fs->ADT.NFST; i++) {
 			if ((!memcmp(fst[i].FNAME, __fn, 8)) &&
 			    (!memcmp(fst[i].FTYPE, __ft, 8))) {
 				memcpy(&file->FST, &fst[i], sizeof(struct FST));
-				goto found;
+				mutex_unlock(&fs->lock);
+				return file;
 			}
 		}
 	}
 
 	ret = -ENOENT;
-	goto out_free;
-
-found:
-	mutex_init(&file->lock, &edf_file);
-	list_add_tail(&file->files, &fs->files);
-
-	mutex_unlock(&fs->lock);
-
-	return file;
 
 out_free:
 	__free_file(file);
