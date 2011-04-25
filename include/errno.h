@@ -22,6 +22,7 @@
 
 #define PTR_ERR(ptr)	((s64) ptr)
 #define ERR_PTR(err)	((void*) (long) err)
+#define ERR_CAST(err)	((void*) err)
 
 static inline int IS_ERR(void *ptr)
 {
