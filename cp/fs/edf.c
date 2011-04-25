@@ -19,7 +19,7 @@ static LOCK_CLASS(edf_dir);
 static LOCK_CLASS(edf_file);
 
 /* assumes that fs->lock is held */
-struct file *__alloc_file(struct fs *fs, struct FST *fst)
+static struct file *__alloc_file(struct fs *fs, struct FST *fst)
 {
 	struct file *file;
 
@@ -44,13 +44,13 @@ struct file *__alloc_file(struct fs *fs, struct FST *fst)
 }
 
 /* assumes that fs->lock is held */
-void __free_file(struct file *file)
+static void __free_file(struct file *file)
 {
 	list_del(&file->files);
 	free(file);
 }
 
-int __init_dir(struct fs *fs, void *tmp)
+static int __init_dir(struct fs *fs, void *tmp)
 {
 	struct FST *fst = tmp;
 	struct file *file;
