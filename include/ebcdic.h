@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -8,8 +8,12 @@
 #ifndef __EBCDIC_H
 #define __EBCDIC_H
 
+/* charset conversions */
 extern u8 ascii2ebcdic_table[256];
 extern u8 ebcdic2ascii_table[256];
+
+/* ASCII transforms */
+extern u8 ascii2upper_table[256];
 
 /*
  * Generic translate buffer function.
@@ -37,5 +41,8 @@ static inline void __translate(u8 *buf, int len, const u8 *table)
 			__translate((buf), (len), ascii2ebcdic_table)
 #define ebcdic2ascii(buf, len)  \
 			__translate((buf), (len), ebcdic2ascii_table)
+
+#define ascii2upper(buf, len)	\
+			__translate((buf), (len), ascii2upper_table)
 
 #endif

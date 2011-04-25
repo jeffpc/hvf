@@ -22,7 +22,7 @@ digest.a: digest.o
 string.a: string.o vsprintf.o
 	$(call ar,$@,$^)
 
-ebcdic.a: ebcdic.o
+ebcdic.a: ebcdic.o ascii.o
 	$(call ar,$@,$^)
 
 errno.a: errno.o
