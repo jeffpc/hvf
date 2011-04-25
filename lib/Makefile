@@ -6,7 +6,8 @@ NUCLEUSCFLAGS=
 LIBS=clock.a		\
      digest.a		\
      string.a		\
-     ebcdic.a
+     ebcdic.a		\
+     errno.a
 
 include ../cp/scripts/Makefile.commands
 
@@ -22,6 +23,9 @@ string.a: string.o vsprintf.o
 	$(call ar,$@,$^)
 
 ebcdic.a: ebcdic.o
+	$(call ar,$@,$^)
+
+errno.a: errno.o
 	$(call ar,$@,$^)
 
 %.o: %.c

@@ -18,13 +18,16 @@
 #define EUCHECK		8
 #define EFAULT		9
 #define EPERM		10
+#define ECORRUPT	11
 
 #define PTR_ERR(ptr)	((s64) ptr)
-#define ERR_PTR(err)	((void*) err)
+#define ERR_PTR(err)	((void*) (long) err)
 
 static inline int IS_ERR(void *ptr)
 {
 	return -1024 < PTR_ERR(ptr) && PTR_ERR(ptr) < 0;
 }
+
+extern char *errstrings[];
 
 #endif
