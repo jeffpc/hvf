@@ -176,7 +176,7 @@ int load_config(u32 iplsch)
 		return PTR_ERR(file);
 
 	/* parse each record in the config file */
-	for(i=0; i<file->FST.FSTAIC; i++) {
+	for(i=0; i<file->FST.AIC; i++) {
 		ret = edf_read_rec(file, buf, i);
 		if (ret)
 			return ret;
