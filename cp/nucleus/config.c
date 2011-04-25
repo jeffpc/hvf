@@ -147,7 +147,7 @@ static void null_terminate(char *s, int lrecl)
 	s[i+1] = '\0';
 }
 
-int load_config(u32 iplsch)
+struct fs *load_config(u32 iplsch)
 {
 	struct device *dev;
 	struct fs *fs;
@@ -163,23 +163,23 @@ int load_config(u32 iplsch)
 	/* find the real device */
 	dev = find_device_by_sch(iplsch);
 	if (IS_ERR(dev))
-		return PTR_ERR(dev);
+		return ERR_CAST(dev);
 
 	/* mount the fs */
 	fs = edf_mount(dev);
 	if (IS_ERR(fs))
-		return PTR_ERR(fs);
+		return fs;
 
 	/* look up the config file */
 	file = edf_lookup(fs, CONFIG_FILE_NAME, CONFIG_FILE_TYPE);
 	if (IS_ERR(file))
-		return PTR_ERR(file);
+		return ERR_CAST(file);
 
 	/* parse each record in the config file */
 	for(i=0; i<file->FST.AIC; i++) {
 		ret = edf_read_rec(file, buf, i);
 		if (ret)
-			return ret;
+			return ERR_PTR(ret);
 
 		ebcdic2ascii((u8 *) buf, CONFIG_LRECL);
 
@@ -189,10 +189,10 @@ int load_config(u32 iplsch)
 
 		ret = parse_config_stmnt(buf);
 		if (ret)
-			return ret;
+			return ERR_PTR(ret);
 	}
 
 	/* FIXME: load all the logo files */
 
-	return 0;
+	return fs;
 }

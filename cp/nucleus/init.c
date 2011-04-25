@@ -48,6 +48,8 @@ static struct psw new_pgm_psw = {
 
 u8 *int_stack_ptr;
 
+struct fs *sysfs;
+
 /* the time HVF got IPLd */
 struct datetime ipltime;
 
@@ -88,7 +90,8 @@ static int __finish_loading(void *data)
 	/*
 	 * Load the config file
 	 */
-	if (load_config(iplsch))
+	sysfs = load_config(iplsch);
+	if (IS_ERR(sysfs))
 		BUG();
 
 	/*

@@ -8,7 +8,6 @@
 #ifndef __NUCLEUS_H
 #define __NUCLEUS_H
 
-#include <config.h>
 #include <compiler.h>
 #include <errno.h>
 #include <string.h>
@@ -47,6 +46,8 @@ static inline void lpswe(void *psw)
 				if (unlikely(cond)) \
 					BUG(); \
 			} while(0)
+
+#include <config.h>
 
 /*
  * This should be as simple as a cast, but unfortunately, the BUG_ON check

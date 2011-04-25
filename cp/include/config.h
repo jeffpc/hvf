@@ -9,6 +9,7 @@
 #define __CONFIG_H
 
 #include <list.h>
+#include <edf.h>
 
 /*
  * Base address within a guest's address space; used as the base address for
@@ -29,9 +30,11 @@ struct sysconf {
 	struct list_head	logos;
 };
 
+extern struct fs *sysfs;
+
 /* the actual config */
 extern struct sysconf sysconf;
 
-extern int load_config();
+extern struct fs *load_config();
 
 #endif
