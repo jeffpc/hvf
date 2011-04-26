@@ -36,6 +36,10 @@ struct ccw0 {
 #define CCW_CMD_SENSE_ID	0xe4
 #define CCW_CMD_TIC		0x08
 
+#define IS_CCW_WRITE(op)	(((op)&0x03)==0x01)
+#define IS_CCW_READ(op)		(((op)&0x03)==0x02)
+#define IS_CCW_CONTROL(op)	(((op)&0x03)==0x03)
+
 #define CCW_FLAG_CD		0x80	/* Chain-Data */
 #define CCW_FLAG_CC		0x40	/* Chain-Command */
 #define CCW_FLAG_SLI		0x20	/* Suppress-Length-Indication */
