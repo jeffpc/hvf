@@ -10,7 +10,7 @@
 #
 
 .long 0x00080000			# IPL PSW
-.long ENTRY
+.long START
 
 .org 88					# EXT NEW PSW
 .long 0x000A0000
@@ -29,7 +29,8 @@ SUBSYSID:				# SUBSYSTEM ID
 .long 0x00000000
 
 .org 512
-ENTRY:					# CODE BEGINS
+.globl START
+START:					# CODE BEGINS
 	# LET'S FIND A CONSOLE TO WORK WITH
 
 	LA	%R1,0x1(%R0)		# LOAD R1 WITH 0XFFFF
