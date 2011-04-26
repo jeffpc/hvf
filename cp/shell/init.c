@@ -31,16 +31,18 @@ static UNLOCKED_MUTEX(online_users_lock, &online_users_lc);
 
 static int __alloc_guest_devices(struct virt_sys *sys)
 {
+	int ret;
 	int i;
 
 	INIT_LIST_HEAD(&sys->virt_devs);
 
 	for(i=0; sys->directory->devices[i].type != VDEV_INVAL; i++) {
-		if (alloc_virt_dev(sys, &sys->directory->devices[i],
-				   0x10000 + i))
-			con_printf(sys->con, "Failed to allocate vdev %04X, SCH = %05X\n",
+		ret = alloc_virt_dev(sys, &sys->directory->devices[i],
+				     0x10000 + i);
+		if (ret)
+			con_printf(sys->con, "Failed to allocate vdev %04X, SCH = %05X (%s)\n",
 				   sys->directory->devices[i].vdev,
-				   0x10000 + i);
+				   0x10000 + i, errstrings[-ret]);
 	}
 
 	return 0;
