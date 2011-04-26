@@ -39,7 +39,7 @@ struct psw {
 	   ex:1;		/* External Mask (EX)		*/
 
 	u8 key:4,		/* Key				*/
-	   _zero2:1,
+	   fmt:1,		/* 1 on 390, 0 on z		*/
 	   m:1,			/* Machine-Check Mask (M)	*/
 	   w:1,			/* Wait State (W)		*/
 	   p:1;			/* Problem State (P)		*/
@@ -48,11 +48,11 @@ struct psw {
 	   cc:2,		/* Condition Code (CC)		*/
 	   prog_mask:4;		/* Program Mask			*/
 
-	u8 _zero3:7,
+	u8 _zero2:7,
 	   ea:1;		/* Extended Addressing (EA)	*/
 
 	u32 ba:1,		/* Basic Addressing (BA)	*/
-	    _zero4:31;
+	    ptr31:31;
 
 	u64 ptr;
 };
