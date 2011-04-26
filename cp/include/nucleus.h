@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -48,24 +48,6 @@ static inline void lpswe(void *psw)
 			} while(0)
 
 #include <config.h>
-
-/*
- * This should be as simple as a cast, but unfortunately, the BUG_ON check
- * is there to make sure we never submit a truncated address to the channels
- *
- * In the future, the io code should check if IDA is necessary, and in that
- * case allocate an IDAL & set the IDA ccw flag. Other parts of the system
- * that require 31-bit address should do whatever their equivalent action
- * is.
- */
-static inline u32 ADDR31(void *ptr)
-{
-	u64 ip = (u64) ptr;
-
-	BUG_ON(ip & ~0x7fffffffull);
-
-	return (u32) ip;
-}
 
 /*
  * stdio.h equivalents
