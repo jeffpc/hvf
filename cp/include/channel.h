@@ -237,6 +237,32 @@ struct senseid_struct {
 	u8 dev_model;
 } __attribute__((packed));
 
+enum {
+	SC_STATUS_ATTN = 0x80, /* Attention */
+	SC_STATUS_MOD  = 0x40, /* Status Modifier */
+	SC_STATUS_CUE  = 0x20, /* Control-Unit End */
+	SC_STATUS_BUSY = 0x10, /* Busy */
+	SC_STATUS_CE   = 0x08, /* Channel End */
+	SC_STATUS_DE   = 0x04, /* Device End */
+	SC_STATUS_UC   = 0x02, /* Unit-check */
+	SC_STATUS_UE   = 0x01, /* Unit-exception */
+};
+
+enum {
+	SC_PROG_CI  = 0x80, /* Program-Controlled Interruption */
+	SC_INC_LEN  = 0x40, /* Incorrect Length */
+	SC_PROG_CHK = 0x20, /* Program Check */
+	SC_PROT_CHK = 0x10, /* Protection Check */
+	SC_CHD_CHK  = 0x08, /* Channel-Data Check */
+	SC_CHC_CHK  = 0x04, /* Channel-Control Check */
+	SC_IC_CHK   = 0x02, /* Interface-Control Check */
+	SC_CHAIN_CHK= 0x01, /* Chaining Check */
+};
+
+enum {
+	SENSE_CMDREJ = 0x00,
+};
+
 static inline int store_sch(u32 sch, struct schib *schib)
 {
 	int cc;
