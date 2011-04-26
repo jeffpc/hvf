@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -9,6 +9,7 @@
 #define __SHELL_H
 
 #include <directory.h>
+#include <vdevice.h>
 
 #define SHELL_CMD_MAX_LEN	8
 
@@ -38,6 +39,8 @@ extern void handle_interception(struct virt_sys *sys);
 
 extern int handle_instruction(struct virt_sys *sys);
 extern int handle_instruction_priv(struct virt_sys *sys);
+
+extern int spool_exec(struct virt_sys *sys, struct virt_device *vdev);
 
 typedef int (*intercept_handler_t)(struct virt_sys *sys);
 

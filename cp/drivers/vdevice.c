@@ -53,16 +53,20 @@ int alloc_virt_dev(struct virt_sys *sys, struct directory_vdev *dirdev,
 
 	switch(dirdev->type) {
 		case VDEV_CONS:
+			/* CONS is really just a special case of SPOOL */
+			vdev->u.spool.file = NULL;
+			vdev->u.spool.ops = NULL;
 			vdev->type = 0x3215;
 			vdev->model = 0;
 			break;
-		case VDEV_DED:
-			ret = __setup_vdev_ded(sys, dirdev, vdev);
-			break;
 		case VDEV_SPOOL:
+			vdev->u.spool.file = NULL;
+			vdev->u.spool.ops = NULL;
 			vdev->type = dirdev->u.spool.type;
 			vdev->model = dirdev->u.spool.model;
-			// FIXME: hook it up to the spooler
+			break;
+		case VDEV_DED:
+			ret = __setup_vdev_ded(sys, dirdev, vdev);
 			break;
 		case VDEV_MDISK:
 			vdev->type = 0x3390;

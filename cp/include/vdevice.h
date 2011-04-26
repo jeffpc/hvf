@@ -12,7 +12,42 @@
 #include <directory.h>
 #include <sched.h>
 #include <mutex.h>
+#include <spool.h>
 
+/*
+ * VDEV_SPOOL and VDEV_CONS related definitions
+ */
+struct virt_device;
+struct spdev_state;
+
+struct spool_ops {
+	void (*f[16])(struct virt_sys *sys, struct virt_device *vdev,
+		      struct ccw *ccw, struct spdev_state *st);
+};
+
+struct spdev_state {
+	u8 dev_status;	/* device/CU status */
+	u8 sch_status;  /* subchannel status */
+
+	u32 addr;	/* ccw address */
+	int f;		/* ccw format */
+
+	u8 *iobuf;
+
+	u32 rem;	/* current record remaining count */
+	u32 pos;	/* current record remaining offset */
+
+	int cd;		/* chain data bool */
+	u8  cmd;	/* chain data command */
+
+	int tic2tic;
+
+	struct spool_ops *ops;
+};
+
+/*
+ * The virtual device struct definition
+ */
 struct virt_device {
 	struct list_head devices;
 
@@ -33,6 +68,12 @@ struct virt_device {
 			struct device *rdev;
 					/* real device */
 		} dedicate;
+		struct {
+			struct spool_file *file;
+					/* the spool file backing this dev */
+			struct spool_ops *ops;
+					/* ops vector used for CCW exec */
+		} spool;
 	} u;
 
 	u8 sense;			/* sense info */
@@ -42,6 +83,20 @@ struct virt_device {
 	struct orb orb;
 };
 
+/*
+ * VDEV_SPOOL and VDEV_CONS: generate command reject
+ */
+static inline void spooldev_cmdrej(struct virt_sys *sys,
+				   struct virt_device *vdev,
+				   struct spdev_state *st)
+{
+	st->dev_status = SC_STATUS_CE | SC_STATUS_DE | SC_STATUS_UC;
+	vdev->sense = SENSE_CMDREJ;
+}
+
+/*
+ * misc virtual device functions
+ */
 extern int alloc_virt_dev(struct virt_sys *sys,
 		struct directory_vdev *dirdev, u32 sch);
 

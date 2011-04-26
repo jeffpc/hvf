@@ -223,12 +223,9 @@ static int handle_ssch(struct virt_sys *sys)
 	mutex_unlock(&vdev->lock);
 
 	switch (vtype) {
-		case VDEV_DED:
-			ret = -EINVAL;
-			break;
-
+		case VDEV_CONS:
 		case VDEV_SPOOL:
-			ret = -EINVAL;
+			ret = spool_exec(sys, vdev);
 			break;
 
 		default:
