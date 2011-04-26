@@ -135,8 +135,114 @@ out:
 
 static int handle_ssch(struct virt_sys *sys)
 {
-	con_printf(sys->con, "SSCH handler\n");
-	return -ENOMEM;
+	struct virt_cpu *cpu = sys->task->cpu;
+	u64 len;
+
+	u64 r1   = __guest_gpr(cpu, 1);
+	u64 addr = RAW_S_1(cpu);
+
+	struct orb gorb;
+	struct virt_device *vdev, *vdev_cur;
+	enum directory_vdevtype vtype;
+	int ret = 0;
+
+	/* sch number must be: X'0001____' */
+	if ((r1 & 0xffff0000) != 0x00010000) {
+		queue_prog_exception(sys, PROG_OPERAND, r1);
+		goto out;
+	}
+
+	/* schib must be word-aligned */
+	if (addr & 0x3) {
+		queue_prog_exception(sys, PROG_SPEC, addr);
+		goto out;
+	}
+
+	/* find the virtual device */
+	vdev = NULL;
+	list_for_each_entry(vdev_cur, &sys->virt_devs, devices) {
+		if (vdev_cur->sch == (u32) r1) {
+			vdev = vdev_cur;
+			break;
+		}
+	}
+
+	/* There's no virtual device with this sch number; CC=3 */
+	if (!vdev) {
+		cpu->sie_cb.gpsw.cc = 3;
+		goto out;
+	}
+
+	/* copy the ORB from the guest */
+	len = sizeof(struct orb);
+	ret = memcpy_from_guest(addr, &gorb, &len);
+	if (ret) {
+		if (ret == -EFAULT) {
+			ret = 0;
+			queue_prog_exception(sys, PROG_ADDR, addr);
+		}
+
+		goto out;
+	}
+
+	mutex_lock(&vdev->lock);
+
+	/*
+	 * Condition code 1 is set, and no other action is taken, when the
+	 *   subchannel is status pending. (See “Status Control (SC)” on
+	 *   page 16-16.)
+	 */
+	if (vdev->scsw.sc & SC_STATUS) {
+		mutex_unlock(&vdev->lock);
+		cpu->sie_cb.gpsw.cc = 1;
+		goto out;
+	}
+
+	/*
+	 * Condition code 2 is set, and no other action is taken, when a
+	 *   clear, halt, or start function is in progress at the
+	 *   subchannel.  (See “Function Control (FC)” on page 16-12.)
+	 */
+	if (vdev->scsw.fc & (FC_START | FC_HALT | FC_CLEAR)) {
+		mutex_unlock(&vdev->lock);
+		cpu->sie_cb.gpsw.cc = 2;
+		goto out;
+	}
+
+	/*
+	 * Let's set up the subchannel status for the I/O
+	 */
+	memset(&vdev->scsw, 0, sizeof(struct scsw));
+	vdev->scsw.fc = FC_START;
+	vdev->scsw.ac = AC_START;
+	vdev->pmcw.interrupt_param = gorb.param;
+	memcpy(&vdev->orb, &gorb, sizeof(struct orb));
+
+	vtype = vdev->vtype;
+
+	mutex_unlock(&vdev->lock);
+
+	switch (vtype) {
+		case VDEV_DED:
+			ret = -EINVAL;
+			break;
+
+		case VDEV_SPOOL:
+			ret = -EINVAL;
+			break;
+
+		default:
+			goto stop;
+	}
+
+out:
+	return ret;
+
+stop:
+	cpu->state = GUEST_STOPPED;
+	con_printf(sys->con, "SSCH handler - CPU STOPPED\n");
+
+	return 0;
 }
 
 static int handle_stsch(struct virt_sys *sys)

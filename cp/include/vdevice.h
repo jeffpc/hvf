@@ -35,8 +35,11 @@ struct virt_device {
 		} dedicate;
 	} u;
 
+	u8 sense;			/* sense info */
+
 	struct pmcw pmcw;		/* path info */
 	struct scsw scsw;		/* subchannel-status */
+	struct orb orb;
 };
 
 extern int alloc_virt_dev(struct virt_sys *sys,
