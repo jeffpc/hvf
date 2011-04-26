@@ -23,6 +23,8 @@
 #define CONFIG_FILE_NAME		"SYSTEM  "
 #define CONFIG_FILE_TYPE		"CONFIG  "
 
+#define NSS_FILE_TYPE			"NSS     "
+
 struct sysconf {
 	u16			oper_con;
 	char			oper_userid[9];
