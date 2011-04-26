@@ -223,6 +223,17 @@ static inline void list_splice(struct list_head *list, struct list_head *head)
 }
 
 /**
+ * list_splice_tail - join two lists
+ * @list: the new list to add.
+ * @head: the place to add it before in the first list.
+ */
+static inline void list_splice_tail(struct list_head *list, struct list_head *head)
+{
+	if (!list_empty(list))
+		__list_splice(list, head->prev);
+}
+
+/**
  * list_splice_init - join two lists and reinitialise the emptied list.
  * @list: the new list to add.
  * @head: the place to add it in the first list.
@@ -234,6 +245,22 @@ static inline void list_splice_init(struct list_head *list,
 {
 	if (!list_empty(list)) {
 		__list_splice(list, head);
+		INIT_LIST_HEAD(list);
+	}
+}
+
+/**
+ * list_splice_tail_init - join two lists and reinitialise the emptied list.
+ * @list: the new list to add.
+ * @head: the place to add it before in the first list.
+ *
+ * The list at @list is reinitialised
+ */
+static inline void list_splice_tail_init(struct list_head *list,
+					 struct list_head *head)
+{
+	if (!list_empty(list)) {
+		__list_splice(list, head->prev);
 		INIT_LIST_HEAD(list);
 	}
 }
@@ -257,6 +284,17 @@ static inline void list_splice_init(struct list_head *list,
  */
 #define list_first_entry(ptr, type, member) \
 	list_entry((ptr)->next, type, member)
+
+/**
+ * list_last_entry - get the last element from a list
+ * @ptr:	the list head to take the element from.
+ * @type:	the type of the struct this is embedded in.
+ * @member:	the name of the list_struct within the struct.
+ *
+ * Note, that list is expected to be not empty.
+ */
+#define list_last_entry(ptr, type, member) \
+	list_entry((ptr)->prev, type, member)
 
 /**
  * list_for_each	-	iterate over a list
