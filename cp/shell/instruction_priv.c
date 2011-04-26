@@ -232,6 +232,8 @@ static int handle_ssch(struct virt_sys *sys)
 			goto stop;
 	}
 
+	cpu->sie_cb.gpsw.cc = 0;
+
 out:
 	return ret;
 
