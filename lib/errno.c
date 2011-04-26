@@ -1,6 +1,7 @@
 #include <errno.h>
 
 char *errstrings[] = {
+	[SUCCESS]    = "Success",
 	[ENOMEM]     = "Out of memory",
 	[EBUSY]      = "Resource busy",
 	[EAGAIN]     = "Try again",

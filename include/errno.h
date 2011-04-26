@@ -8,6 +8,7 @@
 #ifndef __ERRNO_H
 #define __ERRNO_H
 
+#define SUCCESS		0
 #define ENOMEM		1
 #define EBUSY		2
 #define EAGAIN		3
