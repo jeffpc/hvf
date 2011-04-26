@@ -18,6 +18,8 @@ struct ccw {
 	u32 addr;		/* Data Address */
 } __attribute__((packed,aligned(8)));
 
+#define CCW0_ADDR(c)	((((u64)((c)->addr_hi)) << 16) | (((u64)((c)->addr_lo))))
+
 struct ccw0 {
 	u8 cmd;			/* Command code */
 	u8 addr_hi;		/* Data Address (bits 8-15) */
@@ -27,6 +29,7 @@ struct ccw0 {
 	u16 count;		/* Count */
 } __attribute__((packed,aligned(8)));
 
+#define CCW_CMD_INVAL		0x00
 #define CCW_CMD_IPL_READ	0x02
 #define CCW_CMD_NOP		0x03
 #define CCW_CMD_BASIC_SENSE	0x04
@@ -41,6 +44,16 @@ struct ccw0 {
 #define CCW_FLAG_IDA		0x04	/* Indirect-Data-Address */
 #define CCW_FLAG_S		0x02	/* Suspend */
 #define CCW_FLAG_MIDA		0x01	/* Modified-Indirect-Data-Address */
+
+static inline void ccw0_to_ccw1(struct ccw *out, struct ccw0 *in)
+{
+	/* 0x08 is TIC; format-0 CCWs allow upper nibble to be non-zero */
+	out->cmd	= ((in->cmd & 0x0f) == CCW_CMD_TIC) ?
+				CCW_CMD_TIC : in->cmd;
+	out->flags	= in->flags;
+	out->count	= in->count;
+	out->addr	= CCW0_ADDR(in);
+}
 
 /*
  * ORB
