@@ -70,20 +70,15 @@ int alloc_virt_dev(struct virt_sys *sys, struct directory_vdev *dirdev,
 			// FIXME: hook it up to mdisk driver
 			break;
 		case VDEV_LINK:
-			goto free;
 		case VDEV_INVAL:
-			goto out;
+			ret = -EINVAL;
+			break;
 	}
 
-	list_add_tail(&vdev->devices, &sys->virt_devs);
+	if (!ret)
+		list_add_tail(&vdev->devices, &sys->virt_devs);
+	else
+		free(vdev);
 
 	return ret;
-
-free:
-	free(vdev);
-	return 0;
-
-out:
-	free(vdev);
-	return -EINVAL;
 }
