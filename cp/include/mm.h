@@ -10,6 +10,8 @@
 
 extern u64 memsize;
 
+extern const u8 zeropage[PAGE_SIZE];
+
 /* Turn Low-address protection on */
 static inline void lap_on(void)
 {

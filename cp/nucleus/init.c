@@ -50,6 +50,8 @@ u8 *int_stack_ptr;
 
 struct fs *sysfs;
 
+const u8 zeropage[PAGE_SIZE];
+
 /* the time HVF got IPLd */
 struct datetime ipltime;
 
