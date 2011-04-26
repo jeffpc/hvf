@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -69,6 +69,8 @@ static int handle_msch(struct virt_sys *sys)
 
 	gschib = (struct schib*) addr;
 
+	mutex_lock(&vdev->lock);
+
 	/*
 	 * Condition code 1 is set, and no other action is taken, when the
 	 *   subchannel is status pending. (See “Status Control (SC)” on
@@ -76,7 +78,7 @@ static int handle_msch(struct virt_sys *sys)
 	 */
 	if (vdev->scsw.sc & SC_STATUS) {
 		cpu->sie_cb.gpsw.cc = 1;
-		goto out;
+		goto out_unlock;
 	}
 
 	/*
@@ -86,7 +88,7 @@ static int handle_msch(struct virt_sys *sys)
 	 */
 	if (vdev->scsw.fc & (FC_START | FC_HALT | FC_CLEAR)) {
 		cpu->sie_cb.gpsw.cc = 2;
-		goto out;
+		goto out_unlock;
 	}
 
 	/*
@@ -123,6 +125,9 @@ static int handle_msch(struct virt_sys *sys)
 
 out_cc0:
 	cpu->sie_cb.gpsw.cc = 0;
+
+out_unlock:
+	mutex_unlock(&vdev->lock);
 
 out:
 	return ret;
@@ -192,9 +197,13 @@ static int handle_stsch(struct virt_sys *sys)
 
 	gschib = (struct schib*) addr;
 
+	mutex_lock(&vdev->lock);
+
 	/* copy! */
 	memcpy(&gschib->pmcw, &vdev->pmcw, sizeof(struct pmcw));
 	memcpy(&gschib->scsw, &vdev->scsw, sizeof(struct scsw));
+
+	mutex_unlock(&vdev->lock);
 
 	/* CC: 0 */
 	cpu->sie_cb.gpsw.cc = 0;

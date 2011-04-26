@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -28,6 +28,8 @@ static int __setup_vdev_ded(struct virt_sys *sys,
 	return 0;
 }
 
+static LOCK_CLASS(vdev_lc);
+
 int alloc_virt_dev(struct virt_sys *sys, struct directory_vdev *dirdev,
 		   u32 sch)
 {
@@ -37,6 +39,8 @@ int alloc_virt_dev(struct virt_sys *sys, struct directory_vdev *dirdev,
 	vdev = malloc(sizeof(struct virt_device), ZONE_NORMAL);
 	if (!vdev)
 		return -ENOMEM;
+
+	mutex_init(&vdev->lock, &vdev_lc);
 
 	vdev->vtype = dirdev->type;
 	vdev->sch = sch;

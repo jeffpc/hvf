@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -34,6 +34,8 @@ static void display_rdev(struct console *con, struct device *dev)
 
 static void display_vdev(struct console *con, struct virt_device *vdev)
 {
+	mutex_lock(&vdev->lock);
+
 	switch (vdev->vtype) {
 		case VDEV_CONS:
 			con_printf(con, "CONS %04X 3215 ON %s %04X %s SCH = %05X\n",
@@ -76,6 +78,8 @@ static void display_vdev(struct console *con, struct virt_device *vdev)
 				   vdev->pmcw.dev_num, vdev->sch);
 			break;
 	}
+
+	mutex_unlock(&vdev->lock);
 }
 
 static void display_task(struct console *con, struct task *task)

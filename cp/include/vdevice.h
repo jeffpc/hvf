@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -11,9 +11,18 @@
 #include <list.h>
 #include <directory.h>
 #include <sched.h>
+#include <mutex.h>
 
 struct virt_device {
 	struct list_head devices;
+
+	/*
+	 * protects the R/W fields:
+	 *  - pmcw
+	 *  - scsw
+	 */
+	mutex_t lock;
+
 	enum directory_vdevtype vtype;	/* VDEV_CONS, VDEV_DED, ... */
 	u32 sch;			/* subchannel id */
 	u16 type;			/* 3330, 3215, ... */
