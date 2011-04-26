@@ -229,6 +229,14 @@ struct schib {
 	u32 model_dep_area;
 } __attribute__((packed,aligned(4)));
 
+struct senseid_struct {
+	u8 __reserved;
+	u16 cu_type;
+	u8 cu_model;
+	u16 dev_type;
+	u8 dev_model;
+} __attribute__((packed));
+
 static inline int store_sch(u32 sch, struct schib *schib)
 {
 	int cc;

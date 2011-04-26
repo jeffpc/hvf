@@ -13,14 +13,6 @@
 #include <spinlock.h>
 #include <sched.h>
 
-struct senseid_struct {
-	u8 __reserved;
-	u16 cu_type;
-	u8 cu_model;
-	u16 dev_type;
-	u8 dev_model;
-} __attribute__((packed));
-
 struct static_device {
 	u16 dev_num;
 	struct senseid_struct sense;
