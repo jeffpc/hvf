@@ -8,6 +8,7 @@
 #include <device.h>
 #include <bdev.h>
 #include <edf.h>
+#include <slab.h>
 #include <ebcdic.h>
 
 struct sysconf sysconf;
@@ -82,12 +83,23 @@ static int __parse_rdev(char *s)
 	return 0;
 }
 
+static void copy_fn(char *dst, char *src)
+{
+	int len;
+
+	len = strnlen(src, 8);
+
+	memcpy(dst, src, 8);
+	if (len < 8)
+		memset(dst + len, ' ', 8 - len);
+}
+
 static int __parse_logo(char *s)
 {
-	int ret;
-
 	char *conn, *_devtype, *fn, *ft;
+	struct logo *logo;
 	u16 devtype;
+	int ret;
 
 	if ((conn = strsep(&s, " ")) == NULL)
 		return -EINVAL;
@@ -105,9 +117,32 @@ static int __parse_logo(char *s)
 	if ((ft = strsep(&s, " ")) == NULL)
 		return -EINVAL;
 
-	/* FIXME: save the <conn, devtype, fn, ft> pair */
+	logo = malloc(sizeof(struct logo), ZONE_NORMAL);
+	if (!logo)
+		return -ENOMEM;
+
+	INIT_LIST_HEAD(&logo->list);
+	INIT_LIST_HEAD(&logo->lines);
+
+	/* save the <conn, devtype, fn, ft> pair */
+
+	if (!strcmp(conn, "LOCAL"))
+		logo->conn = LOGO_CONN_LOCAL;
+	else
+		goto out_free;
+
+	logo->devtype = devtype;
+
+	copy_fn(logo->fn, fn);
+	copy_fn(logo->ft, ft);
+
+	list_add_tail(&logo->list, &sysconf.logos);
 
 	return 0;
+
+out_free:
+	free(logo);
+	return -ECORRUPT;
 }
 
 int parse_config_stmnt(char *stmnt)
@@ -147,12 +182,55 @@ static void null_terminate(char *s, int lrecl)
 	s[i+1] = '\0';
 }
 
+static void __load_logos(struct fs *fs)
+{
+	struct logo *logo, *tmp;
+	struct logo_rec *rec;
+	struct file *file;
+	int ret;
+	int i;
+
+	list_for_each_entry_safe(logo, tmp, &sysconf.logos, list) {
+
+		/* look up the config file */
+		file = edf_lookup(fs, logo->fn, logo->ft);
+		if (IS_ERR(file))
+			goto remove;
+
+		if ((file->FST.LRECL != CONFIG_LRECL) ||
+		    (file->FST.RECFM != FSTDFIX))
+			goto remove;
+
+		/* parse each record in the config file */
+		for(i=0; i<file->FST.AIC; i++) {
+			rec = malloc(sizeof(struct logo_rec) + CONFIG_LRECL,
+				     ZONE_NORMAL);
+			if (!rec)
+				goto remove;
+
+			ret = edf_read_rec(file, (char*) rec->data, i);
+			if (ret)
+				goto remove;
+
+			ebcdic2ascii(rec->data, CONFIG_LRECL);
+
+			list_add_tail(&rec->list, &logo->lines);
+		}
+
+		continue;
+
+remove:
+		list_del(&logo->list);
+		free(logo);
+	}
+}
+
 struct fs *load_config(u32 iplsch)
 {
+	char buf[CONFIG_LRECL+1];
 	struct device *dev;
 	struct fs *fs;
 	struct file *file;
-	char buf[CONFIG_LRECL+1];
 	int ret;
 	int i;
 
@@ -175,6 +253,9 @@ struct fs *load_config(u32 iplsch)
 	if (IS_ERR(file))
 		return ERR_CAST(file);
 
+	if (file->FST.LRECL != CONFIG_LRECL)
+		return ERR_PTR(-EINVAL);
+
 	/* parse each record in the config file */
 	for(i=0; i<file->FST.AIC; i++) {
 		ret = edf_read_rec(file, buf, i);
@@ -183,7 +264,7 @@ struct fs *load_config(u32 iplsch)
 
 		ebcdic2ascii((u8 *) buf, CONFIG_LRECL);
 
-		/* FIXME: uppercase everything */
+		ascii2upper((u8 *) buf, CONFIG_LRECL);
 
 		null_terminate(buf, CONFIG_LRECL);
 
@@ -192,7 +273,7 @@ struct fs *load_config(u32 iplsch)
 			return ERR_PTR(ret);
 	}
 
-	/* FIXME: load all the logo files */
+	__load_logos(fs);
 
 	return fs;
 }

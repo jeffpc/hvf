@@ -32,6 +32,25 @@ struct sysconf {
 	struct list_head	logos;
 };
 
+enum {
+	LOGO_CONN_LOCAL	= 1,
+};
+
+struct logo_rec {
+	struct list_head	list;
+	u8			data[0];
+};
+
+struct logo {
+	struct list_head	list;
+	int			conn;
+	u16			devtype;
+	char			fn[8];
+	char			ft[8];
+
+	struct list_head	lines;
+};
+
 extern struct fs *sysfs;
 
 /* the actual config */

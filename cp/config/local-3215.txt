@@ -1,0 +1,12 @@
+                    HH        HH  VV        VV  FFFFFFFFFFFF
+                    HH        HH  VV        VV  FFFFFFFFFFFF
+                    HH        HH  VV        VV  FF
+                    HH        HH  VV        VV  FF
+                    HH        HH  VV        VV  FF
+                    HHHHHHHHHHHH  VV        VV  FFFFFFF
+                    HHHHHHHHHHHH  VV        VV  FFFFFFF
+                    HH        HH   VV      VV   FF
+                    HH        HH    VV    VV    FF
+                    HH        HH     VV  VV     FF
+                    HH        HH      VVVV      FF
+                    HH        HH       VV       FF

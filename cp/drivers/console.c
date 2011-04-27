@@ -9,7 +9,6 @@
 #include <slab.h>
 #include <sched.h>
 #include <directory.h>
-#include <splash.h>
 #include <vsprintf.h>
 
 /*
@@ -228,10 +227,20 @@ static int register_console(struct device *dev)
 
 static void print_splash(struct console *con)
 {
-	int i;
+	struct logo_rec *rec;
+	struct logo *logo;
 
-	for(i = 0; splash[i]; i++)
-		con_printf(con, splash[i]);
+	list_for_each_entry(logo, &sysconf.logos, list) {
+		if (con->dev->type != logo->devtype)
+			continue;
+
+		/* FIXME: check the connection type */
+
+		list_for_each_entry(rec, &logo->lines, list)
+			con_printf(con, "%*.*s\n", CONFIG_LRECL,
+				   CONFIG_LRECL, (char*) rec->data);
+		break;
+	}
 
 	con_printf(con, "HVF VERSION " VERSION "\n\n");
 }

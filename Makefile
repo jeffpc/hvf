@@ -16,6 +16,7 @@ all:
 	./build/mkarchive \
 		cp/config/hvf.directory text 80 \
 		cp/config/system.config text 80 \
+		cp/config/local-3215.txt text 80 \
 		cp/hvf bin \
 		loader/eckd.rto bin \
 		loader/loader.rto bin \
