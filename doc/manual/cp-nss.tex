@@ -21,7 +21,7 @@ to issue a store status operation.
 \section{Named Saved System File Format}
 Each NSS is saved in a single file using the ELF file format.  (See
 section~\ref{sec:elf} for ELF file format details.)  The ELF header class
-CLASS32 indicates a \mbox{31-bit} system, while CLASS64 indicates a
+ELFCLASS32 indicates a \mbox{31-bit} system, while ELFCLASS64 indicates a
 \mbox{64-bit} system.
 
 The guest storage is saved as one or more segments. Each segment's type is
@@ -37,7 +37,7 @@ two formats are the source of the new PSW.
 The PSW is cleared.  If the saved system is a \mbox{31-bit} image, bit~12 of
 the PSW is set.  The PSW address is set to the ELF header's entry address.
 
-The Load-Format is denoted by ELF header type of EXEC.
+The Load-Format is denoted by ELF header type of ET\_EXEC.
 
 \subsection{Restart-Format}
 \note{HVF currently does not support this format.}
@@ -46,5 +46,5 @@ The PSW is loaded storage location denoting the new restart PSW.  The
 address from which the restart PSW is loaded depends on the architecture
 mode.
 
-The Restart-Format is denoted by ELF header type of CORE.
+The Restart-Format is denoted by ELF header type of ET\_CORE.
 \cbend

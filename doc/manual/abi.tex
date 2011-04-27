@@ -104,8 +104,11 @@ z/Arch (s390x) & s/390 (s390) & Use \\
 
 \section{ELF Binary File Format}
 \label{sec:elf}
-This section introduces the ELF binary file format for the s390x ABI.  For
-more detailed description, see the appropriate standard.
+This section introduces the ELF binary file format for the \cbstart s390 and
+s390x ABIs\cbend.  For more detailed description, see the appropriate
+standards.  \cbstart All \mbox{31-bit} versions of the structures are named
+with the \mbox{Elf32\_} prefix, while the \mbox{64-bit} versions use the
+\mbox{Elf64\_} prefix.\cbend
 
 \cbstart
 Each ELF file is made of sections.  Each section defines a contiguous range
@@ -125,8 +128,12 @@ storage, and clear it.  (For definition of SHT\_NOBITS, see below).
 Each ELF file begins with a header.  The header contains several pointers to
 other structures in the file, such as the section headers.
 
-The ELF header points to program headers.  HVF does not make use of them,
-and therefore they are not discussed here.
+The ELF header points to program headers.  A program header describes a
+segment (not to be confused with a 1~MB area of storage) that spans one or
+more contiguously stored sections.
+
+Program headers are meant to be used during program loading, while sections
+are supposed to be used during linking.
 \cbend
 
 \cbstart
@@ -152,6 +159,27 @@ typedef struct {
         u16      e_shstrndx;
 } Elf64_Ehdr;
 \end{lstlisting}
+
+\cbstart
+\begin{lstlisting}[language=C]
+typedef struct {
+        u8       e_ident[16];
+        u16      e_type;
+        u16      e_machine;
+        u32      e_version;
+        u32      e_entry;
+        u32      e_phoff;
+        u32      e_shoff;
+        u32      e_flags;
+        u16      e_ehsize;
+        u16      e_phentsize;
+        u16      e_phnum;
+        u16      e_shentsize;
+        u16      e_shnum;
+        u16      e_shstrndx;
+} Elf32_Ehdr;
+\end{lstlisting}
+\cbend
 
 \begin{description}
 \item[e\_ident] contains several bytes of information:
@@ -237,6 +265,23 @@ typedef struct {
 } Elf64_Shdr;
 \end{lstlisting}
 
+\cbstart
+\begin{lstlisting}[language=C]
+typedef struct {
+        u32      sh_name;
+        u32      sh_type;
+        u32      sh_flags;
+        u32      sh_addr;
+        u32      sh_offset;
+        u32      sh_size;
+        u32      sh_link;
+        u32      sh_info;
+        u32      sh_addralign;
+        u32      sh_entsize;
+} Elf32_Shdr;
+\end{lstlisting}
+\cbend
+
 \begin{description}
 \item[sh\_name] is the name of the section.  HVF ignores this field.
 
@@ -252,10 +297,9 @@ typedef struct {
 
 \item[sh\_flags] defines the section attributes.
 
-\item[sh\_addr] stores the target in-storage address to for this section.
+\item[sh\_addr] stores the target in-storage address for this section.
 
-\item[sh\_offset] stores the offset into the file where segement data
-	begins.
+\item[sh\_offset] stores the offset into the file where section data begins.
 
 \item[sh\_size] stores the length of the section.
 
@@ -271,5 +315,60 @@ typedef struct {
 	table.  Since HVF does not parse any sections with tables, it
 	ignores this field.
 
+\end{description}
+
+\subsection{Program Header}
+Each program header is as follows:
+
+\begin{lstlisting}[language=C]
+typedef struct {
+        u32      p_type;
+        u32      p_flags;
+        u64      p_offset;
+        u64      p_vaddr;
+        u64      p_paddr;
+        u64      p_filesz;
+        u64      p_memsz;
+        u64      p_align;
+} Elf64_Phdr;
+\end{lstlisting}
+
+\begin{lstlisting}[language=C]
+typedef struct {
+        u32      p_type;
+        u32      p_offset;
+        u32      p_vaddr;
+        u32      p_paddr;
+        u32      p_filesz;
+        u32      p_memsz;
+        u32      p_flags;
+        u32      p_align;
+} Elf32_Phdr;
+\end{lstlisting}
+
+\begin{description}
+\item[p\_type] defines the type of the segment.
+
+	Valid types include PT\_NULL (00), PT\_LOAD (01), PT\_DYNAMIC (02),
+	PT\_INTERP (03), PT\_NOTE (04), PT\_SHLIB (05), PT\_PHDR (06),
+	PT\_TLS (07).
+
+	HVF handles only segments PT\_LOAD.
+
+\item[p\_flags] defines the segment attributes.
+
+\item[p\_offset] stores the offset into the file where segment data begins.
+
+\item[p\_vaddr] stores the in-storage address for this segment.
+
+\item[p\_paddr] is not used in the s390 and s390x ABIs.
+
+\item[p\_filesz] stores the length of the segment stored in the file.
+
+\item[p\_memsz] stores the length of the segment once loaded into storage.
+	p\_memsz may be larger than p\_filesz, in which case the remaining
+	bytes of storage are cleared.
+
+\item[p\_align] indicates the in-storage alignment of this segment.
 \end{description}
 \cbend
