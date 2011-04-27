@@ -20,7 +20,9 @@ extern int strncmp(const char *cs, const char *ct, int len);
 extern int strcasecmp(const char *s1, const char *s2);
 extern char *strncpy(char *dest, const char *src, size_t count);
 extern char *strpbrk(const char *cs, const char *ct);
+extern size_t strspn(const char *s, const char *accept);
 extern char *strsep(char **s, const char *ct);
+extern char *strmsep(char **s, const char *ct);
 
 static inline int toupper(int c)
 {

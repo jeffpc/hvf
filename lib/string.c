@@ -146,6 +146,29 @@ char *strpbrk(const char *cs, const char *ct)
 }
 
 /**
+ * strspn - Calculate the length of the initial substring of @s which only contain letters in @accept
+ * @s: The string to be searched
+ * @accept: The string to search for
+ */
+size_t strspn(const char *s, const char *accept)
+{
+	const char *p;
+	const char *a;
+	size_t count = 0;
+
+	for (p = s; *p != '\0'; ++p) {
+		for (a = accept; *a != '\0'; ++a) {
+			if (*p == *a)
+				break;
+		}
+		if (*a == '\0')
+			return count;
+		++count;
+	}
+	return count;
+}
+
+/**
  * strsep - Split a string into tokens
  * @s: The string to be searched
  * @ct: The characters to search for
@@ -169,6 +192,26 @@ char *strsep(char **s, const char *ct)
 		*end++ = '\0';
 	*s = end;
 	return sbegin;
+}
+
+/**
+ * strmsep - Split a string into tokens
+ * @s: The string to be searched
+ * @ct: The characters to search for
+ *
+ * strmsep() updates @s to point after the token, ready for the next call.
+ *
+ * It does not return empty tokens, like strsep.
+ */
+char *strmsep(char **s, const char *ct)
+{
+	if (*s == NULL)
+		return NULL;
+
+	/* consume leading separator characters */
+	*s += strspn(*s, ct);
+
+	return strsep(s, ct);
 }
 
 /* ASCII character info */
