@@ -1,35 +1,50 @@
 \chapter{Named Saved Systems}
 \label{chap:cp-nss}
 \cbstart
-\note{HVF does not currently support NSS IPL and therefore the following is
-	the description of the design to be implemented.}
-
 A Named Saved System (NSS) is saved storage image that can be IPLed under a
 given name.  The image can be reloaded and execution resumed.
-
-The contents of the storage image may be thought of as the contents of
-storage right after the conclusion of the IPL channel program for a CCW-Type
-IPL.
-
-Of course it is possible to take a running system place an appropriate PSW
-at address 0.  Since the contents of the registers and I/O device states are
-not stored, the system must take care to store any and all state it wishes
-to keep.  A simple way to store all the processor state is to issue a store
-status operation.
 
 NSS improve performance by allowing sharing of static pages between guests.
 Additionally, these static pages, if unmodified by the guest, do not have to
 be paged out.  Instead, they may be simply discarded and later reloaded from
 the NSS.
 
+The contents of the storage image may be thought of as the contents of
+storage at any time during a systems execution.
+%
+It is possible to take a running system, quiesce all I/O and save the
+storage contents.  Since the contents of the registers and I/O device states
+are not explicitly stored, the system must take care to store any and all
+state it wishes to keep.  A simple way to store all the processor state is
+to issue a store status operation.
+
 \section{Named Saved System File Format}
 Each NSS is saved in a single file using the ELF file format.  (See
-section~\ref{sec:elf} for ELF file format details.)
+section~\ref{sec:elf} for ELF file format details.)  The ELF header class
+CLASS32 indicates a \mbox{31-bit} system, while CLASS64 indicates a
+\mbox{64-bit} system.
 
-The guest storage is saved as one or more sections. Each section's type may
-be either PROGBITS or NOBITS.  Any PROGBITS sections are loaded verbatim at
-the specified address.  Any NOBITS sections cause the specified storage
-range to be cleared.
+The guest storage is saved as one or more segments. Each segment's type is
+LOAD.  The guest registers and other system state is not stored.
 
-Outcome of loading a NSS with overlapping sections is unpredictable.
+Outcome of loading a NSS with overlapping segments is unpredictable.
+
+HVF has two variants for NSS formats.  For both formats, the NSS IPL process
+loads the storage image from the NSS file.  The only difference between the
+two formats are the source of the new PSW.
+
+\subsection{Load-Format}
+The PSW is cleared.  If the saved system is a \mbox{31-bit} image, bit~12 of
+the PSW is set.  The PSW address is set to the ELF header's entry address.
+
+The Load-Format is denoted by ELF header type of EXEC.
+
+\subsection{Restart-Format}
+\note{HVF currently does not support this format.}
+
+The PSW is loaded storage location denoting the new restart PSW.  The
+address from which the restart PSW is loaded depends on the architecture
+mode.
+
+The Restart-Format is denoted by ELF header type of CORE.
 \cbend
