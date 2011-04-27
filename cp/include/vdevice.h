@@ -25,6 +25,8 @@ struct spool_ops {
 		      struct ccw *ccw, struct spdev_state *st);
 };
 
+extern struct spool_ops spool_cons_ops;		/* for VDEV_CONS */
+
 struct spdev_state {
 	u8 dev_status;	/* device/CU status */
 	u8 sch_status;  /* subchannel status */

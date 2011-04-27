@@ -55,7 +55,7 @@ int alloc_virt_dev(struct virt_sys *sys, struct directory_vdev *dirdev,
 		case VDEV_CONS:
 			/* CONS is really just a special case of SPOOL */
 			vdev->u.spool.file = NULL;
-			vdev->u.spool.ops = NULL;
+			vdev->u.spool.ops = &spool_cons_ops;
 			vdev->type = 0x3215;
 			vdev->model = 0;
 			break;
