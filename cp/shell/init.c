@@ -135,7 +135,8 @@ static void process_cmd(struct virt_sys *sys)
 			con_printf(sys->con, "Not authorized\n");
 			break;
 		default:
-			con_printf(sys->con, "RC=%d\n", ret);
+			con_printf(sys->con, "RC=%d (%s)\n", ret,
+				   errstrings[ret]);
 			break;
 	}
 }
