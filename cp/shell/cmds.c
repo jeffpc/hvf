@@ -131,40 +131,25 @@ static struct cpcmd logon_commands[] = {
 
 static int __invoke_shell_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int len)
 {
+	char *orig = cmd;
 	int i, ret;
+	char *tok;
+
+	tok = strmsep(&cmd, " ");
+	if (!tok)
+		return -ENOENT;
 
 	for(i=0; t[i].name[0]; i++) {
-		const char *inp = cmd, *exp = t[i].name;
-		int match_len = 0;
-
-		while(*inp && *exp && (match_len < len) && (toupper(*inp) == *exp)) {
-			match_len++;
-			inp++;
-			exp++;
-		}
-
-		/* doesn't match */
-		if ((match_len != strnlen(t[i].name, SHELL_CMD_MAX_LEN)) ||
-		    (!isspace(*inp) && *inp))
+		if (strcasecmp(t[i].name, tok))
 			continue;
 
-		/*
-		 * the next char in the input is...
-		 */
-		while((cmd[match_len] == ' ' || cmd[match_len] == '\t') &&
-		      (match_len < len))
-			/*
-			 * command was given arguments - skip over the
-			 * delimiting space
-			 */
-			match_len++;
+		len -= cmd - orig;
 
-		if (t[i].sub) {
-			ret = __invoke_shell_cmd(t[i].sub, sys, cmd + match_len, len - match_len);
-			return (ret == -ENOENT) ? -ESUBENOENT : ret;
-		}
+		if (!t[i].sub)
+			return t[i].fnx(sys, cmd, len);
 
-		return t[i].fnx(sys, cmd + match_len, len - match_len);
+		ret = __invoke_shell_cmd(t[i].sub, sys, cmd, len);
+		return (ret == -ENOENT) ? -ESUBENOENT : ret;
 	}
 
 	return -ENOENT;
