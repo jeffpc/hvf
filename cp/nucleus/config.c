@@ -40,10 +40,10 @@ static int __parse_operator(char *s)
 {
 	char *t1, *t2;
 
-	if ((t1 = strsep(&s, " ")) == NULL)
+	if ((t1 = strmsep(&s, " ")) == NULL)
 		return -EINVAL;
 
-	if ((t2 = strsep(&s, " ")) == NULL)
+	if ((t2 = strmsep(&s, " ")) == NULL)
 		return -EINVAL;
 
 	if (!strcmp(t1, "CONSOLE")) {
@@ -64,10 +64,10 @@ static int __parse_rdev(char *s)
 
 	char *t1, *t2;
 
-	if ((t1 = strsep(&s, " ")) == NULL)
+	if ((t1 = strmsep(&s, " ")) == NULL)
 		return -EINVAL;
 
-	if ((t2 = strsep(&s, " ")) == NULL)
+	if ((t2 = strmsep(&s, " ")) == NULL)
 		return -EINVAL;
 
 	ret = __get_u16(t1, &devnum);
@@ -101,20 +101,20 @@ static int __parse_logo(char *s)
 	u16 devtype;
 	int ret;
 
-	if ((conn = strsep(&s, " ")) == NULL)
+	if ((conn = strmsep(&s, " ")) == NULL)
 		return -EINVAL;
 
-	if ((_devtype = strsep(&s, " ")) == NULL)
+	if ((_devtype = strmsep(&s, " ")) == NULL)
 		return -EINVAL;
 
 	ret = __get_u16(_devtype, &devtype);
 	if (ret)
 		return ret;
 
-	if ((fn = strsep(&s, " ")) == NULL)
+	if ((fn = strmsep(&s, " ")) == NULL)
 		return -EINVAL;
 
-	if ((ft = strsep(&s, " ")) == NULL)
+	if ((ft = strmsep(&s, " ")) == NULL)
 		return -EINVAL;
 
 	logo = malloc(sizeof(struct logo), ZONE_NORMAL);
@@ -156,7 +156,7 @@ int parse_config_stmnt(char *stmnt)
 	if (stmnt[0] == '\0')
 		return 0; /* empty line */
 
-	if ((tok = strsep(&s, " ")) != NULL) {
+	if ((tok = strmsep(&s, " ")) != NULL) {
 		if (!strcmp(tok, "OPERATOR"))
 			return __parse_operator(s);
 		else if (!strcmp(tok, "RDEV"))
