@@ -427,6 +427,39 @@ static int cmd_display_ar(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
+static void __d_psw(struct virt_sys *sys, int zarch, char *name,
+		    u64 obase, u64 nbase, u32 *odata, u32 *ndata, int idx)
+{
+	if (zarch) {
+		con_printf(sys->con, "%s %04X  %3llX OLD %08X %08X %08X %08X\n",
+			   name, 0xffff, obase+(idx*16),
+			   odata[0+(idx*4)], odata[1+(idx*4)],
+			   odata[2+(idx*4)], odata[3+(idx*4)]);
+		con_printf(sys->con, "          %3llX NEW %08X %08X %08X %08X\n",
+			   nbase+(idx*16),
+			   ndata[0+(idx*4)], ndata[1+(idx*4)],
+			   ndata[2+(idx*4)], ndata[3+(idx*4)]);
+	} else {
+		con_printf(sys->con, "%s %04X  %3llX OLD %08X %08X\n",
+			   name, 0xffff, obase+(idx*8),
+			   odata[0+(idx*2)], odata[1+(idx*2)]);
+		con_printf(sys->con, "          %3llX NEW %08X %08X\n",
+			   nbase+(idx*8),
+			   ndata[0+(idx*2)], ndata[1+(idx*2)]);
+	}
+}
+
+enum {
+	D_PSW_CUR = 0x01,
+	D_PSW_EXT = 0x02,
+	D_PSW_SVC = 0x04,
+	D_PSW_PRG = 0x08,
+	D_PSW_MCH = 0x10,
+	D_PSW_IO  = 0x20,
+	D_PSW_RST = 0x40,
+
+	D_PSW_ALL = 0x7f,
+};
 /*
  *!!! DISPLAY PSW
  *!! SYNTAX
@@ -444,14 +477,74 @@ static int cmd_display_ar(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_display_psw(struct virt_sys *sys, char *cmd, int len)
 {
-	u32 *ptr = (u32*) &sys->task->cpu->sie_cb.gpsw;
+	u32 odata[6*sizeof(struct psw)/sizeof(u32)];
+	u32 ndata[6*sizeof(struct psw)/sizeof(u32)];
+	u64 obase, nbase;
+	u64 glen;
+	int oret, nret;
+	int disp = 0;
+	int zarch;
 
-	if (VCPU_ZARCH(sys->task->cpu))
-		con_printf(sys->con, "PSW = %08X %08X %08X %08X\n",
-			   ptr[0], ptr[1], ptr[2], ptr[3]);
+	if (!strcasecmp(cmd, "ALL"))
+		disp = D_PSW_ALL;
+	else if (!strcasecmp(cmd, "RST"))
+		disp = D_PSW_RST;
+	else if (!strcasecmp(cmd, "EXT"))
+		disp = D_PSW_EXT;
+	else if (!strcasecmp(cmd, "SVC"))
+		disp = D_PSW_SVC;
+	else if (!strcasecmp(cmd, "PRG"))
+		disp = D_PSW_PRG;
+	else if (!strcasecmp(cmd, "MCH"))
+		disp = D_PSW_MCH;
+	else if (!strcasecmp(cmd, "I/O"))
+		disp = D_PSW_IO;
 	else
-		con_printf(sys->con, "PSW = %08X %08X\n",
-			   ptr[0], ptr[1]);
+		disp = D_PSW_CUR;
+
+	zarch = VCPU_ZARCH(sys->task->cpu);
+
+	if (disp & D_PSW_CUR) {
+		u32 *ptr = (u32*) &sys->task->cpu->sie_cb.gpsw;
+		if (zarch)
+			con_printf(sys->con, "PSW = %08X %08X %08X %08X\n",
+				   ptr[0], ptr[1], ptr[2], ptr[3]);
+		else
+			con_printf(sys->con, "PSW = %08X %08X\n",
+				   ptr[0], ptr[1]);
+	}
+
+	if (zarch) {
+		obase = 0x120;
+		nbase = 0x1A0;
+	} else {
+		obase = 0x18;
+		nbase = 0x58;
+	}
+
+	glen = sizeof(struct psw) * 6;
+	oret = memcpy_from_guest(obase, odata, &glen);
+	glen = sizeof(struct psw) * 6;
+	nret = memcpy_from_guest(nbase, ndata, &glen);
+
+	if (oret || nret) {
+		con_printf(sys->con, "Failed to fetch old/new PSWs from "
+			   "guest storage\n");
+		return oret ? oret : nret;
+	}
+
+	if (disp & D_PSW_RST)
+		__d_psw(sys, zarch, "RST", obase, nbase, odata, ndata, 0);
+	if (disp & D_PSW_EXT)
+		__d_psw(sys, zarch, "EXT", obase, nbase, odata, ndata, 1);
+	if (disp & D_PSW_SVC)
+		__d_psw(sys, zarch, "SVC", obase, nbase, odata, ndata, 2);
+	if (disp & D_PSW_PRG)
+		__d_psw(sys, zarch, "PRG", obase, nbase, odata, ndata, 3);
+	if (disp & D_PSW_MCH)
+		__d_psw(sys, zarch, "MCH", obase, nbase, odata, ndata, 4);
+	if (disp & D_PSW_IO)
+		__d_psw(sys, zarch, "I/O", obase, nbase, odata, ndata, 5);
 
 	return 0;
 }
