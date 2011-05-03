@@ -219,13 +219,18 @@ int spool_exec(struct virt_sys *sys, struct virt_device *vdev)
 	}
 
 out:
-	if ((st.dev_status != (SC_STATUS_CE | SC_STATUS_DE)) || st.sch_status)
-		con_printf(sys->con, "FAILED\n");
-
 	mutex_lock(&vdev->lock);
+	vdev->scsw.ac &= ~(AC_SCH_ACT | AC_DEV_ACT);
+	vdev->scsw.sc |= SC_PRIMARY | SC_SECONDARY | SC_STATUS;
+	if (st.sch_status || (st.dev_status != (SC_STATUS_CE | SC_STATUS_DE))) {
+		con_printf(sys->con, "FAILED\n");
+		vdev->scsw.sc |= SC_ALERT;
+	}
+
 	vdev->scsw.dev_status = st.dev_status;
 	vdev->scsw.sch_status = st.sch_status;
 	vdev->scsw.addr = st.addr;
+	vdev->scsw.count = st.rem;
 	vdev->scsw.f = st.f;
 	mutex_unlock(&vdev->lock);
 
