@@ -29,7 +29,7 @@ LIBS=clock digest string ebcdic errno
 export AS CC LD OBJCOPY
 export MAKEFLAGS CFLAGS NUCLEUSCFLAGS LDFLAGS
 
-TOP_DIRS=nucleus/ mm/ fs/ drivers/ shell/
+TOP_DIRS=nucleus/ mm/ fs/ drivers/ shell/ guest/
 
 .PHONY: all build clean mrproper cleanup tags
 .PHONY: $(TOP_DIRS)
@@ -51,6 +51,7 @@ clean:
 	@$(MAKE) DIR=fs/ cleanup V=$V
 	@$(MAKE) DIR=drivers/ cleanup V=$V
 	@$(MAKE) DIR=shell/ cleanup V=$V
+	@$(MAKE) DIR=guest/ cleanup V=$V
 	$(call clean,hvf)
 	$(call clean,shell/directory_structs.c)
 	$(call rclean,doc/commands)
