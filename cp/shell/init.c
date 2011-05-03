@@ -155,6 +155,14 @@ static int shell_init(void *data)
 	sys->task->cpu = cpu;
 
 	memset(cpu, 0, PAGE_SIZE);
+	INIT_LIST_HEAD(&cpu->int_io[0]);
+	INIT_LIST_HEAD(&cpu->int_io[1]);
+	INIT_LIST_HEAD(&cpu->int_io[2]);
+	INIT_LIST_HEAD(&cpu->int_io[3]);
+	INIT_LIST_HEAD(&cpu->int_io[4]);
+	INIT_LIST_HEAD(&cpu->int_io[5]);
+	INIT_LIST_HEAD(&cpu->int_io[6]);
+	INIT_LIST_HEAD(&cpu->int_io[7]);
 
 	__alloc_guest_storage(sys);
 	__alloc_guest_devices(sys);

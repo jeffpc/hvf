@@ -88,6 +88,14 @@ enum virt_cpustate {
 
 #include <sie.h>
 
+struct vio_int {
+	struct list_head list;
+
+	u32 ssid;
+	u32 param;
+	u32 intid;
+};
+
 struct virt_cpu {
 	/* the SIE control block is picky about alignment */
 	struct sie_cb sie_cb;
@@ -96,6 +104,8 @@ struct virt_cpu {
 	u64 cpuid;
 
 	enum virt_cpustate state;
+
+	struct list_head int_io[8];	/* I/O interrupts */
 };
 
 #define TASK_NAME_LEN		16
