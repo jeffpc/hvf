@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -53,7 +53,6 @@ static int handle_io_req(struct virt_sys *sys)
 static int handle_wait(struct virt_sys *sys)
 {
 	con_printf(sys->con, "INTRCPT: WAIT\n");
-	sys->task->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 

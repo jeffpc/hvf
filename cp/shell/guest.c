@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -16,7 +16,20 @@
  */
 void run_guest(struct virt_sys *sys)
 {
+	struct psw *psw = &sys->task->cpu->sie_cb.gpsw;
 	u64 save_gpr[16];
+
+	if (psw->w) {
+		if (!psw->io && !psw->ex && !psw->m) {
+			con_printf(sys->con, "ENTERED CP DUE TO DISABLED WAIT\n");
+			sys->task->cpu->state = GUEST_STOPPED;
+			return;
+		}
+
+		/* wait state */
+		schedule();
+		return;
+	}
 
 	/*
 	 * FIXME: need to ->icptcode = 0;
