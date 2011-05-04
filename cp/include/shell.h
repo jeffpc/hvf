@@ -10,6 +10,7 @@
 
 #include <directory.h>
 #include <vdevice.h>
+#include <guest.h>
 
 #define SHELL_CMD_MAX_LEN	8
 
@@ -27,22 +28,7 @@ extern int invoke_shell_logon(struct console *con, char *cmd, int len);
 extern void list_users(struct console *con, void (*f)(struct console *con,
 						      struct virt_sys *sys));
 
-/* All the different ways to reset the system */
-extern void guest_power_on_reset(struct virt_sys *sys);
-extern void guest_system_reset_normal(struct virt_sys *sys);
-extern void guest_system_reset_clear(struct virt_sys *sys);
-extern void guest_load_normal(struct virt_sys *sys);
-extern void guest_load_clear(struct virt_sys *sys);
-
-extern void run_guest(struct virt_sys *sys);
-extern void handle_interception(struct virt_sys *sys);
-
-extern int handle_instruction(struct virt_sys *sys);
-extern int handle_instruction_priv(struct virt_sys *sys);
-
 extern int spool_exec(struct virt_sys *sys, struct virt_device *vdev);
-
-typedef int (*intercept_handler_t)(struct virt_sys *sys);
 
 #define SHELL_CMD_AUTH(s,a)	do { \
 					if ((s)->directory->auth > (a)) \

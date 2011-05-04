@@ -1,1 +1,1 @@
-objs-shell := directory.o cmds.o disassm.o
+objs-shell := init.o directory.o cmds.o disassm.o
