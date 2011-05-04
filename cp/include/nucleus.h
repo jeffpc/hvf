@@ -11,6 +11,7 @@
 #include <compiler.h>
 #include <errno.h>
 #include <string.h>
+#include <arch.h>
 
 extern volatile u64 ticks;
 
