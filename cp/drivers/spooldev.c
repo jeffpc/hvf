@@ -233,6 +233,9 @@ out:
 	vdev->scsw.addr = st.addr;
 	vdev->scsw.count = st.rem;
 	vdev->scsw.f = st.f;
+
+	queue_io_interrupt(sys, vdev->sch, vdev->pmcw.interrupt_param, 0,
+			   vdev->pmcw.isc);
 	mutex_unlock(&vdev->lock);
 
 	free_pages(st.iobuf, 4);

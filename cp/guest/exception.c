@@ -29,8 +29,10 @@ void queue_io_interrupt(struct virt_sys *sys, u32 ssid, u32 param, u32 a, u32 is
 	ioint->param = param;
 	ioint->intid = (a << 31) | (isc << 27);
 
+	mutex_lock(&sys->task->cpu->int_lock);
 	list_add_tail(&ioint->list, &sys->task->cpu->int_io[isc]);
 
 	con_printf(sys->con, "queued I/O int %d %08x.%08x.%08x\n", isc,
 		   ioint->ssid, ioint->param, ioint->intid);
+	mutex_unlock(&sys->task->cpu->int_lock);
 }

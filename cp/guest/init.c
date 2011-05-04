@@ -20,6 +20,8 @@
 #include <mutex.h>
 #include <vsprintf.h>
 
+static LOCK_CLASS(guest_interrupt_queue_lc);
+
 void alloc_guest_devices(struct virt_sys *sys)
 {
 	int ret;
@@ -72,6 +74,7 @@ int alloc_vcpu(struct virt_sys *sys)
 	cpu = page_to_addr(page);
 
 	memset(cpu, 0, PAGE_SIZE);
+	mutex_init(&cpu->int_lock, &guest_interrupt_queue_lc);
 	INIT_LIST_HEAD(&cpu->int_io[0]);
 	INIT_LIST_HEAD(&cpu->int_io[1]);
 	INIT_LIST_HEAD(&cpu->int_io[2]);

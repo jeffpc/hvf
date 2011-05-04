@@ -10,6 +10,7 @@
 
 #include <list.h>
 #include <console.h>
+#include <mutex.h>
 
 /*
  * saved registers for guests
@@ -52,6 +53,7 @@ struct virt_cpu {
 
 	enum virt_cpustate state;
 
+	mutex_t int_lock;
 	struct list_head int_io[8];	/* I/O interrupts */
 };
 
@@ -83,6 +85,7 @@ enum PROG_EXCEPTION {
 };
 
 extern void queue_prog_exception(struct virt_sys *sys, enum PROG_EXCEPTION type, u64 param);
+extern void queue_io_interrupt(struct virt_sys *sys, u32 ssid, u32 param, u32 a, u32 isc);
 
 /*****************************************************************************/
 /* Guest register reading & address calculation                              */
