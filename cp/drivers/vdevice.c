@@ -7,6 +7,7 @@
 
 #include <slab.h>
 #include <list.h>
+#include <vcpu.h>
 #include <vdevice.h>
 
 static int __setup_vdev_ded(struct virt_sys *sys,

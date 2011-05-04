@@ -6,6 +6,7 @@
  */
 
 #include <directory.h>
+#include <vcpu.h>
 #include <vdevice.h>
 #include <dat.h>
 #include <mm.h>

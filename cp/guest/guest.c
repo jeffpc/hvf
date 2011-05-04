@@ -8,7 +8,7 @@
 #include <directory.h>
 #include <sched.h>
 #include <dat.h>
-#include <shell.h>
+#include <vcpu.h>
 
 /*
  * FIXME:

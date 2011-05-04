@@ -300,13 +300,12 @@ void init_sched(void)
 	set_timer();
 }
 
-void list_tasks(struct console *con,
-		void (*f)(struct console *, struct task*))
+void list_tasks(void (*f)(struct task*, void*), void *priv)
 {
 	struct task *t;
 
 	list_for_each_entry(t, &processes, proc_list)
-		f(con, t);
+		f(t, priv);
 }
 
 void make_runnable(struct task *task)

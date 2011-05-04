@@ -342,7 +342,7 @@ void scan_devices(void)
 	free(dev);
 }
 
-void list_devices(struct console *con, void (*f)(struct console*, struct device*))
+void list_devices(void (*f)(struct device*, void*), void *priv)
 {
 	struct device *dev;
 
@@ -350,7 +350,7 @@ void list_devices(struct console *con, void (*f)(struct console*, struct device*
 
 	list_for_each_entry(dev, &devices, devices) {
 		dev_get(dev);
-		f(con, dev);
+		f(dev, priv);
 		dev_put(dev);
 	}
 

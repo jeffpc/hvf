@@ -30,55 +30,11 @@
 
 #define HZ			100	/* number of ticks per second */
 
-/*
- * saved registers for guests
- *
- * NOTE: some registers are saved in the SIE control block!
- */
-struct guest_regs {
-	u64 gpr[16];
-	u32 ar[16];
-	u64 fpr[64];
-	u32 fpcr;
-};
-
 /* saved registers for CP tasks */
 struct regs {
 	struct psw psw;
 	u64 gpr[16];
 	u64 cr1;
-};
-
-/*
- * These states mirror those described in chapter 4 of SA22-7832-06
- */
-enum virt_cpustate {
-	GUEST_STOPPED = 0,
-	GUEST_OPERATING,
-	GUEST_LOAD,
-	GUEST_CHECKSTOP,
-};
-
-#include <sie.h>
-
-struct vio_int {
-	struct list_head list;
-
-	u32 ssid;
-	u32 param;
-	u32 intid;
-};
-
-struct virt_cpu {
-	/* the SIE control block is picky about alignment */
-	struct sie_cb sie_cb;
-
-	struct guest_regs regs;
-	u64 cpuid;
-
-	enum virt_cpustate state;
-
-	struct list_head int_io[8];	/* I/O interrupts */
 };
 
 #define TASK_NAME_LEN		16
@@ -108,20 +64,6 @@ struct task {
 	struct held_lock lock_stack[LDEP_STACK_SIZE];
 };
 
-struct virt_sys {
-	struct task *task;		/* the virtual CPU task */
-	struct user *directory;		/* the directory information */
-
-	struct console *con;		/* the login console */
-	int print_ts;			/* print timestamps */
-
-	struct list_head guest_pages;	/* list of guest pages */
-	struct list_head virt_devs;	/* list of guest virtual devs */
-	struct list_head online_users;	/* list of online users */
-
-	struct address_space as;	/* the guest storage */
-};
-
 extern void init_sched(void);		/* initialize the scheduler */
 extern struct task* create_task(char *name, int (*f)(void*), void*);
 					/* create a new task */
@@ -133,8 +75,8 @@ extern void __schedule_exit_svc(void);
 
 extern void make_runnable(struct task *task);
 
-extern void list_tasks(struct console *con,
-		       void (*f)(struct console *, struct task*));
+extern void list_tasks(void (*f)(struct task*, void*),
+                       void *priv);
 
 /**
  * current - the current task's task struct

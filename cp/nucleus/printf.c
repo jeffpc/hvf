@@ -14,6 +14,7 @@
 #include <sched.h>
 #include <vsprintf.h>
 #include <stdarg.h>
+#include <vcpu.h>
 
 int vprintf(struct console *con, const char *fmt, va_list args)
 {

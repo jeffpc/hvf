@@ -14,8 +14,9 @@
 #include <dat.h>
 #include <clock.h>
 #include <ebcdic.h>
-#include <vdevice.h>
 #include <cpu.h>
+#include <vcpu.h>
+#include <vdevice.h>
 #include <mutex.h>
 #include <vsprintf.h>
 

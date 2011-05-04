@@ -75,8 +75,7 @@ extern struct device *find_device_by_ccuu(u16 ccuu);
 extern struct device *find_device_by_sch(u32 sch);
 extern int register_device_type(struct device_type *dev);
 extern void scan_devices(void);
-extern void list_devices(struct console *con,
-			 void (*f)(struct console*, struct device*));
+extern void list_devices(void (*f)(struct device*, void*), void *priv);
 extern void register_drivers(void);
 
 static inline void dev_get(struct device *dev)

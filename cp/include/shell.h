@@ -9,8 +9,8 @@
 #define __SHELL_H
 
 #include <directory.h>
+#include <vcpu.h>
 #include <vdevice.h>
-#include <guest.h>
 
 #define SHELL_CMD_MAX_LEN	8
 

@@ -1,3 +1,4 @@
+#include <vcpu.h>
 #include <vdevice.h>
 
 static int open_spoolfile(struct virt_sys *sys, struct virt_device *vdev)

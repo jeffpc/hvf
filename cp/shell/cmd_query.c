@@ -17,8 +17,9 @@ static char *__guest_state_to_str(enum virt_cpustate st)
 	return "???";
 }
 
-static void display_rdev(struct console *con, struct device *dev)
+static void display_rdev(struct device *dev, void *priv)
 {
+	struct console *con = priv;
 	char buf[40];
 
 	buf[0] = '\0';
@@ -82,8 +83,9 @@ static void display_vdev(struct console *con, struct virt_device *vdev)
 	mutex_unlock(&vdev->lock);
 }
 
-static void display_task(struct console *con, struct task *task)
+static void display_task(struct task *task, void *priv)
 {
+	struct console *con = priv;
 	char state;
 
 	switch(task->state) {
@@ -261,7 +263,7 @@ static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
 		__cmd_query_real_stor(sys);
 
 	if (what & QUERY_DEVS)
-		list_devices(sys->con, display_rdev);
+		list_devices(display_rdev, sys->con);
 	if (what & QUERY_DEVNUM)
 		con_printf(sys->con, "not implemented\n");
 
@@ -282,7 +284,7 @@ static int cmd_query_task(struct virt_sys *sys, char *cmd, int len)
 {
 	SHELL_CMD_AUTH(sys, 'A');
 
-	list_tasks(sys->con, display_task);
+	list_tasks(display_task, sys->con);
 
 	return 0;
 }

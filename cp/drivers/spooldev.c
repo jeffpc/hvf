@@ -7,6 +7,7 @@
 
 #include <dat.h>
 #include <channel.h>
+#include <vcpu.h>
 #include <vdevice.h>
 #include <spool.h>
 #include <buddy.h>
