@@ -133,11 +133,8 @@ static int __nss_ipl(struct virt_sys *sys, char *cmd, int len)
 		goto out;
 	}
 
-	/*
-	 * FIXME: this should be conditional based whether or not we were
-	 * told to clear
-	 */
-	guest_load_normal(sys);
+	/* reset the system */
+	guest_load_clear(sys);
 
 	sys->task->cpu->state = GUEST_LOAD;
 
