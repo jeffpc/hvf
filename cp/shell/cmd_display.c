@@ -601,7 +601,7 @@ static int cmd_display_schib(struct virt_sys *sys, char *cmd, int len)
 
 	/* find the virtual device */
 
-	list_for_each_entry(vdev, &sys->virt_devs, devices) {
+	for_each_vdev(sys, vdev) {
 		if ((vdev->sch == (u32) sch) || all) {
 			if (!all || all == 1) {
 				con_printf(sys->con, "SCHIB DEV  INT-PARM ISC FLG LP "

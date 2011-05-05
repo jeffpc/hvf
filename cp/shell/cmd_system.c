@@ -284,7 +284,7 @@ static int cmd_ipl(struct virt_sys *sys, char *cmd, int len)
 
 	/* find the virtual device */
 
-	list_for_each_entry(vdev, &sys->virt_devs, devices)
+	for_each_vdev(sys, vdev)
 		if (vdev->pmcw.dev_num == (u16) vdevnum)
 			return __dev_ipl(sys, vdev);
 

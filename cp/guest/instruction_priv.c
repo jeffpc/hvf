@@ -43,7 +43,7 @@ static int handle_msch(struct virt_sys *sys)
 
 	/* find the virtual device */
 	vdev = NULL;
-	list_for_each_entry(vdev_cur, &sys->virt_devs, devices) {
+	for_each_vdev(sys, vdev_cur) {
 		if (vdev_cur->sch == (u32) r1) {
 			vdev = vdev_cur;
 			break;
@@ -160,7 +160,7 @@ static int handle_ssch(struct virt_sys *sys)
 
 	/* find the virtual device */
 	vdev = NULL;
-	list_for_each_entry(vdev_cur, &sys->virt_devs, devices) {
+	for_each_vdev(sys, vdev_cur) {
 		if (vdev_cur->sch == (u32) r1) {
 			vdev = vdev_cur;
 			break;
@@ -276,7 +276,7 @@ static int handle_stsch(struct virt_sys *sys)
 
 	/* find the virtual device */
 	vdev = NULL;
-	list_for_each_entry(vdev_cur, &sys->virt_devs, devices) {
+	for_each_vdev(sys, vdev_cur) {
 		if (vdev_cur->sch == (u32) r1) {
 			vdev = vdev_cur;
 			break;

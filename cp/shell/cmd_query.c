@@ -176,7 +176,7 @@ static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
 		   __guest_state_to_str(sys->task->cpu->state));
 	con_printf(sys->con, "STORAGE = %lluM\n", sys->directory->storage_size >> 20);
 
-	list_for_each_entry(vdev, &sys->virt_devs, devices)
+	for_each_vdev(sys, vdev)
 		display_vdev(sys->con, vdev);
 
 	return 0;

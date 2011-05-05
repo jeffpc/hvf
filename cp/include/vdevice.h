@@ -102,4 +102,7 @@ static inline void spooldev_cmdrej(struct virt_sys *sys,
 extern int alloc_virt_dev(struct virt_sys *sys,
 		struct directory_vdev *dirdev, u32 sch);
 
+#define for_each_vdev(sys, v)	list_for_each_entry((v), &(sys)->virt_devs, \
+						    devices)
+
 #endif
