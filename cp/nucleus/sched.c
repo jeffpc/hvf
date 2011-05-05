@@ -32,6 +32,8 @@ static void start_task(int (*f)(void*), void *data)
 	if (f)
 		(*f)(data);
 
+	ldep_no_locks();
+
 	exit();
 
 	/* unreachable */
