@@ -13,6 +13,10 @@
 static spinlock_t __lock = SPIN_LOCK_UNLOCKED;
 static int ldep_enabled;
 
+#define PBSIZE PAGE_SIZE
+static char pbuf[PBSIZE];
+static int plen;
+
 void ldep_on()
 {
 	unsigned long mask;
@@ -27,9 +31,10 @@ static int __get_stack_slot()
 	current->nr_locks++;
 
 	if (current->nr_locks == LDEP_STACK_SIZE) {
-		con_printf(NULL, "task '%s' exceeded the number of tracked "
-			   "locks (%d)! disabling ldep!\n", current->name,
-			   LDEP_STACK_SIZE);
+		plen += snprintf(pbuf+plen, PBSIZE-plen,
+				 "task '%s' exceeded the number of tracked "
+				 "locks (%d)! disabling ldep!\n", current->name,
+				 LDEP_STACK_SIZE);
 		return 1;
 	}
 
@@ -38,19 +43,26 @@ static int __get_stack_slot()
 
 static void ldep_warn_head(char *lockname, void *addr)
 {
-	con_printf(NULL, "task '%s' is trying to acquire lock:\n",
-		   current->name);
-	con_printf(NULL, " (%s), at: %p\n\n", lockname, addr);
+	plen += snprintf(pbuf+plen, PBSIZE-plen,
+			 "task '%s' is trying to acquire lock:\n",
+			 current->name);
+	plen += snprintf(pbuf+plen, PBSIZE-plen,
+			 " (%s), at: %p\n\n", lockname, addr);
 }
 
 static void ldep_warn_recursive(char *lockname, void *addr, struct held_lock *held)
 {
-	con_printf(NULL, "[INFO: possible recursive locking detected]\n");
+	plen = 0;
+
+	plen += snprintf(pbuf+plen, PBSIZE-plen,
+			 "[INFO: possible recursive locking detected]\n");
 
 	ldep_warn_head(lockname, addr);
 
-	con_printf(NULL, "but task is already holding lock:\n\n");
-	con_printf(NULL, " (%s), at: %p\n\n", held->lockname, held->ra);
+	plen += snprintf(pbuf+plen, PBSIZE-plen,
+			 "but task is already holding lock:\n\n");
+	plen += snprintf(pbuf+plen, PBSIZE-plen,
+			 " (%s), at: %p\n\n", held->lockname, held->ra);
 }
 
 static void print_held_locks()
@@ -58,11 +70,13 @@ static void print_held_locks()
 	struct held_lock *cur;
 	int i;
 
-	con_printf(NULL, "\nlocks currently held:\n");
+	plen += snprintf(pbuf+plen, PBSIZE-plen,
+			 "\nlocks currently held:\n");
 	for(i=0; i<current->nr_locks; i++) {
 		cur = &current->lock_stack[i];
-		con_printf(NULL, " #%d:   (%s), at %p\n", i, cur->lockname,
-		       cur->ra);
+		plen += snprintf(pbuf+plen, PBSIZE-plen,
+				 " #%d:   (%s), at %p\n", i, cur->lockname,
+				 cur->ra);
 	}
 }
 
@@ -88,6 +102,7 @@ void ldep_lock(void *lock, struct lock_class *c, char *lockname)
 				continue;
 
 			ldep_warn_recursive(lockname, ra, cur);
+			BUG();
 			ldep_enabled = 0;
 			goto out;
 		}
@@ -127,10 +142,14 @@ void ldep_unlock(void *lock, char *lockname)
 			goto found;
 	}
 
-	con_printf(NULL, "task '%s' is trying to release lock it doesn't have:\n",
-		   current->name);
-	con_printf(NULL, " (%s), at %p\n", lockname, ra);
+	plen = 0;
+	plen += snprintf(pbuf+plen, PBSIZE-plen,
+			 "task '%s' is trying to release lock it doesn't have:\n",
+			 current->name);
+	plen += snprintf(pbuf+plen, PBSIZE-plen,
+			 " (%s), at %p\n", lockname, ra);
 	print_held_locks();
+	BUG();
 
 	ldep_enabled = 0;
 
@@ -163,10 +182,14 @@ void ldep_no_locks()
 	if (!current->nr_locks)
 		goto out;
 
-	con_printf(NULL, "task '%s' is holding a lock when it shouldn't have:\n",
-		   current->name);
-	con_printf(NULL, " at %p\n", ra);
+	plen = 0;
+	plen += snprintf(pbuf+plen, PBSIZE-plen,
+			 "task '%s' is holding a lock when it shouldn't have:\n",
+			 current->name);
+	plen += snprintf(pbuf+plen, PBSIZE-plen,
+			 " at %p\n", ra);
 	print_held_locks();
+	BUG();
 
 	ldep_enabled = 0;
 
