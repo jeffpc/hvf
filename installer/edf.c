@@ -339,6 +339,7 @@ static void __append_block(struct FST *fst)
 		return;
 	}
 
+	prevlba = 0; /* make gcc not warn about uninit variable */
 	for(lvl=0; lvl<=fst->NLVL; lvl++, prevlba=lba) {
 		blk = file_blocks_at_level(fst->ADBC+1, lvl);
 

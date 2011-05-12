@@ -102,16 +102,22 @@ static inline u64 __guest_gpr(struct virt_cpu *cpu, int gpr)
 
 static inline u64 __guest_addr(struct virt_cpu *cpu, u64 disp, int x, int b)
 {
-	u64 mask;
+	u64 mask = 0;
 
-	if (cpu->sie_cb.gpsw.ea && cpu->sie_cb.gpsw.ba)
-		mask = ~0;
-	else if (!cpu->sie_cb.gpsw.ea && cpu->sie_cb.gpsw.ba)
-		mask = 0x7fffffff;
-	else if (!cpu->sie_cb.gpsw.ea && !cpu->sie_cb.gpsw.ba)
-		mask = 0x00ffffff;
-	else
-		BUG();
+	switch((cpu->sie_cb.gpsw.ea << 1) | cpu->sie_cb.gpsw.ba) {
+		case 3:
+			mask = ~0;
+			break;
+		case 1:
+			mask = 0x7fffffff;
+			break;
+		case 0:
+			mask = 0x00ffffff;
+			break;
+		default:
+			BUG();
+			break;
+	}
 
 	return (disp +
 		(x ? __guest_gpr(cpu, x) : 0) +
