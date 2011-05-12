@@ -31,7 +31,7 @@ LEGACYSENSEID   OFF           # Hercules shouldn't let us do Sense-ID on
 #---    ----    --------------------
 
 # Card Reader
-000C    3505    ../sys/loader_rdr.bin ../sys/hvf ebcdic multifile
+000C    3505    ../installer.bin ebcdic autopad eof
 
 # Card Punch
 000D    3525    punch00d.txt ascii
@@ -51,9 +51,5 @@ LEGACYSENSEID   OFF           # Hercules shouldn't let us do Sense-ID on
 00A1.04 3215    NOPROMPT
 
 # Tape Drives
-0480    3590    tape-hvf.tdf
-0481    3590    *
-0580    3590    *
-0581    3590    *
 
 # DASDs

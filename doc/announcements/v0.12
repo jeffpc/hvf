@@ -1,0 +1,46 @@
+HVF v0.12 is available for download.
+
+HVF is a hypervisor OS for z/Architecture systems.
+
+Tarballs:
+http://www.josefsipek.net/projects/hvf/src/
+
+Git repo:
+git://repo.or.cz/hvf.git
+
+
+There have been a whole lot of changes. The major ones are turning DAT on,
+and being able to IPL from either a tape or a card reader.
+
+As always, patches, and other feedback is welcome.
+
+Josef "Jeff" Sipek.
+
+------------
+Changes since v0.11:
+
+Josef 'Jeff' Sipek (23):
+      Documentation: update inline assembly to include more constraints
+      sched: prevent idle_task from getting onto the runnable list
+      nucleus: use compiler builtin offsetof instead of a custom version
+      console: slim down struct console
+      console: create a console list with all the consoles in the system
+      Documentation: describe the contribution process
+      mm: Split the buddy allocator structures to make two zones
+      mm: define DAT-related data structures
+      config: prevent build if storage is set > 2GB
+      mm: build nucleus address space page table entries
+      nucleus: enable DAT for all of the nucleus
+      sched: added a void* argument to new tasks
+      lib: added strcmp library function
+      cp: very basic directory
+      io: default handler should wait for Device End in SCSW->device status
+      ipl: allow IPL from both tape and card reader
+      Documentation: update ipl.txt to reflect card reader IPL
+      nucleus: fix SVC handling asm stub
+      sched: change scheduler slice to 30 ms & force idling
+      build: make loader depend on hvf
+      console: ensure schedule() is called when there's no IO to be done
+      nucleus: set all the new interruption PSWs at the same time
+      HVF 0.12
+

@@ -1,0 +1,47 @@
+HVF v0.14 is available for download.
+
+HVF is a hypervisor OS for z/Architecture systems.
+
+Tarballs:
+http://www.josefsipek.net/projects/hvf/src/
+
+Git repo:
+git://repo.or.cz/hvf.git
+
+
+This release took far too long to make. But it was worth it. Beside assorted
+bug-fixes, and other cleanups a decent amount of work went toward having the
+CP communicate with the user. Hopefully, with the current code, it won't be
+too hard to implement a rudimentary command reading and parsing.
+
+The highlight of this release is the fact that it worked on a z10 without
+any modifications.
+
+As always, patches, and other feedback is welcome.
+
+Josef "Jeff" Sipek.
+
+------------
+Changes since v0.13:
+
+Josef 'Jeff' Sipek (19):
+      mm: clean up DAT table allocation code
+      directory: add guest storage size value to the directory structure
+      sched: task structure needs to define a guest state
+      cp: allocate storage for guest & assemble guest address space
+      console: create con_printf - a printf that works for any console
+      nucleus: spawn a CP task for the operator's console
+      channel: remove struct mida definition as it is not useful
+      console: update obsolete comment
+      cp: print the current time at logon
+      nucleus: a dummy program interrupt handler
+      nucleus: introduce snprintf
+      nucleus: replace die() with abend()
+      types: fix u64 and s64 type definition
+      loader: fix compiler warning about pointer size
+      io: use a monotonic counter as the IO parameter
+      mm: fix __do_alloc_pages to use the proper list wrapper instead of open-coding
+      device: introduce find_device_by_sch
+      io: add device driver interruption callback
+      HVF 0.14
+

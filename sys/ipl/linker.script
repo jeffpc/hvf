@@ -1,9 +1,0 @@
-SECTIONS
-{
-  ENTRY(load_nucleus)
-  . = 0x800020;
-  .text : { *(.text) }
-  .data : { *(.data) }
-  .rodata : { *(.rodata) }
-  .bss : { *(.bss) }
-}

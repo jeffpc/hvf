@@ -1,13 +1,16 @@
-#
-# Copyright (c) 2009 Josef 'Jeff' Sipek
-#
+/*
+ * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ *
+ * This file is released under the GPLv2.  See the COPYING file for more
+ * details.
+ */
 
 #
 # At this point, the machine is running in ESA390 mode.
 #
 
 .long 0x00080000			# IPL PSW
-.long ENTRY
+.long START
 
 .org 88					# EXT NEW PSW
 .long 0x000A0000
@@ -26,7 +29,8 @@ SUBSYSID:				# SUBSYSTEM ID
 .long 0x00000000
 
 .org 512
-ENTRY:					# CODE BEGINS
+.globl START
+START:					# CODE BEGINS
 	# LET'S FIND A CONSOLE TO WORK WITH
 
 	LA	%R1,0x1(%R0)		# LOAD R1 WITH 0XFFFF
@@ -172,7 +176,11 @@ IO_DONE:				# SHAKE SHAKE SHAKE
 	BC	3,FAIL_CLOCK		# CAN'T GET CLOCK
 	LM	%R8,%R9,CLOCK		# LOAD TOD INTO R8 & R9
 	SRDL	%R8,28			# SHIFT TO MAKE QUOTIENT FIT 32 BITS
-	DLR	%R8,%R5			# DIVIDE BY NUMBER OF ANSWERS
+
+	# FOR WHATEVER REASON, GNU AS DOESN'T LIKE DLR IN 31BIT MODE
+	#DLR	%R8,%R5			# DIVIDE BY NUMBER OF ANSWERS
+	.insn rre,0xB9970000,%R8,%R5
+
 	MSR	%R8,%R4			# MULTIPLY BY ANSWER LENGTH
 	AR	%R3,%R8			# ADD TO BASE PTR
 

@@ -71,12 +71,18 @@ breaklines=true
 \input{notices}
 \input{preface}
 % switch page numbering
-\input{cp-directory}
-\input{cp-commands}
-\input{cp-prog}
-\input{cp-nss}
-\input{abi}
+
+\part{CP}
+\label{part:cp}
+\input{cp}
+
+\part{Supplied Named Saved Segments}
+\label{part:supplied-nss}
+\input{nss}
+
 \appendix
-\input{license}
+\part{Appendices}
+\label{part:appendices}
+\input{appendices}
 
 \end{document}

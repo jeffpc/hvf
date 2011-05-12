@@ -1,10 +1,10 @@
-LD=s390x-linux-ld
-OBJCOPY=s390x-linux-objcopy
-AS=s390x-linux-as
+LD=$(CROSS_COMPILE)ld
+AS=$(CROSS_COMPILE)as
+OBJCOPY=$(CROSS_COMPILE)objcopy
 
 all:
-	$(AS) -o 8ball.o 8ball.S
-	$(LD) $(LDFLAGS) -T linker-8ball.script -o 8ball 8ball.o
+	$(AS) -m31 -o 8ball.o 8ball.S
+	$(LD) $(LDFLAGS) -melf_s390 -T linker-8ball.script -o 8ball 8ball.o
 	$(OBJCOPY) -O binary -j .text -j .data -j .rodata 8ball 8ball.raw
 
 clean:

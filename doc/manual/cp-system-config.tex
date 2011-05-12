@@ -1,0 +1,37 @@
+\cbstart
+\chapter{CP System Configuration}
+\label{chap:system-config}
+The directory contains a list of all valid users on the system.  Currently,
+any changes to the directory require that the nucleus be rebuilt, and the
+system re-IPLed.
+
+\section{System Cofiguration File Syntax}
+\begin{syntdiag}
+\tok{OPERATOR} \tok{CONSOLE} <rdev>
+\end{syntdiag}
+
+\begin{syntdiag}
+\tok{OPERATOR} \tok{USERID} <userid>
+\end{syntdiag}
+
+\begin{syntdiag}
+\tok{RDEV} <rdev> <type>
+\end{syntdiag}
+
+\begin{syntdiag}
+\tok{LOGO} \tok{LOCAL} <type> <filename> <filetype>
+\end{syntdiag}
+
+\section{Example System Configuration File}
+Figure~\ref{fig:system-config-sample} is the default system configuration
+file distributed with HVF.
+
+\begin{figure*}[htb]
+\small
+\lstinputlisting{../../cp/config/system.config}
+\captionfont
+\caption{\capfont Example system configuration file.}
+\label{fig:system-config-sample}
+\end{figure*}
+
+\cbend

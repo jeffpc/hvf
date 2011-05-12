@@ -10,23 +10,26 @@ describe all the virtual machines.
 
 All empty lines and lines with only white space are ignored.
 
-Each virtual machine definition must begin with a USERID statement
-specifying the userid and the authorization level.  All statements following
-the USERID statement are applied to this userid definition until another
-USERID statement is encountered.
+\cbstart
+Each virtual machine definition must begin with a USER statement specifying
+the userid and the authorization level.  All statements following the USER
+statement are applied to this userid definition until another USER statement
+is encountered.
 
 \begin{syntdiag}
-\tok{USERID} <userid> <auth>
+\tok{USER} <userid> <auth>
 \end{syntdiag}
+\cbend
 
-A CPU statement defines a virtual processor.  The cpuid parameter defines
-the number of the cpu in hex.  Typically, the first processor is numbered
-00.  Currently, HVF ignores this statement and always instantiates a single
-guest processor.
+A \cbstart MACHINE \cbend statement specifies the architectural level and
+number of virtual processors.  Currently, HVF ignores this statement and
+always instantiates a single z/Architecture virtual processor.
 
+\cbstart
 \begin{syntdiag}
-\tok{CPU} <cpuid>
+\tok{MACHINE} <type> <numcpus>
 \end{syntdiag}
+\cbend
 
 The STORAGE statement may appear only once within a virtual machine's
 definition.  It specifies the amount of memory allocated to the guest.  The
@@ -46,24 +49,44 @@ does not check for this.
 \end{stack}
 \end{syntdiag}
 
-The DEV statement may appear arbitrary number of times.  Each occurence
-defines a virtual device with the virtual device number vdev.  The device
-types CONSOLE, RDR, PUN, and PRT connect the device to CP's spooling
-facility which then directs any I/Os to the appropriate destination.  When
-the MDISK device type is specified, the virtual device is a minidisk
-residing on rdev (a DASD) starting at cylinder off and being len cylinders
-long.
+\cbstart
+The CONSOLE statement defines a system console.  There can be only one
+CONSOLE statement per virtual machine definition of type 3125.  Currently,
+HVF does not check for this.
 
 \begin{syntdiag}
-\tok{DEV} <vdev>
+\tok{CONSOLE} <vdev> <type>
+\end{syntdiag}
+
+The SPOOL statement may appear arbitrary number of times per virtual machine
+definision.  Each occurence defines a virtual device with the virtual device
+number vdev handled by HVF's spooling facility.
+
+The expected type for a READER is 3505.  The expected type for a PUNCH is
+3525.  The expected type for PRINT is 1403.
+
+\begin{syntdiag}
+\tok{SPOOL} <vdev> <type>
 \begin{stack}
-	\tok{CONSOLE} \\
-	\tok{RDR} \\
-	\tok{PUN} \\
-	\tok{PRT} \\
-	\tok{MDISK} <rdev> <off> <len>
+	\tok{READER}\\
+	\tok{PUNCH} \\
+	\tok{PRINT}
 \end{stack}
 \end{syntdiag}
+
+The MDISK statement defines a minidisk residing on rdev (a DASD of type
+type) starting at cylinder off and being len cylinders long.
+
+\begin{syntdiag}
+\tok{MDISK} <vdev> <type> <off> <len> <rdev>
+\end{syntdiag}
+
+The DEDICATE statement defines a dedicated virtual device.
+
+\begin{syntdiag}
+\tok{DEDICATE} <vdev> <rdev>
+\end{syntdiag}
+\cbend
 
 \section{Example Directory}
 Figure~\ref{fig:directory-sample} is the default directory distributed with
@@ -71,7 +94,7 @@ HVF.  It defines several users with nearly identical configurations.
 
 \begin{figure*}[htb]
 \small
-\lstinputlisting{../../sys/hvf.directory}
+\lstinputlisting{../../cp/config/hvf.directory}
 \captionfont
 \caption{\capfont Example directory defining three users.}
 \label{fig:directory-sample}
