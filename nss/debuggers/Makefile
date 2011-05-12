@@ -1,17 +1,32 @@
-CC=s390x-linux-gcc
-LD=s390x-linux-ld
-OBJCOPY=s390x-linux-objcopy
-AS=s390x-linux-as
-NM=s390x-linux-nm
-CFLAGS=-Wall -O2 -g -fno-strict-aliasing -nostdlib -include ../../include/types.h
+AS=$(CROSS_COMPILE)as
+CC=$(CROSS_COMPILE)gcc
+LD=$(CROSS_COMPILE)ld
+AR=$(CROSS_COMPILE)ar
+OBJCOPY=$(CROSS_COMPILE)objcopy
 
-all:
-	$(CC) $(CFLAGS) -c -o debug.o debug.c
-	$(LD) $(LDFLAGS) -T linker-debug.script -o debug debug.o
-	$(OBJCOPY) -O binary -j .text -j .data -j .rodata -j .rodata.str1.2 debug debug.raw
-	$(AS) -m64 --defsym DEBUGADDR=0x$(shell $(NM) debug|grep start$$|cut -d ' ' -f1) -o loader.o loader.S
-	$(LD) $(LDFLAGS) -T linker-loader.script -o loader loader.o
-	$(OBJCOPY) -O binary -j .text -j .data -j .rodata loader loader.raw
+CFLAGS=-Wall -O2 -g -fno-strict-aliasing -nostdlib -m64 \
+       -include ../../include/types.h -I include/
+LDFLAGS=-m elf64_s390
+
+BINS=dbg3215
+
+common_OBJS=src/debug.o src/init.o
+dbg3215_OBJS=
+
+.PHONY: all clean
+
+all: $(BINS)
+	@echo "Image is `stat -c %s dbg3215` bytes"
 
 clean:
-	rm -f debug debug.o debug.raw loader loader.o loader.raw
+	rm -f $(common_OBJS) $(dbg3215_OBJS)
+	rm -f dbg3215
+
+dbg3215: $(common_OBJS) $(dbg3215_OBJS)
+	$(LD) $(LDFLAGS) -T linker.script -o $@ $^
+
+%.o: %.S
+	$(AS) -m64 -c -o $@ $<
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<

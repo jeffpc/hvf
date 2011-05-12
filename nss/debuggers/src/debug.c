@@ -1,5 +1,3 @@
-#define memcpy(d,s,l)	__builtin_memcpy((d),(s),(l))
-
 u64 dis_wait_psw[2] = {
 	//0x0002000180000000ull,
 	0x0202000180000000ull,

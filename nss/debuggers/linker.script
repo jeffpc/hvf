@@ -1,6 +1,6 @@
 SECTIONS
 {
-  ENTRY(start)
+  ENTRY(_start)
   . = 0x3000;
   .text : { *(.text) }
   .data : { *(.data) }
