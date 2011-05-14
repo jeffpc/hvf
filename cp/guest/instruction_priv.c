@@ -18,16 +18,10 @@ static int handle_msch(struct virt_sys *sys)
 	u64 r1 = __guest_gpr(cpu, 1);
 	u64 addr = RAW_S_1(cpu);
 
-	struct schib *gschib;
+	u64 len;
+	struct schib gschib;
 	struct virt_device *vdev, *vdev_cur;
 	int ret = 0;
-
-	if ((PAGE_SIZE-(addr & PAGE_MASK)) < sizeof(struct schib)) {
-		con_printf(sys->con, "The SCHIB crosses page boundary (%016llx; %lu)! CPU stopped\n",
-			   addr, sizeof(struct schib));
-		cpu->state = GUEST_STOPPED;
-		goto out;
-	}
 
 	/* sch number must be: X'0001____' */
 	if ((r1 & 0xffff0000) != 0x00010000) {
@@ -56,8 +50,9 @@ static int handle_msch(struct virt_sys *sys)
 		goto out;
 	}
 
-	/* translate guest address to host address */
-	ret = virt2phy_current(addr, &addr);
+	/* copy the SCHIB from the guest */
+	len = sizeof(struct schib);
+	ret = memcpy_from_guest(addr, &gschib, &len);
 	if (ret) {
 		if (ret != -EFAULT)
 			goto out;
@@ -66,8 +61,6 @@ static int handle_msch(struct virt_sys *sys)
 		queue_prog_exception(sys, PROG_ADDR, addr);
 		goto out;
 	}
-
-	gschib = (struct schib*) addr;
 
 	mutex_lock(&vdev->lock);
 
@@ -106,21 +99,21 @@ static int handle_msch(struct virt_sys *sys)
 	 * • Measurement-block address (MBA)
 	*/
 
-	if (!gschib->pmcw.v)
+	if (!gschib.pmcw.v)
 		goto out_cc0;
 
-	vdev->pmcw.interrupt_param = gschib->pmcw.interrupt_param;
-	vdev->pmcw.e   = gschib->pmcw.e;
-	vdev->pmcw.isc = gschib->pmcw.isc;
-	vdev->pmcw.d   = gschib->pmcw.d;
-	vdev->pmcw.lpm = gschib->pmcw.lpm;
-	vdev->pmcw.pom = gschib->pmcw.pom;
-	vdev->pmcw.lm  = gschib->pmcw.lm;
-	vdev->pmcw.mm  = gschib->pmcw.mm;
-	vdev->pmcw.f   = gschib->pmcw.f;
-	vdev->pmcw.x   = gschib->pmcw.x;
-	vdev->pmcw.s   = gschib->pmcw.s;
-	vdev->pmcw.mbi = gschib->pmcw.mbi;
+	vdev->pmcw.interrupt_param = gschib.pmcw.interrupt_param;
+	vdev->pmcw.e   = gschib.pmcw.e;
+	vdev->pmcw.isc = gschib.pmcw.isc;
+	vdev->pmcw.d   = gschib.pmcw.d;
+	vdev->pmcw.lpm = gschib.pmcw.lpm;
+	vdev->pmcw.pom = gschib.pmcw.pom;
+	vdev->pmcw.lm  = gschib.pmcw.lm;
+	vdev->pmcw.mm  = gschib.pmcw.mm;
+	vdev->pmcw.f   = gschib.pmcw.f;
+	vdev->pmcw.x   = gschib.pmcw.x;
+	vdev->pmcw.s   = gschib.pmcw.s;
+	vdev->pmcw.mbi = gschib.pmcw.mbi;
 	/* FIXME: save measurement-block address */
 
 out_cc0:
