@@ -10,11 +10,11 @@ include ../cp/scripts/Makefile.commands
 all: eckd.rto loader.rto
 
 clean:
-	rm -f *.o
-	rm -f *.rto
+	$(call clean,*.o)
+	$(call clean,*.rto)
 
 loader.o: setmode.o loader_c.o loader_asm.o
-	$(call link-ipl,$^,$@)
+	$(call link,$^,$@,-melf64_s390 -T linker.script)
 
 %.o: %.c
 	$(call c-to-o,$<,$@)

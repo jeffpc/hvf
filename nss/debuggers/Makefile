@@ -14,20 +14,21 @@ common_OBJS=src/init.o src/io.o src/ioint.o
 common_LIBS=../../lib/ebcdic.a ../../lib/string.a
 dbg3215_OBJS=src/3215.o src/cons.o
 
+include ../../cp/scripts/Makefile.commands
+
 .PHONY: all clean
 
 all: $(BINS)
-	@echo "Image is `stat -c %s dbg3215` bytes"
 
 clean:
-	rm -f $(common_OBJS) $(dbg3215_OBJS)
-	rm -f dbg3215
+	$(call clean,$(common_OBJS) $(dbg3215_OBJS))
+	$(call clean,dbg3215)
 
 dbg3215: $(common_OBJS) $(dbg3215_OBJS) $(common_LIBS)
-	$(LD) $(LDFLAGS) -T linker.script -o $@ $^
+	$(call link,$^,$@,-melf64_s390 -T linker.script)
 
 %.o: %.S
-	$(AS) -m64 -c -o $@ $<
+	$(call s-to-o,$<,$@)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(call c-to-o,$<,$@)

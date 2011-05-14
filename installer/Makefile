@@ -11,12 +11,12 @@ include ../cp/scripts/Makefile.commands
 all: rdr.rto loader.rto
 
 clean:
-	rm -f *.o
-	rm -f *.rto
-	rm -f rdr.S
+	$(call clean,*.o)
+	$(call clean,*.rto)
+	$(call clean,rdr.S)
 
 loader.o: setmode.o loader_c.o loader_asm.o cpio.o malloc.o edf.o
-	$(call link-ipl,$^ $(patsubst %,../lib/%.a,$(LIBS)),$@)
+	$(call link,$^ $(patsubst %,../lib/%.a,$(LIBS)),$@,-melf64_s390 -T linker.script)
 
 rdr.S: loader.rto
 	../build/ccw_gen 00080000 80100000 `stat -c %s $<` 100000 080000 > $@
