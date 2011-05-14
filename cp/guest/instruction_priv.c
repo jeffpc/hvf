@@ -250,17 +250,11 @@ static int handle_stsch(struct virt_sys *sys)
 
 	u64 r1   = __guest_gpr(cpu, 1);
 	u64 addr = RAW_S_1(cpu);
+	u64 taddr;
+	u64 len;
 
-	struct schib *gschib;
 	struct virt_device *vdev, *vdev_cur;
 	int ret = 0;
-
-	if ((PAGE_SIZE-(addr & PAGE_MASK)) < sizeof(struct schib)) {
-		con_printf(sys->con, "The SCHIB crosses page boundary (%016llx; %lu)! CPU stopped\n",
-			   addr, sizeof(struct schib));
-		cpu->state = GUEST_STOPPED;
-		goto out;
-	}
 
 	/* sch number must be: X'0001____' */
 	if ((r1 & 0xffff0000) != 0x00010000) {
@@ -289,24 +283,34 @@ static int handle_stsch(struct virt_sys *sys)
 		goto out;
 	}
 
-	/* translate guest address to host address */
-	ret = virt2phy_current(addr, &addr);
-	if (ret) {
-		if (ret == -EFAULT) {
-			ret = 0;
-			queue_prog_exception(sys, PROG_ADDR, addr);
-		}
-
-		goto out;
-	}
-
-	gschib = (struct schib*) addr;
-
 	mutex_lock(&vdev->lock);
 
 	/* copy! */
-	memcpy(&gschib->pmcw, &vdev->pmcw, sizeof(struct pmcw));
-	memcpy(&gschib->scsw, &vdev->scsw, sizeof(struct scsw));
+	taddr = addr + offsetof(struct schib, pmcw);
+	len = sizeof(struct pmcw);
+	ret = memcpy_to_guest(taddr, &vdev->pmcw, &len);
+	if (ret) {
+		if (ret == -EFAULT) {
+			ret = 0;
+			queue_prog_exception(sys, PROG_ADDR, taddr);
+		}
+
+		mutex_unlock(&vdev->lock);
+		goto out;
+	}
+
+	taddr = addr + offsetof(struct schib, scsw);
+	len = sizeof(struct scsw);
+	ret = memcpy_to_guest(taddr, &vdev->scsw, &len);
+	if (ret) {
+		if (ret == -EFAULT) {
+			ret = 0;
+			queue_prog_exception(sys, PROG_ADDR, taddr);
+		}
+
+		mutex_unlock(&vdev->lock);
+		goto out;
+	}
 
 	mutex_unlock(&vdev->lock);
 
