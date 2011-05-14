@@ -1,5 +1,6 @@
 #include <ebcdic.h>
 #include <channel.h>
+#include <string.h>
 
 #include <io.h>
 #include <die.h>
