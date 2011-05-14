@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -7,6 +7,8 @@
 
 #ifndef __CHANNEL_H
 #define __CHANNEL_H
+
+#include <errno.h>
 
 /*
  * We only care about format-1 CCWs
@@ -364,7 +366,5 @@ static inline int test_sch(u32 sch, struct irb *irb)
 
 	return 0;
 }
-
-extern void scan_devices(void);
 
 #endif
