@@ -94,4 +94,6 @@ static inline void dev_put(struct device *dev)
 extern int register_driver_3215(void);
 extern int register_driver_dasd(void);
 
+extern void scan_devices(void);
+
 #endif
