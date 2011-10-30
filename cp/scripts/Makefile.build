@@ -21,7 +21,7 @@ include $(DIR)/Makefile
 OBJS := $(foreach obj,$(objs-$(DIR)),$(patsubst %,$(DIR)/%,$(obj)))
 
 all: $(DIR)/built-in.o
-	@echo -n
+	@printf ""
 
 %/built-in.o: $(OBJS)
 	$(call o-to-builtin,$(OBJS),$@)

@@ -7,12 +7,12 @@
 #
 
 all:
-	make -C build
-	make -C lib
-	make -C cp
-	make -C nss/8ball
-	make -C loader
-	make -C installer
+	$(MAKE) -C build
+	$(MAKE) -C lib
+	$(MAKE) -C cp
+	$(MAKE) -C nss/8ball
+	$(MAKE) -C loader
+	$(MAKE) -C installer
 	./build/mkarchive \
 		cp/config/hvf.directory text 80 \
 		cp/config/system.config text 80 \
@@ -26,16 +26,16 @@ all:
 	./build/padcat installer/rdr.rto installer/loader.rto installer/archive.cpio > installer.bin
 
 doc:
-	make -C doc/manual
+	$(MAKE) -C doc/manual
 
 clean:
-	make -C build clean
-	make -C lib clean
-	make -C cp clean
-	make -C nss/8ball clean
-	make -C loader clean
-	make -C installer clean
-	make -C doc/manual clean
+	$(MAKE) -C build clean
+	$(MAKE) -C lib clean
+	$(MAKE) -C cp clean
+	$(MAKE) -C nss/8ball clean
+	$(MAKE) -C loader clean
+	$(MAKE) -C installer clean
+	$(MAKE) -C doc/manual clean
 	rm -f installer/archive.cpio
 	rm -f installer.bin
 
