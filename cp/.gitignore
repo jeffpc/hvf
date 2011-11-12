@@ -1,7 +1,6 @@
-*.o
 *.rto
-ipl/ipl_rdr_ccws.S
-ipl/ipl_tape.S
+ipl/ipl_rdr_ccws.s
+ipl/ipl_tape.s
 shell/directory_structs.c
 hvf
 loader_rdr.bin

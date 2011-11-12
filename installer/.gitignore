@@ -1,6 +1,8 @@
-*.o
 *.rto
 
-rdr.S
+rdr
+rdr.s
+
+installer
 
 archive.cpio

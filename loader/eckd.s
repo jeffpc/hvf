@@ -3,6 +3,10 @@
 # NOTE: zArch IPLs in ESA/390 mode.
 #
 
+.org 0
+.globl START
+START:
+
 #
 # Bytes 0-7 contain PSW to be loaded after IO operation completes
 #

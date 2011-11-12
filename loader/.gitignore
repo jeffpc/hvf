@@ -1,2 +1,4 @@
-*.o
 *.rto
+
+eckd
+loader

@@ -1,8 +1,8 @@
 dasd layout:
 
-0,0,1		eckd.S
-0,0,2		setmode.S
+0,0,1		eckd.s
+0,0,2		setmode.s
 		loader.c
-		loader_asm.S
+		loader_asm.s
 
 <on fs>		hvf.elf

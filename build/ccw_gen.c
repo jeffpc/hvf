@@ -9,7 +9,13 @@ static char *deck_head =
 "# During the system IPL, 24 bytes are read from the device.\n"
 "#\n"
 "# NOTE: zArch IPLs in ESA/390 mode.\n"
-"#\n";
+"#\n"
+"\n"
+".text\n"
+"	.align	4\n"
+".globl START\n"
+"	.type	START, @function\n"
+"START:\n";
 
 static char *card_head =
 "\n"
