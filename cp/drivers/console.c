@@ -44,7 +44,7 @@ static void do_issue_read(struct console *con, struct io_op *ioop, struct ccw *c
 	submit_io(con->dev, ioop, CAN_SLEEP);
 
 	ret = spool_append_rec(con->rlines, con->bigbuf,
-			       strnlen(con->bigbuf, CONSOLE_LINE_LEN));
+			       strnlen((char*)con->bigbuf, CONSOLE_LINE_LEN));
 	BUG_ON(ret);
 }
 
