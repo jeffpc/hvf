@@ -34,6 +34,126 @@ void free_spool(struct spool_file *f)
 	free(f);
 }
 
+u64 spool_nrecs(struct spool_file *f)
+{
+	u64 recs;
+
+	mutex_lock(&f->lock);
+
+	recs = f->recs;
+
+	mutex_unlock(&f->lock);
+
+	return recs;
+}
+
+/*
+ * Returns 0 on success
+ *
+ * Note: the output may get truncated
+ */
+int spool_grab_rec(struct spool_file *f, u8 *buf, u16 *len)
+{
+	struct spool_page *spage;
+	struct spool_rec *rec;
+	int ret = -ENOENT;
+	u16 reclen; /* length of record */
+	u32 copied, processed, rlen, offset, left;
+
+	if (!*len || !buf || !f)
+		return -EINVAL;
+
+	BUG_ON(sizeof(struct spool_rec) != 2);
+	BUG_ON(SPOOL_DATA_SIZE % 2);
+
+	mutex_lock(&f->lock);
+
+	if (!f->recs)
+		goto out;
+
+	BUG_ON(f->lrecoff % 2);
+
+	copied = 0;
+	processed = 0;
+
+	rec = NULL;
+
+	/* figure out the record length */
+	spage = list_first_entry(&f->list, struct spool_page, list);
+	rec = (struct spool_rec*) (spage->data + f->frecoff);
+	reclen = rec->len;
+
+	rlen = min(*len, reclen) + sizeof(struct spool_rec);
+	copied = 2;
+	processed = 2;
+	offset = f->frecoff+2;
+	left = SPOOL_DATA_SIZE - f->frecoff - 2;
+
+	while(reclen+2 != processed) {
+		if (!left) {
+			/* free page */
+			list_del(&spage->list);
+			free_pages(spage, 0);
+			f->pages--;
+
+			/* grab the next page */
+			spage = list_first_entry(&f->list, struct spool_page, list);
+			offset = 0;
+			left = SPOOL_DATA_SIZE;
+		}
+
+		if (rlen != copied) {
+			/* memcpy into the user buffer */
+			u32 tmp;
+
+			tmp = min(left, rlen-copied);
+
+			memcpy(buf+copied-2, &spage->data[offset], tmp);
+			processed += tmp;
+			copied += tmp;
+			left -= tmp;
+			offset += tmp;
+		} else {
+			/* we already filled the user buffer, but the record
+			 * is longer, so we need to take it all out
+			 */
+			u32 tmp;
+
+			tmp = min(left, reclen-processed+2);
+
+			processed += tmp;
+			left -= tmp;
+			offset += tmp;
+		}
+	}
+
+	/* align to a multiple of 2 bytes */
+	if (offset % 2)
+		offset++;
+
+	if (offset == SPOOL_DATA_SIZE) {
+		/* free page */
+		spage = list_first_entry(&f->list, struct spool_page, list);
+
+		list_del(&spage->list);
+		free_pages(spage, 0);
+		f->pages--;
+
+		offset = 0;
+	}
+
+	f->recs--;
+	f->frecoff = offset;
+
+	*len = copied-2;
+	ret = 0;
+
+out:
+	mutex_unlock(&f->lock);
+
+	return ret;
+}
+
 int spool_append_rec(struct spool_file *f, u8 *buf, u16 len)
 {
 	struct list_head new_pages;
@@ -47,40 +167,38 @@ int spool_append_rec(struct spool_file *f, u8 *buf, u16 len)
 	u32 rlen;
 	int ret;
 
+	if (!f || !buf || !len)
+		return -EINVAL;
+
 	INIT_LIST_HEAD(&new_pages);
 	npages = 0;
 
 	BUG_ON(sizeof(struct spool_rec) != 2);
+	BUG_ON(SPOOL_DATA_SIZE % 2);
 
 	mutex_lock(&f->lock);
+
+	BUG_ON(f->lrecoff % 2);
 
 	left = SPOOL_DATA_SIZE - f->lrecoff;
 	rlen = len + sizeof(struct spool_rec);
 	copied = 0;
+	loff = 0;
 
 	/* try to fill up the last page */
-	if (f->pages && left) {
+	if (f->pages && (left >= 2)) {
 		spage = list_last_entry(&f->list, struct spool_page, list);
 		rec = (struct spool_rec*) (spage->data + f->lrecoff);
 
-		switch(left) {
-			case 1:
-				spage->data[f->lrecoff] = len >> 8;
-				copied = 1;
-				loff = SPOOL_DATA_SIZE;
-				break;
-			case 2:
-				rec->len = len;
-				copied = 2;
-				loff = SPOOL_DATA_SIZE;
-				break;
-			default:
-				rec->len = len;
-				memcpy(rec->data, buf, min_t(u32, len, left-2));
-				copied = 2 + min_t(u32, len, left-2);
-				loff = f->lrecoff + copied;
-				break;
+		rec->len = len;
+		copied = 2;
+
+		if (left-2) {
+			memcpy(rec->data, buf, min_t(u32, len, left-2));
+			copied += min_t(u32, len, left-2);
 		}
+
+		loff = f->lrecoff + copied;
 	}
 
 	BUG_ON(rlen < copied);
@@ -102,31 +220,25 @@ int spool_append_rec(struct spool_file *f, u8 *buf, u16 len)
 		rec = (struct spool_rec*) spage->data;
 		left = SPOOL_DATA_SIZE;
 
-		switch(copied) {
-			case 0:
-				/* nothing was copied */
-				rec->len = len;
-				memcpy(rec->data, buf, min_t(u32, len, left-2));
-				loff = 2 + min_t(u32, len, left-2);
-				break;
-			case 1:
-				/* half of the length was copied */
-				spage->data[0] = len & 0xff;
-				rec = (struct spool_rec*) (spage->data - 1);
-				memcpy(rec->data, buf, min_t(u32, len, left-1));
-				loff = 1 + min_t(u32, len, left-1);
-				break;
-			default:
-				/* the length and maybe some data were copied */
-				memcpy(spage, buf-copied+2, min(rlen-copied, left));
-				loff = min(rlen-copied, left);
-				break;
+		if (!copied) {
+			/* nothing was copied */
+			rec->len = len;
+			memcpy(rec->data, buf, min_t(u32, len, left-2));
+			loff = 2 + min_t(u32, len, left-2);
+		} else {
+			/* the length and maybe some data were copied */
+			memcpy(spage->data, buf-copied+2, min(rlen-copied, left));
+			loff = min(rlen-copied, left);
 		}
 
 		copied += loff;
 	}
 
 	list_splice_tail(&new_pages, &f->list);
+
+	/* 2-byte align the lrecoff */
+	if (loff % 2)
+		loff++;
 
 	f->pages += npages;
 	f->recs++;

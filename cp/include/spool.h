@@ -35,6 +35,8 @@ struct spool_file {
 
 extern struct spool_file *alloc_spool();
 extern void free_spool(struct spool_file *f);
+extern u64 spool_nrecs(struct spool_file *f);
+extern int spool_grab_rec(struct spool_file *f, u8 *buf, u16 *len);
 extern int spool_append_rec(struct spool_file *f, u8 *buf, u16 len);
 
 #endif
