@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -12,37 +12,17 @@
 #include <io.h>
 #include <spinlock.h>
 
-/* line allocation size */
-#define CON_LINE_ALLOC_SIZE	256
-
-/* maximum line length */
-#define CON_MAX_LINE_LEN	(CON_LINE_ALLOC_SIZE - sizeof(struct console_line))
-
-/* maximum number of free lines to keep around */
-#define CON_MAX_FREE_LINES	32
-
-/* number of lines of console text to flush at a time */
-#define CON_MAX_FLUSH_LINES	32
-
-/* line state */
-#define CON_STATE_FREE		0
-#define CON_STATE_PENDING	1
-#define CON_STATE_IO		2
-
-struct console_line {
-	struct list_head lines;
-	u16 len;
-	u16 state;
-	u8 buf[0];
-};
+#define CONSOLE_LINE_LEN	160
 
 struct console {
 	struct list_head consoles;
 	struct virt_sys *sys;
 	struct device *dev;
-	spinlock_t lock;
-	struct list_head write_lines;
-	struct list_head read_lines;
+
+	struct spool_file *wlines;
+	struct spool_file *rlines;
+
+	u8 *bigbuf;
 };
 
 extern int console_interrupt(struct device *dev, struct irb *irb);
