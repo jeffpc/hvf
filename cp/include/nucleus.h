@@ -47,6 +47,10 @@ static inline void lpswe(void *psw)
 				if (unlikely(cond)) \
 					BUG(); \
 			} while(0)
+#define assert(cond)	do { \
+				if (unlikely(!(cond))) \
+					BUG(); \
+			} while(0)
 
 #include <config.h>
 
