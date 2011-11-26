@@ -205,24 +205,56 @@ int edf_read_rec(struct file *file, char *buf, u32 recno)
 
 	mutex_lock(&file->lock);
 
+	/* check for unsupported geometry */
 	if (file->FST.NLVL != 0 ||
 	    file->FST.PTRSZ != 4 ||
 	    file->FST.LRECL > fs->ADT.DBSIZ ||
 	    file->FST.RECFM != FSTDFIX)
 		goto out;
 
+	/* reading past the end of file? */
+	if (recno >= file->FST.AIC)
+		goto out;
+
 	blk = (recno * file->FST.LRECL) / fs->ADT.DBSIZ;
 	off = (recno * file->FST.LRECL) % fs->ADT.DBSIZ;
 
-	dbuf = bcache_read(file, 0, blk);
-	if (IS_ERR(dbuf)) {
-		ret = PTR_ERR(dbuf);
-		goto out;
+	if ((off + file->FST.LRECL) > fs->ADT.DBSIZ) {
+		int flen = fs->ADT.DBSIZ - off;
+		int slen = file->FST.LRECL - flen;
+
+		assert(flen < file->FST.LRECL);
+		assert(slen < file->FST.LRECL);
+
+		/* the first part of the record */
+		dbuf = bcache_read(file, 0, blk);
+		if (IS_ERR(dbuf)) {
+			ret = PTR_ERR(dbuf);
+			goto out;
+		}
+
+		memcpy(buf, dbuf + off, flen);
+
+		/* the second part of the record */
+		blk++;
+
+		dbuf = bcache_read(file, 0, blk);
+		if (IS_ERR(dbuf)) {
+			ret = PTR_ERR(dbuf);
+			goto out;
+		}
+
+		memcpy(buf + flen, dbuf, slen);
+	} else {
+		/* the whole record */
+		dbuf = bcache_read(file, 0, blk);
+		if (IS_ERR(dbuf)) {
+			ret = PTR_ERR(dbuf);
+			goto out;
+		}
+
+		memcpy(buf, dbuf + off, file->FST.LRECL);
 	}
-
-	BUG_ON((off + file->FST.LRECL) > fs->ADT.DBSIZ);
-
-	memcpy(buf, dbuf + off, file->FST.LRECL);
 
 	ret = 0;
 
