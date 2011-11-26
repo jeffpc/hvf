@@ -67,21 +67,10 @@ static void
 define_prefixed(FILE * fp, const char *name)
 {
     int bump_line = CountLine(fp);
-    if (bump_line)
-	++outline;
-    fprintf(fp, "\n");
-
-    if (bump_line)
-	++outline;
-    fprintf(fp, "#ifndef %s\n", name);
 
     if (bump_line)
 	++outline;
     fprintf(fp, "#define %-10s %s%s\n", name, symbol_prefix, name + 2);
-
-    if (bump_line)
-	++outline;
-    fprintf(fp, "#endif /* %s */\n", name);
 }
 
 static void
@@ -95,7 +84,6 @@ output_prefix(FILE * fp)
     {
 	define_prefixed(fp, "yyparse");
 	define_prefixed(fp, "yylex");
-	define_prefixed(fp, "yyerror");
 	define_prefixed(fp, "yychar");
 	define_prefixed(fp, "yyval");
 	define_prefixed(fp, "yylval");
@@ -848,7 +836,7 @@ output_defines(FILE * fp)
 	    }
 	    if (fp == code_file)
 		++outline;
-	    fprintf(fp, " %d\n", symbol_value[i]);
+	    fprintf(fp, " %d\t\t/* 0x%x */\n", symbol_value[i], symbol_value[i]);
 	}
     }
 
@@ -1203,120 +1191,11 @@ output_semantic_actions(void)
 }
 
 static void
-output_parse_decl(FILE * fp)
-{
-    putl_code(fp, "\n");
-    putl_code(fp, "/* compatibility with bison */\n");
-    putl_code(fp, "#ifdef YYPARSE_PARAM\n");
-    putl_code(fp, "/* compatibility with FreeBSD */\n");
-    putl_code(fp, "# ifdef YYPARSE_PARAM_TYPE\n");
-    putl_code(fp,
-	      "#  define YYPARSE_DECL() yyparse(YYPARSE_PARAM_TYPE YYPARSE_PARAM)\n");
-    putl_code(fp, "# else\n");
-    putl_code(fp, "#  define YYPARSE_DECL() yyparse(void *YYPARSE_PARAM)\n");
-    putl_code(fp, "# endif\n");
-    putl_code(fp, "#else\n");
-
-    puts_code(fp, "# define YYPARSE_DECL() yyparse(");
-    if (!parse_param)
-	puts_code(fp, "void");
-    else
-    {
-	param *p;
-	for (p = parse_param; p; p = p->next)
-	    fprintf(fp, "%s %s%s%s", p->type, p->name, p->type2,
-		    p->next ? ", " : "");
-    }
-    putl_code(fp, ")\n");
-
-    putl_code(fp, "#endif\n");
-}
-
-static void
 output_lex_decl(FILE * fp)
 {
     putl_code(fp, "\n");
     putl_code(fp, "/* Parameters sent to lex. */\n");
-    putl_code(fp, "#ifdef YYLEX_PARAM\n");
-    if (pure_parser)
-    {
-	putl_code(fp, "# define YYLEX_DECL() yylex(YYSTYPE *yylval, "
-		  "void *YYLEX_PARAM)\n");
-	putl_code(fp, "# define YYLEX yylex(&yylval, YYLEX_PARAM)\n");
-    }
-    else
-    {
-	putl_code(fp, "# define YYLEX_DECL() yylex(void *YYLEX_PARAM)\n");
-	putl_code(fp, "# define YYLEX yylex(YYLEX_PARAM)\n");
-    }
-    putl_code(fp, "#else\n");
-    if (pure_parser && lex_param)
-    {
-	param *p;
-	puts_code(fp, "# define YYLEX_DECL() yylex(YYSTYPE *yylval, ");
-	for (p = lex_param; p; p = p->next)
-	    fprintf(fp, "%s %s%s%s", p->type, p->name, p->type2,
-		    p->next ? ", " : "");
-	putl_code(fp, ")\n");
-
-	puts_code(fp, "# define YYLEX yylex(&yylval, ");
-	for (p = lex_param; p; p = p->next)
-	    fprintf(fp, "%s%s", p->name, p->next ? ", " : "");
-	putl_code(fp, ")\n");
-    }
-    else if (pure_parser)
-    {
-	putl_code(fp, "# define YYLEX_DECL() yylex(YYSTYPE *yylval)\n");
-	putl_code(fp, "# define YYLEX yylex(&yylval)\n");
-    }
-    else if (lex_param)
-    {
-	param *p;
-	puts_code(fp, "# define YYLEX_DECL() yylex(");
-	for (p = lex_param; p; p = p->next)
-	    fprintf(fp, "%s %s%s%s", p->type, p->name, p->type2,
-		    p->next ? ", " : "");
-	putl_code(fp, ")\n");
-
-	puts_code(fp, "# define YYLEX yylex(");
-	for (p = lex_param; p; p = p->next)
-	    fprintf(fp, "%s%s", p->name, p->next ? ", " : "");
-	putl_code(fp, ")\n");
-    }
-    else
-    {
-	putl_code(fp, "# define YYLEX_DECL() yylex(void)\n");
-	putl_code(fp, "# define YYLEX yylex()\n");
-    }
-    putl_code(fp, "#endif\n");
-}
-
-static void
-output_error_decl(FILE * fp)
-{
-    putl_code(fp, "\n");
-    putl_code(fp, "/* Parameters sent to yyerror. */\n");
-    if (parse_param)
-    {
-	param *p;
-
-	fprintf(fp, "#define YYERROR_DECL() yyerror(");
-	for (p = parse_param; p; p = p->next)
-	    fprintf(fp, "%s %s%s, ", p->type, p->name, p->type2);
-	putl_code(fp, "const char *s)\n");
-
-	puts_code(fp, "#define YYERROR_CALL(msg) yyerror(");
-
-	for (p = parse_param; p; p = p->next)
-	    fprintf(fp, "%s, ", p->name);
-
-	putl_code(fp, "msg)\n");
-    }
-    else
-    {
-	putl_code(fp, "#define YYERROR_DECL() yyerror(const char *s)\n");
-	putl_code(fp, "#define YYERROR_CALL(msg) yyerror(msg)\n");
-    }
+    putl_code(fp, "#define YYLEX(parser) ((parser)->lex((parser)->lex_data, &yylval))\n");
 }
 
 static void
@@ -1363,14 +1242,7 @@ output_yyerror_call(const char *msg)
 {
     FILE *fp = code_file;
 
-    puts_code(fp, "    yyerror(");
-    if (parse_param)
-    {
-	param *p;
-	for (p = parse_param; p; p = p->next)
-	    fprintf(fp, "%s, ", p->name);
-    }
-    puts_code(fp, "\"");
+    puts_code(fp, "    parser->error(parser, \"");
     puts_code(fp, msg);
     putl_code(fp, "\");\n");
 }
@@ -1419,9 +1291,7 @@ output(void)
     output_pure_parser(fp);
     output_stored_text(fp);
     output_stype(fp);
-    output_parse_decl(fp);
     output_lex_decl(fp);
-    output_error_decl(fp);
     write_section(fp, xdecls);
 
     if (iflag)
