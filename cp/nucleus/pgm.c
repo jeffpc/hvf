@@ -6,10 +6,7 @@
  */
 
 #include <interrupt.h>
-#include <ebcdic.h>
-#include <vsprintf.h>
-
-static char abend_msg_buf[1024];
+#include <sclp.h>
 
 /*
  * All is lost! All hands abandon ship!
@@ -19,27 +16,17 @@ static char abend_msg_buf[1024];
  */
 static void abend(void)
 {
-	int ret;
+	int i;
 
-	ret = snprintf(abend_msg_buf, 1024,
-		"ABEND       %04x"
-		"PSW        ILC %d"
-		"%016llx%016llx"
-		"GPR             "
-		"%016llx%016llx%016llx%016llx"
-		"%016llx%016llx%016llx%016llx"
-		"%016llx%016llx%016llx%016llx"
-		"%016llx%016llx%016llx%016llx",
-		*PGM_INT_CODE, (*PGM_INT_ILC) >> 1,
-		*((u64*) PGM_INT_OLD_PSW), *(((u64*) PGM_INT_OLD_PSW)+1),
-		PSA_INT_GPR[0],  PSA_INT_GPR[1],  PSA_INT_GPR[2],  PSA_INT_GPR[3],
-		PSA_INT_GPR[4],  PSA_INT_GPR[5],  PSA_INT_GPR[6],  PSA_INT_GPR[7],
-		PSA_INT_GPR[8],  PSA_INT_GPR[9],  PSA_INT_GPR[10], PSA_INT_GPR[11],
-		PSA_INT_GPR[12], PSA_INT_GPR[13], PSA_INT_GPR[14], PSA_INT_GPR[15]
-	);
-
-	if (ret)
-		ascii2ebcdic((u8 *) abend_msg_buf, ret);
+	sclp_msg("ABEND\n");
+	sclp_msg("PROG %04x, ILC %d\n", *PGM_INT_CODE, (*PGM_INT_ILC) >> 1);
+	sclp_msg("\n");
+	for(i=0; i<8; i++)
+		sclp_msg("R%-2d = %016llx        R%-2d = %016llx\n",
+			 i, PSA_INT_GPR[i], i+8, PSA_INT_GPR[i+8]);
+	sclp_msg("\n");
+	sclp_msg("PSW = %016llx %016llx\n",
+		*((u64*) PGM_INT_OLD_PSW), *(((u64*) PGM_INT_OLD_PSW)+1));
 
 	/*
 	 * halt the cpu
@@ -48,13 +35,9 @@ static void abend(void)
 	 * code executes, the CPU will be stopped.
 	 */
 	asm volatile(
-		"LR	%%r15, %0		# buffer pointer\n"
-		"SR	%%r1, %%r1		# not used, but should be zero\n"
-		"SR	%%r3, %%r3 		# CPU Address\n"
-		"SIGP	%%r1, %%r3, 0x05	# Signal, order 0x05\n"
-	: /* out */
-	: /* in */
-	  "a" (abend_msg_buf)
+		"SR	%r1, %r1	# not used, but should be zero\n"
+		"SR	%r3, %r3 	# CPU Address\n"
+		"SIGP	%r1, %r3, 0x05	# Signal, order 0x05\n"
 	);
 
 	/*
