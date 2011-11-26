@@ -5,3 +5,4 @@ add_executable(padcat padcat.c)
 add_executable(mkarchive mkarchive.c)
 
 add_subdirectory(byacc)
+add_subdirectory(re2c)
