@@ -1,1 +1,5 @@
 libnucleus.a
+
+config.tab.c
+config.tab.h
+config.lex.c

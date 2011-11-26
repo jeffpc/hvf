@@ -10,6 +10,7 @@
 
 #include <list.h>
 #include <edf.h>
+#include <parser.h>
 
 /*
  * Base address within a guest's address space; used as the base address for
@@ -57,5 +58,7 @@ extern struct fs *sysfs;
 extern struct sysconf sysconf;
 
 extern struct fs *load_config();
+extern int config_lex(void *data, void *yyval);
+extern int config_parse(struct parser *parser);
 
 #endif
