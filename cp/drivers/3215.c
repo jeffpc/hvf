@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -15,7 +15,7 @@ static struct device_type d3215 = {
 	.types		= LIST_HEAD_INIT(d3215.types),
 	.reg		= NULL,
 	.interrupt	= NULL,
-	.enable		= console_enable,
+	.enable		= NULL,
 	.snprintf	= NULL,
 	.type		= 0x3215,
 	.model		= 0,

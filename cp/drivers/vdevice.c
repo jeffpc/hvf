@@ -20,7 +20,9 @@ static int __setup_vdev_ded(struct virt_sys *sys,
 	if (IS_ERR(rdev))
 		return PTR_ERR(rdev);
 
-	atomic_inc(&rdev->in_use);
+	mutex_lock(&rdev->lock);
+	rdev->in_use = 1;
+	mutex_unlock(&rdev->lock);
 
 	vdev->u.dedicate.rdev = rdev;
 	vdev->type = rdev->type;

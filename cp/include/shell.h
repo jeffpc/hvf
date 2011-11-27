@@ -20,15 +20,10 @@
  */
 extern struct console *oper_con;
 
-extern void spawn_oper_shell(struct console *con);
-extern void spawn_user_shell(struct console *con, struct user *u);
+extern int shell_start(void *data);
+
 extern int invoke_shell_cmd(struct virt_sys *sys, char *cmd, int len);
 extern int invoke_shell_logon(struct console *con, char *cmd, int len);
-
-extern void list_users(struct console *con, void (*f)(struct console *con,
-						      struct virt_sys *sys));
-
-extern int spool_exec(struct virt_sys *sys, struct virt_device *vdev);
 
 #define SHELL_CMD_AUTH(s,a)	do { \
 					if (!((s)->directory->auth & AUTH_##a)) \

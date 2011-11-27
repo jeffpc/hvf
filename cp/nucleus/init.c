@@ -16,7 +16,7 @@
 #include <console.h>
 #include <interrupt.h>
 #include <magic.h>
-#include <shell.h>
+#include <guest.h>
 #include <sclp.h>
 
 static struct psw new_io_psw = {
@@ -61,7 +61,7 @@ static void init_int_stack(void)
 	struct page *page;
 
 	page = alloc_pages(0, ZONE_NORMAL);
-	BUG_ON(!page);
+	assert(page);
 
 	int_stack_ptr = PAGE_SIZE + (u8*)page_to_addr(page);
 }
@@ -85,8 +85,9 @@ static void idle_task_body(void)
 
 static int __finish_loading(void *data)
 {
-	struct console *opcon; /* operator's console */
+	struct virt_sys *login;
 	u32 iplsch;
+	int ret;
 
 	iplsch = (u32) (u64) data;
 
@@ -98,6 +99,20 @@ static int __finish_loading(void *data)
 		BUG();
 
 	/*
+	 * Alright, we have the config, we now need to set up the *LOGIN
+	 * guest and attach the operator console rdev to it
+	 */
+	login = guest_create("*LOGIN", NULL);
+	if (!login)
+		goto die;
+
+	ret = guest_ipl_nss(login, "login");
+	if (ret)
+		goto die;
+
+	/* FIXME: attach the operator rdev to login */
+
+	/*
 	 * IPL is more or less done
 	 */
 	get_parsed_tod(&ipltime);
@@ -106,14 +121,16 @@ static int __finish_loading(void *data)
 		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
 		   ipltime.dm, ipltime.dd);
 
-	opcon = start_oper_console();
+	/* start *LOGIN */
+	ret = guest_begin(login);
+	if (ret)
+		goto die;
 
-	con_printf(opcon, "NOW %02d:%02d:%02d UTC %04d-%02d-%02d\n\n",
-		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
-		   ipltime.dm, ipltime.dd);
+	return 0;
 
-	spawn_oper_shell(opcon);
-
+die:
+	sclp_msg("Failed to initialize '*LOGIN' guest\n");
+	BUG();
 	return 0;
 }
 

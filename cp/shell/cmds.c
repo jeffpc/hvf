@@ -15,6 +15,8 @@
 #include <cpu.h>
 #include <vsprintf.h>
 #include <shell.h>
+#include <guest.h>
+#include <vcpu.h>
 
 struct cpcmd {
 	const char name[SHELL_CMD_MAX_LEN];
@@ -58,14 +60,15 @@ static char* type2name(u16 type)
  * handler functions
  */
 #include "cmd_helpers.c"
+
 #include "cmd_beginstop.c"
 #include "cmd_display.c"
 #include "cmd_enable.c"
-#include "cmd_system.c"
-#include "cmd_query.c"
-#include "cmd_store.c"
 #include "cmd_logon.c"
+#include "cmd_query.c"
 #include "cmd_set.c"
+#include "cmd_store.c"
+#include "cmd_system.c"
 
 static struct cpcmd commands[] = {
 	{"BEGIN",	cmd_begin,		NULL},
@@ -119,17 +122,6 @@ static struct cpcmd commands[] = {
 	{"",		NULL,			NULL},
 };
 
-static struct cpcmd logon_commands[] = {
-	{"LOGIN",	cmd_logon,		NULL},
-	{"LOGON",	cmd_logon,		NULL},
-	{"LOGI",	cmd_logon,		NULL},
-	{"LOGO",	cmd_logon,		NULL},
-	{"LOG",		cmd_logon,		NULL},
-	{"LO",		cmd_logon,		NULL},
-	{"L",		cmd_logon,		NULL},
-	{"",		NULL,			NULL},
-};
-
 static int __invoke_shell_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, int len)
 {
 	char *orig = cmd;
@@ -159,9 +151,4 @@ static int __invoke_shell_cmd(struct cpcmd *t, struct virt_sys *sys, char *cmd, 
 int invoke_shell_cmd(struct virt_sys *sys, char *cmd, int len)
 {
 	return __invoke_shell_cmd(commands, sys, cmd, len);
-}
-
-int invoke_shell_logon(struct console *con, char *cmd, int len)
-{
-	return __invoke_shell_cmd(logon_commands, (struct virt_sys*) con, cmd, len);
 }

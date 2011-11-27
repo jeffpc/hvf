@@ -16,14 +16,15 @@
 #include <stdarg.h>
 #include <vcpu.h>
 
-int vprintf(struct console *con, const char *fmt, va_list args)
+int vprintf(struct virt_cons *con, const char *fmt, va_list args)
 {
+	struct virt_sys *sys = container_of(con, struct virt_sys, console);
 	struct datetime dt;
 	char buf[128];
 	int off = 0;
 	int ret;
 
-	if (!con->sys || (con->sys && con->sys->print_ts)) {
+	if (sys->print_ts) {
 		memset(&dt, 0, sizeof(dt));
 		ret = get_parsed_tod(&dt);
 		off = snprintf(buf, 128, "%02d:%02d:%02d ", dt.th, dt.tm,
@@ -33,13 +34,14 @@ int vprintf(struct console *con, const char *fmt, va_list args)
 	ret = vsnprintf(buf+off, 128-off, fmt, args);
 	if (ret) {
 		ascii2ebcdic((u8 *) buf, off+ret);
-		con_write(con, (u8 *) buf, off+ret);
+		BUG();
+		//con_write(con, (u8 *) buf, off+ret);
 	}
 
 	return ret;
 }
 
-int con_printf(struct console *con, const char *fmt, ...)
+int con_printf(struct virt_cons *con, const char *fmt, ...)
 {
 	va_list args;
 	int r;

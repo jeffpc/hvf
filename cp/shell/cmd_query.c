@@ -19,22 +19,28 @@ static char *__guest_state_to_str(enum virt_cpustate st)
 
 static void display_rdev(struct device *dev, void *priv)
 {
-	struct console *con = priv;
+	struct virt_cons *con = priv;
 	char buf[40];
 
 	buf[0] = '\0';
+
+	mutex_lock(&dev->lock);
 
 	if (dev->dev && dev->dev->snprintf)
 		dev->dev->snprintf(dev, buf, 40);
 
 	con_printf(con, "%-4s %04X %04X %s%sSCH = %05X\n",
 		   type2name(dev->type), dev->ccuu, dev->type, buf,
-		   atomic_read(&dev->in_use) ? "" : "FREE ",
+		   dev->in_use ? "" : "FREE ",
 		   dev->sch);
+
+	mutex_unlock(&dev->lock);
 }
 
-static void display_vdev(struct console *con, struct virt_device *vdev)
+static void display_vdev(struct virt_cons *con, struct virt_device *vdev)
 {
+	struct virt_sys *sys = container_of(con, struct virt_sys, console);
+
 	mutex_lock(&vdev->lock);
 
 	switch (vdev->vtype) {
@@ -43,7 +49,7 @@ static void display_vdev(struct console *con, struct virt_device *vdev)
 				   vdev->pmcw.dev_num,
 				   type2name(con->dev->type), // FIXME?
 				   con->dev->ccuu,
-				   con->sys->print_ts ? "TS" : "NOTS",
+				   sys->print_ts ? "TS" : "NOTS",
 				   vdev->sch);
 			break;
 		case VDEV_DED:
@@ -85,7 +91,7 @@ static void display_vdev(struct console *con, struct virt_device *vdev)
 
 static void display_task(struct task *task, void *priv)
 {
-	struct console *con = priv;
+	struct virt_cons *con = priv;
 	char state;
 
 	switch(task->state) {
@@ -299,7 +305,7 @@ static int cmd_query_task(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
-static void display_names(struct console *con, struct virt_sys *sys)
+static void display_names(struct virt_cons *con, struct virt_sys *sys)
 {
 	con_printf(con, "%s %04X %-8s\n", type2name(sys->con->dev->type),
 		   sys->con->dev->ccuu, sys->directory->userid);

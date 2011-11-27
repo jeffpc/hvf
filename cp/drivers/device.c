@@ -13,6 +13,8 @@
 #include <spinlock.h>
 #include <sched.h>
 
+static LOCK_CLASS(device_lock_lc);
+
 struct static_device {
 	u16 dev_num;
 	struct senseid_struct sense;
@@ -180,7 +182,9 @@ found:
 	spin_double_unlock(&devs_lock, &dev_types_lock);
 
 	atomic_set(&dev->refcnt, 1);
-	atomic_set(&dev->in_use, 0);
+
+	mutex_init(&dev->lock, &device_lock_lc);
+	dev->in_use = 0;
 
 	dev->dev = type;
 

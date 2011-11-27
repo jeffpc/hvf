@@ -18,8 +18,7 @@ static int cmd_begin(struct virt_sys *sys, char *cmd, int len)
 {
 	SHELL_CMD_AUTH(sys, G);
 
-	sys->task->cpu->state = GUEST_OPERATING;
-	return 0;
+	return guest_begin(sys);
 }
 
 /*
@@ -35,6 +34,5 @@ static int cmd_stop(struct virt_sys *sys, char *cmd, int len)
 {
 	SHELL_CMD_AUTH(sys, G);
 
-	sys->task->cpu->state = GUEST_STOPPED;
-	return 0;
+	return guest_stop(sys);
 }

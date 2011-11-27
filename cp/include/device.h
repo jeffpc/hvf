@@ -43,7 +43,8 @@ struct device {
 	struct list_head q_out;
 	atomic_t attention;
 
-	atomic_t in_use;		/* is the device in use by someone? */
+	mutex_t lock;
+	int in_use;			/* is the device in use by someone? */
 
 	atomic_t refcnt;		/* internal reference counter */
 

@@ -20,6 +20,7 @@
 #define EFAULT		9
 #define EPERM		10
 #define ECORRUPT	11
+#define EIO		12
 
 #define PTR_ERR(ptr)	((s64) ptr)
 #define ERR_PTR(err)	((void*) (long) err)

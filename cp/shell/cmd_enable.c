@@ -42,23 +42,31 @@ static int cmd_enable(struct virt_sys *sys, char *cmd, int len)
 		return 0;
 	}
 
-	if (atomic_read(&dev->in_use)) {
+	mutex_lock(&dev->lock);
+
+	if (dev->in_use) {
 		con_printf(sys->con, "Device %04llX is already in use\n", devnum);
-		dev_put(dev);
-		return 0;
+		goto out_err;
 	}
 
 	if (!dev->dev->enable) {
 		con_printf(sys->con, "Device type %-4s cannot be enabled\n",
 			   type2name(dev->type));
-		return 0;
+		goto out_err;
 	}
 
 	con = dev->dev->enable(dev);
 	if (IS_ERR(con)) {
-		con_printf(sys->con, "Failed to enable %04llX\n", devnum);
-		return PTR_ERR(con);
+		con_printf(sys->con, "Failed to enable %04llX: %s\n",
+			   devnum, errstrings[-PTR_ERR(con)]);
+		goto out_err;
 	}
 
+	mutex_unlock(&dev->lock);
+	return 0;
+
+out_err:
+	mutex_unlock(&dev->lock);
+	dev_put(dev);
 	return 0;
 }

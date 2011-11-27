@@ -14,17 +14,6 @@
 
 #define CONSOLE_LINE_LEN	160
 
-struct console {
-	struct list_head consoles;
-	struct virt_sys *sys;
-	struct device *dev;
-
-	struct spool_file *wlines;
-	struct spool_file *rlines;
-
-	u8 *bigbuf;
-};
-
 extern int console_interrupt(struct device *dev, struct irb *irb);
 extern struct console* start_oper_console(void);
 extern void* console_enable(struct device *dev);

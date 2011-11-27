@@ -13,6 +13,7 @@
 #include <sched.h>
 #include <mutex.h>
 #include <spool.h>
+#include <vcpu.h>
 
 /*
  * VDEV_SPOOL and VDEV_CONS related definitions

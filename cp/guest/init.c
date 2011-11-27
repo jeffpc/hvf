@@ -19,10 +19,16 @@
 #include <vdevice.h>
 #include <mutex.h>
 #include <vsprintf.h>
+#include <shell.h>
+#include <guest.h>
+
+static LOCK_CLASS(online_users_lc);
+static LIST_HEAD(online_users);
+static UNLOCKED_MUTEX(online_users_lock, &online_users_lc);
 
 static LOCK_CLASS(guest_interrupt_queue_lc);
 
-void alloc_guest_devices(struct virt_sys *sys)
+static void alloc_guest_devices(struct virt_sys *sys)
 {
 	struct directory_vdev *cur;
 	int ret;
@@ -41,7 +47,7 @@ void alloc_guest_devices(struct virt_sys *sys)
 	}
 }
 
-int alloc_guest_storage(struct virt_sys *sys)
+static int alloc_guest_storage(struct virt_sys *sys)
 {
 	u64 pages = sys->directory->storage_size >> PAGE_SHIFT;
 	struct page *p;
@@ -64,7 +70,7 @@ int alloc_guest_storage(struct virt_sys *sys)
 	return 0;
 }
 
-int alloc_vcpu(struct virt_sys *sys)
+static int alloc_vcpu(struct virt_sys *sys)
 {
 	struct virt_cpu *cpu;
 	struct page *page;
@@ -101,20 +107,137 @@ int alloc_vcpu(struct virt_sys *sys)
 	return 0;
 }
 
-void free_vcpu(struct virt_sys *sys)
+static void free_vcpu(struct virt_sys *sys)
 {
 	struct virt_cpu *cpu = sys->task->cpu;
 
-	BUG_ON(!list_empty(&cpu->int_io[0]));
-	BUG_ON(!list_empty(&cpu->int_io[1]));
-	BUG_ON(!list_empty(&cpu->int_io[2]));
-	BUG_ON(!list_empty(&cpu->int_io[3]));
-	BUG_ON(!list_empty(&cpu->int_io[4]));
-	BUG_ON(!list_empty(&cpu->int_io[5]));
-	BUG_ON(!list_empty(&cpu->int_io[6]));
-	BUG_ON(!list_empty(&cpu->int_io[7]));
+	assert(list_empty(&cpu->int_io[0]));
+	assert(list_empty(&cpu->int_io[1]));
+	assert(list_empty(&cpu->int_io[2]));
+	assert(list_empty(&cpu->int_io[3]));
+	assert(list_empty(&cpu->int_io[4]));
+	assert(list_empty(&cpu->int_io[5]));
+	assert(list_empty(&cpu->int_io[6]));
+	assert(list_empty(&cpu->int_io[7]));
 
 	free_pages(cpu, 0);
 
 	sys->task->cpu = NULL;
+}
+
+static int alloc_console(struct virt_cons *con)
+{
+	struct page *page;
+	int ret;
+
+	con->wlines = alloc_spool();
+	if (IS_ERR(con->wlines)) {
+		ret = PTR_ERR(con->wlines);
+		goto out;
+	}
+
+	con->rlines = alloc_spool();
+	if (IS_ERR(con->rlines)) {
+		ret = PTR_ERR(con->rlines);
+		goto out_free;
+	}
+
+	page = alloc_pages(0, ZONE_NORMAL);
+	if (!page) {
+		ret = -ENOMEM;
+		goto out_free2;
+	}
+
+	con->bigbuf = page_to_addr(page);
+
+	return 0;
+
+out_free2:
+	free_spool(con->rlines);
+out_free:
+	free_spool(con->wlines);
+out:
+	return ret;
+}
+
+static void free_console(struct virt_cons *con)
+{
+	free_spool(con->rlines);
+	free_spool(con->wlines);
+	free_pages(con->bigbuf, 0);
+}
+
+struct virt_sys *guest_create(char *name, struct device *rcon)
+{
+	char tname[TASK_NAME_LEN+1];
+	struct virt_sys *sys;
+	int already_online = 0;
+	int ret;
+
+	/* first, check that we're not already online */
+	mutex_lock(&online_users_lock);
+	list_for_each_entry(sys, &online_users, online_users) {
+		if (!strcmp(sys->directory->userid, name)) {
+			already_online = 1;
+			break;
+		}
+	}
+	mutex_unlock(&online_users_lock);
+
+	if (already_online)
+		return NULL;
+
+	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
+	if (!sys)
+		return NULL;
+
+	sys->con = &sys->console;
+	if (alloc_console(&sys->console))
+		goto free;
+
+	sys->directory = find_user_by_id(name);
+	if (IS_ERR(sys->directory))
+		goto free_cons;
+
+	alloc_guest_devices(sys);
+
+	ret = alloc_guest_storage(sys);
+	assert(!ret);
+
+	ret = alloc_vcpu(sys);
+	assert(!ret);
+
+	sys->console.dev = rcon;
+
+	sys->print_ts = 1; /* print timestamps */
+
+	snprintf(tname, 32, "%s-vcpu0", sysconf.oper_userid);
+	sys->task = create_task(tname, shell_start, sys);
+	assert(!IS_ERR(sys->task));
+
+	mutex_lock(&online_users_lock);
+	list_add_tail(&sys->online_users, &online_users);
+	mutex_unlock(&online_users_lock);
+
+	return sys;
+
+free_cons:
+	free_console(&sys->console);
+free:
+	free(sys);
+	return NULL;
+}
+
+void list_users(struct virt_cons *con, void (*f)(struct virt_cons *con,
+						 struct virt_sys *sys))
+{
+	struct virt_sys *sys;
+
+	if (!f)
+		return;
+
+	mutex_lock(&online_users_lock);
+	list_for_each_entry(sys, &online_users, online_users)
+		f(con, sys);
+	mutex_unlock(&online_users_lock);
 }

@@ -13,4 +13,5 @@ char *errstrings[] = {
 	[EFAULT]     = "Invalid memory reference",
 	[EPERM]      = "Permission denied",
 	[ECORRUPT]   = "Curruption detected",
+	[EIO]        = "I/O error",
 };

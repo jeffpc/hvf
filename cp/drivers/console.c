@@ -112,58 +112,6 @@ static int console_flusher(void *data)
 	return 0;
 }
 
-/**
- * register_console - generic device registration callback
- * @dev:	console device to register
- */
-static int register_console(struct device *dev)
-{
-	struct console *con;
-	struct page *page;
-	int ret = 0;
-
-	dev_get(dev);
-
-	con = malloc(sizeof(struct console), ZONE_NORMAL);
-	BUG_ON(!con);
-
-	con->sys    = NULL;
-	con->dev    = dev;
-
-	con->wlines = alloc_spool();
-	if (IS_ERR(con->wlines)) {
-		ret = PTR_ERR(con->wlines);
-		goto out;
-	}
-
-	con->rlines = alloc_spool();
-	if (IS_ERR(con->rlines)) {
-		ret = PTR_ERR(con->rlines);
-		goto out_free;
-	}
-
-	page = alloc_pages(0, ZONE_NORMAL);
-	if (!page) {
-		ret = -ENOMEM;
-		goto out_free2;
-	}
-
-	con->bigbuf = page_to_addr(page);
-
-	spin_lock(&consoles_lock);
-	list_add_tail(&con->consoles, &consoles);
-	spin_unlock(&consoles_lock);
-
-out:
-	return ret;
-
-out_free2:
-	free_spool(con->rlines);
-out_free:
-	free_spool(con->wlines);
-	goto out;
-}
-
 static void print_splash(struct console *con)
 {
 	struct logo_rec *rec;

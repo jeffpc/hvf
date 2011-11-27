@@ -563,7 +563,7 @@ static int cmd_display_psw(struct virt_sys *sys, char *cmd, int len)
 	return 0;
 }
 
-static void __do_display_schib(struct console *con, struct virt_device *vdev)
+static void __do_display_schib(struct virt_cons *con, struct virt_device *vdev)
 {
 	con_printf(con, "%05X %04X %08X   %d  %02X %02X  %02X  %02X %02X "
 		        "---- %02X %02X %02X%02X%02X%02X %02X%02X%02X%02X\n",

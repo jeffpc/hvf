@@ -57,11 +57,22 @@ struct virt_cpu {
 	struct list_head int_io[8];	/* I/O interrupts */
 };
 
+struct virt_cons {
+	struct device *dev;		/* the real device */
+
+	struct spool_file *wlines;
+	struct spool_file *rlines;
+
+	u8 *bigbuf;
+};
+
 struct virt_sys {
 	struct task *task;		/* the virtual CPU task */
 	struct user *directory;		/* the directory information */
 
-	struct console *con;		/* the login console */
+	struct virt_cons console;	/* the console */
+	struct virt_cons *con;		/* convenience pointer to the
+					   console struct */
 	int print_ts;			/* print timestamps */
 
 	struct list_head guest_pages;	/* list of guest pages */
@@ -146,11 +157,6 @@ extern void guest_system_reset_normal(struct virt_sys *sys);
 extern void guest_system_reset_clear(struct virt_sys *sys);
 extern void guest_load_normal(struct virt_sys *sys);
 extern void guest_load_clear(struct virt_sys *sys);
-
-extern void alloc_guest_devices(struct virt_sys *sys);
-extern int alloc_guest_storage(struct virt_sys *sys);
-extern int alloc_vcpu(struct virt_sys *sys);
-extern void free_vcpu(struct virt_sys *sys);
 
 extern void run_guest(struct virt_sys *sys);
 extern void handle_interception(struct virt_sys *sys);

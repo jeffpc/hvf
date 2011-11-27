@@ -51,17 +51,21 @@ static inline void lpswe(void *psw)
 				if (unlikely(!(cond))) \
 					BUG(); \
 			} while(0)
+#define assert(cond)	do { \
+				if (unlikely(!(cond))) \
+					BUG(); \
+			} while(0)
 
 #include <config.h>
 
 /*
  * stdio.h equivalents
  */
-struct console;
+struct virt_cons;
 
-extern int vprintf(struct console *con, const char *fmt, va_list args)
+extern int vprintf(struct virt_cons *con, const char *fmt, va_list args)
         __attribute__ ((format (printf, 2, 0)));
-extern int con_printf(struct console *con, const char *fmt, ...)
+extern int con_printf(struct virt_cons *con, const char *fmt, ...)
         __attribute__ ((format (printf, 2, 3)));
 
 #endif
