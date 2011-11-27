@@ -273,6 +273,8 @@ static int cmd_ipl(struct virt_sys *sys, char *cmd, int len)
 	u64 vdevnum = 0;
 	char *c;
 
+	SHELL_CMD_AUTH(sys, G);
+
 	/* get IPL vdev # */
 	c = __extract_hex(cmd, &vdevnum);
 	if (IS_ERR(c))
@@ -334,6 +336,8 @@ nss:
  */
 static int cmd_system(struct virt_sys *sys, char *cmd, int len)
 {
+	SHELL_CMD_AUTH(sys, G);
+
 	if (!strcasecmp(cmd, "CLEAR")) {
 		guest_system_reset_clear(sys);
 		con_printf(sys->con, "STORAGE CLEARED - SYSTEM RESET\n");

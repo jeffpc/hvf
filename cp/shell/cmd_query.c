@@ -111,6 +111,8 @@ static void display_task(struct task *task, void *priv)
  */
 static int cmd_query_cplevel(struct virt_sys *sys, char *cmd, int len)
 {
+	SHELL_CMD_AUTH(sys, G);
+
 	con_printf(sys->con, "HVF version " VERSION "\n");
 	con_printf(sys->con, "IPL at %02d:%02d:%02d UTC %04d-%02d-%02d\n",
 		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
@@ -132,6 +134,8 @@ static int cmd_query_time(struct virt_sys *sys, char *cmd, int len)
 {
 	struct datetime dt;
 
+	SHELL_CMD_AUTH(sys, G);
+
 	get_parsed_tod(&dt);
 
 	con_printf(sys->con, "TIME IS %02d:%02d:%02d UTC %04d-%02d-%02d\n",
@@ -151,7 +155,11 @@ static int cmd_query_time(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_query_archmode(struct virt_sys *sys, char *cmd, int len)
 {
-	char *mode = (VCPU_ZARCH(sys->task->cpu)) ? "z/Arch" : "ESA390";
+	char *mode;
+
+	SHELL_CMD_AUTH(sys, G);
+
+	mode = (VCPU_ZARCH(sys->task->cpu)) ? "z/Arch" : "ESA390";
 
 	con_printf(sys->con, "ARCHMODE = %s\n", mode);
 
@@ -170,6 +178,8 @@ static int cmd_query_archmode(struct virt_sys *sys, char *cmd, int len)
 static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
 {
 	struct virt_device *vdev;
+
+	SHELL_CMD_AUTH(sys, G);
 
 	con_printf(sys->con, "CPU 00  ID  %016llX %s\n",
 		   sys->task->cpu->cpuid,
@@ -213,7 +223,7 @@ enum {
  *!   <rdev>
  *! \end{stack}
  *!! XATNYS
- *!! AUTH A
+ *!! AUTH B
  *!! PURPOSE
  *! \cbstart
  *! Lists the host's real devices, CPUs, and storage
@@ -231,7 +241,7 @@ static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
 	int what = 0;
 	u64 devnum;
 
-	SHELL_CMD_AUTH(sys, 'A');
+	SHELL_CMD_AUTH(sys, B);
 
 	if (strnlen(cmd, len) == 0) {
 		what = QUERY_CPUS | QUERY_STOR | QUERY_DEVS;
@@ -275,14 +285,14 @@ static int cmd_query_real(struct virt_sys *sys, char *cmd, int len)
  *!! SYNTAX
  *! \tok{\sc Query} \tok{\sc Task}
  *!! XATNYS
- *!! AUTH A
+ *!! AUTH E
  *!! PURPOSE
  *! Lists all of the tasks running on the host. This includes guest virtual
  *! cpu tasks, as well as system helper tasks.
  */
 static int cmd_query_task(struct virt_sys *sys, char *cmd, int len)
 {
-	SHELL_CMD_AUTH(sys, 'A');
+	SHELL_CMD_AUTH(sys, E);
 
 	list_tasks(display_task, sys->con);
 
@@ -306,6 +316,8 @@ static void display_names(struct console *con, struct virt_sys *sys)
  */
 static int cmd_query_names(struct virt_sys *sys, char *cmd, int len)
 {
+	SHELL_CMD_AUTH(sys, G);
+
 	list_users(sys->con, display_names);
 
 	return 0;
@@ -322,6 +334,8 @@ static int cmd_query_names(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_query_userid(struct virt_sys *sys, char *cmd, int len)
 {
+	SHELL_CMD_AUTH(sys, G);
+
 	con_printf(sys->con, "%s\n", sys->directory->userid);
 	return 0;
 }

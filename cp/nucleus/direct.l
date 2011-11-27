@@ -8,9 +8,10 @@
 #include <util.h>
 #include <ebcdic.h>
 #include <lexer.h>
+#include <directory.h>
 #include <sclp.h>
 
-#include "config.tab.h"
+#include "direct.tab.h"
 
 static int __fill(struct lexer *lexer, int n)
 {
@@ -19,8 +20,8 @@ static int __fill(struct lexer *lexer, int n)
 	int ret;
 
 	if (unlikely(!lexer->init)) {
-		/* look up the config file */
-		lexer->file = edf_lookup(lexer->fs, CONFIG_FILE_NAME, CONFIG_FILE_TYPE);
+		/* look up the directory file */
+		lexer->file = edf_lookup(lexer->fs, sysconf.direct_fn, sysconf.direct_ft);
 		if (IS_ERR(lexer->file))
 			return PTR_ERR(lexer->file);
 
@@ -63,7 +64,6 @@ static int __fill(struct lexer *lexer, int n)
 
 	return 0;
 }
-
 #define YYFILL(n)	do { \
 				int ret; \
 				int off = cur - &lexer->buf[lexer->recoff]; \
@@ -80,7 +80,7 @@ static int __fill(struct lexer *lexer, int n)
 				lexer->recoff = cur - lexer->buf; \
 				goto next; \
 			} while(0)
-int config_lex(void *data, void *yyval)
+int direct_lex(void *data, void *yyval)
 {
 	struct lexer *lexer = data;
 	YYSTYPE *val = yyval;
@@ -95,13 +95,27 @@ next:
 		re2c:define:YYLIMIT = &lexer->buf[lexer->filllen];
 		"\n"		{ YYRETURN(NLINE); }
 		"*" [^\n]*	{ YYRETURN(COMMENT); }
-		"DIRECTORY"	{ YYRETURN(DIRECTORY); }
-		"OPERATOR"	{ YYRETURN(OPERATOR); }
-		"RDEV"		{ YYRETURN(RDEV); }
-		"LOGO"		{ YYRETURN(LOGO); }
+		"USER"		{ YYRETURN(USER); }
+		"MACHINE"	{ YYRETURN(MACHINE); }
+		"STORAGE"	{ YYRETURN(STORAGE); }
 		"CONSOLE"	{ YYRETURN(CONSOLE); }
-		"USERID"	{ YYRETURN(USERID); }
-		"LOCAL"		{ YYRETURN(LOCAL); }
+		"SPOOL"		{ YYRETURN(SPOOL); }
+		"READER"	{ YYRETURN(READER); }
+		"PUNCH"		{ YYRETURN(PUNCH); }
+		"PRINT"		{ YYRETURN(PRINT); }
+		"MDISK"		{ YYRETURN(MDISK); }
+		[0-9]+[KMGTP]	{ hex(&lexer->buf[lexer->recoff], cur-1, &val->num);
+				  bcd2dec(val->num, &val->num);
+				  switch(*(cur-1)) {
+					case 'P': val->num *= 1024;
+					case 'T': val->num *= 1024;
+					case 'G': val->num *= 1024;
+					case 'M': val->num *= 1024;
+					case 'K': val->num *= 1024;
+				  }
+
+				  YYRETURN(STORSPEC);
+				}
 		[0-9A-F]+	{ hex(&lexer->buf[lexer->recoff], cur, &val->num);
 				  YYRETURN(NUM);
 				}

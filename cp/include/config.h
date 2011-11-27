@@ -31,6 +31,9 @@ struct sysconf {
 	char			oper_userid[9];
 	struct list_head	rdevs;
 	struct list_head	logos;
+
+	char			direct_fn[8];
+	char			direct_ft[8];
 };
 
 enum {

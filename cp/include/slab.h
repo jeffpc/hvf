@@ -31,5 +31,6 @@ extern void free_slab(struct slab *slab);
 
 extern void *malloc(int size, int type);
 extern void free(void *ptr);
+extern int allocsize(void *ptr);
 
 #endif

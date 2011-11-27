@@ -21,6 +21,8 @@ static int cmd_enable(struct virt_sys *sys, char *cmd, int len)
 	struct device *dev;
 	struct console *con;
 
+	SHELL_CMD_AUTH(sys, A);
+
 	if (!strcasecmp(cmd, "ALL")) {
 		con_printf(sys->con, "ENABLE ALL not yet implemented!\n");
 		return 0;

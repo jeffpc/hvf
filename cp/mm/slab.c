@@ -258,6 +258,16 @@ static void free_slab_obj(void *ptr)
 	spin_unlock_intrestore(&slab->first->lock, int_mask);
 }
 
+int allocsize(void *ptr)
+{
+	struct slab *slab;
+
+	/* get the slab object ptr */
+	slab = (struct slab *) (((u64) ptr) & ~0xfff);
+
+	return slab->objsize;
+}
+
 void *malloc(int size, int type)
 {
 	if (!size)

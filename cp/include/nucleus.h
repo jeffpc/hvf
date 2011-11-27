@@ -64,8 +64,4 @@ extern int vprintf(struct console *con, const char *fmt, va_list args)
 extern int con_printf(struct console *con, const char *fmt, ...)
         __attribute__ ((format (printf, 2, 3)));
 
-/*
- * stdarg.h equivalents
- */
-
 #endif

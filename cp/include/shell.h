@@ -31,7 +31,7 @@ extern void list_users(struct console *con, void (*f)(struct console *con,
 extern int spool_exec(struct virt_sys *sys, struct virt_device *vdev);
 
 #define SHELL_CMD_AUTH(s,a)	do { \
-					if ((s)->directory->auth > (a)) \
+					if (!((s)->directory->auth & AUTH_##a)) \
 						return -EPERM; \
 				} while(0)
 

@@ -76,6 +76,12 @@ static void __oper_userid(char *name)
 	sysconf.oper_userid[8] = '\0';
 }
 
+static void __direct(char *fn, char *ft)
+{
+	copy_fn(sysconf.direct_fn, fn);
+	copy_fn(sysconf.direct_ft, ft);
+}
+
 %}
 
 %union {
@@ -85,7 +91,7 @@ static void __oper_userid(char *name)
 
 %token <ptr> WORD
 %token <num> NUM
-%token OPERATOR RDEV LOGO CONSOLE USERID LOCAL
+%token OPERATOR RDEV LOGO CONSOLE USERID LOCAL DIRECTORY
 %token NLINE COMMENT
 
 %%
@@ -95,11 +101,22 @@ stmts : stmts stmt
       ;
 
 stmt : OPERATOR CONSOLE NUM NLINE	{ __oper_con($3); }
-     | OPERATOR USERID WORD NLINE	{ __oper_userid($3); }
+     | OPERATOR USERID WORD NLINE	{ __oper_userid($3);
+					  free($3);
+					}
      | OPERATOR USERID OPERATOR NLINE	{ __oper_userid("OPERATOR"); }
      | RDEV NUM NUM NLINE		{ __rdev($2, $3); }
-     | LOGO LOCAL NUM WORD WORD NLINE	{ __logo(1, $3, $4, $5); }
-     | LOGO LOCAL NUM WORD LOGO NLINE	{ __logo(1, $3, $4, "LOGO"); }
+     | LOGO LOCAL NUM WORD WORD NLINE	{ __logo(1, $3, $4, $5);
+					  free($4);
+					  free($5);
+					}
+     | LOGO LOCAL NUM WORD LOGO NLINE	{ __logo(1, $3, $4, "LOGO");
+					  free($4);
+					}
+     | DIRECTORY WORD WORD NLINE	{ __direct($2, $3);
+					  free($2);
+					  free($3);
+					}
      | COMMENT NLINE
      | NLINE
      ;

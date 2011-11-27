@@ -10,6 +10,20 @@
 
 #include <console.h>
 
+#define AUTH_A		0x80 /* operations (shutdown, force, ...) */
+#define AUTH_B		0x40 /* device op (attach, detach) */
+#define AUTH_C		0x20 /* sys prog (alter real storage) */
+#define AUTH_D		0x10 /* spool op (start/drain UR, access all spools) */
+#define AUTH_E		0x08 /* system analyst (examine real storage) */
+#define AUTH_F		0x04 /* CE (I/O device error analysis) */
+#define AUTH_G		0x02 /* general user */
+
+/* only useful during directory load */
+struct directory_prop {
+	int got_storage;
+	u64 storage;
+};
+
 enum directory_vdevtype {
 	VDEV_INVAL = 0,			/* invalid */
 	VDEV_CONS,			/* a console */
@@ -20,6 +34,8 @@ enum directory_vdevtype {
 };
 
 struct directory_vdev {
+	struct list_head list;
+
 	enum directory_vdevtype type;	/* device type */
 	u16 vdev;			/* virtual dev # */
 
@@ -53,17 +69,25 @@ struct directory_vdev {
 };
 
 struct user {
+	struct list_head list;		/* list of users */
+
 	char *userid;
 	struct task *task;
 
 	/* VM configuration */
 	u64 storage_size;
 
-	struct directory_vdev *devices;
+	struct list_head devices;
 
 	u8 auth;
 };
 
 extern struct user *find_user_by_id(char *userid);
+extern void directory_alloc_user(char *name, int auth,
+				 struct directory_prop *prop,
+				 struct list_head *vdevs);
+extern int load_directory(struct fs *fs);
+extern int direct_lex(void *data, void *yyval);
+extern int direct_parse(struct parser *parser);
 
 #endif

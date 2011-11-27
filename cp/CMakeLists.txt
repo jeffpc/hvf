@@ -20,6 +20,22 @@ add_custom_command(
 	DEPENDS nucleus/config.l nucleus/config.tab.h
 )
 
+add_custom_command(
+	OUTPUT nucleus/direct.tab.h
+	       nucleus/direct.tab.c
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../build/byacc/yacc
+		-b direct -d -P -p direct_ direct.y
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/nucleus
+	DEPENDS nucleus/direct.y
+)
+add_custom_command(
+	OUTPUT nucleus/direct.lex.c
+	COMMAND ${CMAKE_CURRENT_BINARY_DIR}/../build/re2c/re2c
+		-o direct.lex.c direct.l
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/nucleus
+	DEPENDS nucleus/direct.l nucleus/direct.tab.h
+)
+
 set(SUBDIRS nucleus mm fs drivers shell guest)
 
 set(SRCFILES "")

@@ -10,7 +10,7 @@
  *!! SYNTAX
  *! \tok{\sc LOGON} <userid>
  *!! XATNYS
- *!! AUTH G
+ *!! AUTH none
  *!! PURPOSE
  *! Log on to a virtual machine.
  */

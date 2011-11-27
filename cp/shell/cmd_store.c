@@ -22,6 +22,8 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
 	u64 guest_addr, host_addr;
 	u64 val = 0;
 
+	SHELL_CMD_AUTH(sys, G);
+
 	cmd = parse_addrspec(&guest_addr, NULL, cmd);
 	if (IS_ERR(cmd)) {
 		con_printf(sys->con, "STORE: Invalid addr-spec\n");
@@ -70,6 +72,8 @@ static int cmd_store_gpr(struct virt_sys *sys, char *cmd, int len)
 	u64 *ptr = (u64*) &sys->task->cpu->regs.gpr;
 	u64 val, gpr;
 
+	SHELL_CMD_AUTH(sys, G);
+
 	cmd = __extract_dec(cmd, &gpr);
 	if (IS_ERR(cmd))
 		return PTR_ERR(cmd);
@@ -103,6 +107,8 @@ static int cmd_store_fpr(struct virt_sys *sys, char *cmd, int len)
 	u64 *ptr = (u64*) &sys->task->cpu->regs.fpr;
 	u64 val, fpr;
 
+	SHELL_CMD_AUTH(sys, G);
+
 	cmd = __extract_dec(cmd, &fpr);
 	if (IS_ERR(cmd))
 		return PTR_ERR(cmd);
@@ -135,6 +141,8 @@ static int cmd_store_fpcr(struct virt_sys *sys, char *cmd, int len)
 {
 	u64 val;
 
+	SHELL_CMD_AUTH(sys, G);
+
 	cmd = __extract_hex(cmd, &val);
 	if (IS_ERR(cmd))
 		return PTR_ERR(cmd);
@@ -161,6 +169,8 @@ static int cmd_store_cr(struct virt_sys *sys, char *cmd, int len)
 {
 	u64 *ptr = (u64*) &sys->task->cpu->sie_cb.gcr;
 	u64 val, cr;
+
+	SHELL_CMD_AUTH(sys, G);
 
 	cmd = __extract_dec(cmd, &cr);
 	if (IS_ERR(cmd))
@@ -194,6 +204,8 @@ static int cmd_store_ar(struct virt_sys *sys, char *cmd, int len)
 {
 	u32 *ptr = (u32*) &sys->task->cpu->regs.ar;
 	u64 val, ar;
+
+	SHELL_CMD_AUTH(sys, G);
 
 	cmd = __extract_dec(cmd, &ar);
 	if (IS_ERR(cmd))
@@ -271,6 +283,8 @@ static int cmd_store_psw(struct virt_sys *sys, char *cmd, int len)
 
 	u64 new_words[4] = {0, 0, 0, 0};
 	int cnt;
+
+	SHELL_CMD_AUTH(sys, G);
 
 	for (cnt=0; cnt<4; cnt++) {
 		cmd = __extract_hex(cmd, &new_words[cnt]);

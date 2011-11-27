@@ -24,18 +24,20 @@ static LOCK_CLASS(guest_interrupt_queue_lc);
 
 void alloc_guest_devices(struct virt_sys *sys)
 {
+	struct directory_vdev *cur;
 	int ret;
 	int i;
 
 	INIT_LIST_HEAD(&sys->virt_devs);
 
-	for(i=0; sys->directory->devices[i].type != VDEV_INVAL; i++) {
-		ret = alloc_virt_dev(sys, &sys->directory->devices[i],
-				     0x10000 + i);
+	i = 0;
+	list_for_each_entry(cur, &sys->directory->devices, list) {
+		ret = alloc_virt_dev(sys, cur, 0x10000 + i);
 		if (ret)
-			con_printf(sys->con, "Failed to allocate vdev %04X, SCH = %05X (%s)\n",
-				   sys->directory->devices[i].vdev,
-				   0x10000 + i, errstrings[-ret]);
+			con_printf(sys->con, "Failed to allocate vdev %04X, "
+				   "SCH = %05X (%s)\n", cur->vdev, 0x10000 + i,
+				   errstrings[-ret]);
+		i++;
 	}
 }
 

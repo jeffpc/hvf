@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -201,6 +201,8 @@ static int cmd_display_storage(struct virt_sys *sys, char *cmd, int len)
 	u64 mlen = 0;
 	enum display_fmt fmt;
 
+	SHELL_CMD_AUTH(sys, G);
+
 	switch (cmd[0]) {
 		case 'N': case 'n':
 			/* numeric */
@@ -246,7 +248,7 @@ static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
 	u32 *val;
 	int i;
 
-	SHELL_CMD_AUTH(sys, 'E');
+	SHELL_CMD_AUTH(sys, E);
 
 	val = (u32*) &sys->task->cpu->sie_cb;
 
@@ -271,6 +273,8 @@ static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_display_gpr(struct virt_sys *sys, char *cmd, int len)
 {
+	SHELL_CMD_AUTH(sys, G);
+
 	con_printf(sys->con, "GR  0 = %016llX %016llX\n",
 		   sys->task->cpu->regs.gpr[0],
 		   sys->task->cpu->regs.gpr[1]);
@@ -309,6 +313,8 @@ static int cmd_display_gpr(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_display_fpcr(struct virt_sys *sys, char *cmd, int len)
 {
+	SHELL_CMD_AUTH(sys, G);
+
 	con_printf(sys->con, "FPCR  = %08X\n", sys->task->cpu->regs.fpcr);
 	return 0;
 }
@@ -324,6 +330,8 @@ static int cmd_display_fpcr(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_display_fpr(struct virt_sys *sys, char *cmd, int len)
 {
+	SHELL_CMD_AUTH(sys, G);
+
 	con_printf(sys->con, "FR  0 = %016llX %016llX\n",
 		   sys->task->cpu->regs.fpr[0],
 		   sys->task->cpu->regs.fpr[1]);
@@ -362,6 +370,8 @@ static int cmd_display_fpr(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_display_cr(struct virt_sys *sys, char *cmd, int len)
 {
+	SHELL_CMD_AUTH(sys, G);
+
 	con_printf(sys->con, "CR  0 = %016llX %016llX\n",
 		   sys->task->cpu->sie_cb.gcr[0],
 		   sys->task->cpu->sie_cb.gcr[1]);
@@ -400,6 +410,8 @@ static int cmd_display_cr(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_display_ar(struct virt_sys *sys, char *cmd, int len)
 {
+	SHELL_CMD_AUTH(sys, G);
+
 	con_printf(sys->con, "AR  0 = %08X %08X\n",
 		   sys->task->cpu->regs.ar[0],
 		   sys->task->cpu->regs.ar[1]);
@@ -484,6 +496,8 @@ static int cmd_display_psw(struct virt_sys *sys, char *cmd, int len)
 	int oret, nret;
 	int disp = 0;
 	int zarch;
+
+	SHELL_CMD_AUTH(sys, G);
 
 	if (!strcasecmp(cmd, "ALL"))
 		disp = D_PSW_ALL;
@@ -585,6 +599,8 @@ static int cmd_display_schib(struct virt_sys *sys, char *cmd, int len)
 	struct virt_device *vdev;
 	u64 sch;
 	int all;
+
+	SHELL_CMD_AUTH(sys, G);
 
 	if (strcasecmp(cmd, "ALL")) {
 		cmd = __extract_hex(cmd, &sch);

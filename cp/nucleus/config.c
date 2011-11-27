@@ -9,6 +9,7 @@
 #include <bdev.h>
 #include <edf.h>
 #include <slab.h>
+#include <directory.h>
 #include <ebcdic.h>
 #include <sclp.h>
 #include <parser.h>
@@ -80,6 +81,9 @@ struct fs *load_config(u32 iplsch)
 	struct device *dev;
 	struct fs *fs;
 
+	sclp_msg("LOADING CONFIG FROM    '%*.*s' '%*.*s'\n",
+		 8, 8, CONFIG_FILE_NAME, 8, 8, CONFIG_FILE_TYPE);
+
 	memset(&sysconf, 0, sizeof(struct sysconf));
 	INIT_LIST_HEAD(&sysconf.rdevs);
 	INIT_LIST_HEAD(&sysconf.logos);
@@ -111,6 +115,7 @@ struct fs *load_config(u32 iplsch)
 	if (config_parse(&p))
 		return ERR_PTR(-ECORRUPT);
 
+	load_directory(fs);
 	__load_logos(fs);
 
 	return fs;

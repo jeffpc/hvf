@@ -1,1 +1,1 @@
-set(FILES init.c directory.c cmds.c disassm.c)
+set(FILES init.c cmds.c disassm.c)
