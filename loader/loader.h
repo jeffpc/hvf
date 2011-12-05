@@ -5,6 +5,7 @@
  * "Config" values
  */
 #define TEMP_BASE	((unsigned char*) 0x400000) /* 4MB */
+#define SYMTAB_BASE	((unsigned char*) 8192) /* 8kB */
 
 /* 3390 with 0 key length, and 4096 data length */
 #define RECORDS_PER_CYL		(15*12)

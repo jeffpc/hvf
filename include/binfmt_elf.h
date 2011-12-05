@@ -92,6 +92,24 @@
 #define PF_MASKOS	0x0ff00000
 #define PF_MAKSPROC	0xf0000000
 
+#define STB_LOCAL	0
+#define STB_GLOBAL	1
+#define STB_WEAK	2
+#define STB_LOOS	10
+#define STB_HIOS	12
+#define STB_LOPROC	13
+#define STB_HIPROC	15
+
+#define STT_NOTYPE	0
+#define STT_OBJECT	1
+#define STT_FUNC	2
+#define STT_SECTION	3
+#define STT_FILE	4
+#define STT_LOOS	10
+#define STT_HIOS	12
+#define STT_LOPROC	13
+#define STT_HIPROC	15
+
 typedef u32 Elf32_Addr;
 typedef u32 Elf32_Off;
 typedef u16 Elf32_Half;
@@ -214,5 +232,17 @@ typedef union {
 	Elf32_Phdr s390;
 	Elf64_Phdr z;
 } Elf_Phdr;
+
+/*
+ * ELF symbol table entries
+ */
+typedef struct {
+	Elf64_Word	st_name;		/* Symbol name */
+	unsigned char	st_info;		/* Type and Binding attributes */
+	unsigned char	st_other;		/* Reserved */
+	Elf64_Half	st_shndx;		/* Section table index */
+	Elf64_Addr	st_value;		/* Symbol value */
+	Elf64_Xword	st_size;		/* Size of object */
+} Elf64_Sym;
 
 #endif

@@ -5,6 +5,8 @@
  * details.
  */
 
+#include <binfmt_elf.h>
+#include <symtab.h>
 #include <mm.h>
 #include <dat.h>
 #include <slab.h>
@@ -137,7 +139,7 @@ die:
 /*
  * This is where everything starts
  */
-void start(u64 __memsize, u32 __iplsch)
+void start(u64 __memsize, u32 __iplsch, Elf64_Ehdr *__elfhdr)
 {
 	u64 first_free_page;
 	u64 struct_page_bytes;
@@ -149,9 +151,10 @@ void start(u64 __memsize, u32 __iplsch)
 	ticks = 0;
 
 	/*
-	 * save total system memory size
+	 * save total system memory size & the symbol table pointer
 	 */
 	memsize = __memsize;
+	symtab = __elfhdr;
 
 	/*
 	 * Initialize struct page entries

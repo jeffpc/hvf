@@ -6,7 +6,38 @@
  */
 
 #include <interrupt.h>
+#include <symtab.h>
 #include <sclp.h>
+#include <mm.h>
+
+/*
+ * NOTE: Be *very* careful not to deref something we're not supposed to, we
+ * don't want to recursively PROG.
+ */
+static void dump_stack(u64 addr)
+{
+	char buf[64];
+	u64 *end = (u64*) ((addr & ~PAGE_MASK) + PAGE_SIZE);
+	u64 text_start, text_end;
+	u64 *ptr;
+
+	sclp_msg("Stack trace:\n");
+
+	if (addr > memsize)
+		return;
+
+	symtab_find_text_range(&text_start, &text_end);
+
+	addr &= ~0x7ull;
+
+	for(ptr=(u64*)addr; ptr<end; ptr++) {
+		if ((*ptr < text_start) || (*ptr > text_end))
+			continue;
+
+		sclp_msg("   %016llx   %-s\n", *ptr,
+			 symtab_lookup(*ptr, buf, sizeof(buf)));
+	}
+}
 
 /*
  * All is lost! All hands abandon ship!
@@ -27,6 +58,8 @@ static void abend(void)
 	sclp_msg("\n");
 	sclp_msg("PSW = %016llx %016llx\n",
 		*((u64*) PGM_INT_OLD_PSW), *(((u64*) PGM_INT_OLD_PSW)+1));
+	sclp_msg("\n");
+	dump_stack(PSA_INT_GPR[15]);
 
 	/*
 	 * halt the cpu

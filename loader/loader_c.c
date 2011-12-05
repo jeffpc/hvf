@@ -207,10 +207,13 @@ void load_nucleus(void)
 	 * These are all stored in registers
 	 */
 	register u32 iplsch;
-	register int i;
+	register int i, j;
 	register Elf64_Ehdr *nucleus_elf;
-	register Elf64_Shdr *section;
-	register void (*start_sym)(u64, u32);
+	register Elf64_Shdr *section, *link_section, *tmp_section;
+	register Elf64_Phdr *segment;
+	register Elf64_Ehdr *elfcpy;
+	register unsigned char *symtab;
+	register void (*start_sym)(u64, u32, void*);
 
 	/* Save the IPL device subchannel id */
 	iplsch = *((u32*) 0xb8);
@@ -237,40 +240,68 @@ void load_nucleus(void)
 	    nucleus_elf->e_version != EV_CURRENT)
 		die();
 
-	/*
-	 * Iterate through each section, and copy it to the final
-	 * destination as necessary
+	/* Iterate through each program header, and copy all PT_LOAD
+	 * segments to the final destinations.
 	 */
-	for (i=0; i<nucleus_elf->e_shnum; i++) {
+
+	for(i=0; i<nucleus_elf->e_phnum; i++) {
+		segment = (Elf64_Phdr*) (TEMP_BASE +
+					 nucleus_elf->e_phoff +
+					 nucleus_elf->e_phentsize * i);
+
+		if (segment->p_type != PT_LOAD)
+			continue;
+
+		if (segment->p_filesz)
+			memcpy((void*) segment->p_vaddr,
+			       TEMP_BASE + segment->p_offset,
+			       segment->p_filesz);
+
+		if (segment->p_filesz != segment->p_memsz)
+			memset((void*) (segment->p_vaddr + segment->p_filesz),
+			       0, segment->p_memsz - segment->p_filesz);
+	}
+
+	/*
+	 * Copy over the ELF header & tweak it.
+	 */
+	symtab = SYMTAB_BASE;
+	elfcpy = (Elf64_Ehdr*) symtab;
+	memcpy(elfcpy, nucleus_elf, nucleus_elf->e_ehsize);
+	symtab += nucleus_elf->e_ehsize;
+
+	/* the program headers start right after */
+	elfcpy->e_phoff = symtab - SYMTAB_BASE;
+
+	/* copy over all the program headers */
+	memcpy(symtab, TEMP_BASE + nucleus_elf->e_phoff,
+	       nucleus_elf->e_phentsize * nucleus_elf->e_phnum);
+	symtab += nucleus_elf->e_phentsize * nucleus_elf->e_phnum;
+
+	/* the section headers start right after */
+	elfcpy->e_shoff = symtab - SYMTAB_BASE;
+
+	/*
+	 * Iterate through each section to find the .symtab & .strtab (as
+	 * well as the null section), and copy the the headers over
+	 */
+	elfcpy->e_shnum = 0;
+
+	for(i=0; i<nucleus_elf->e_shnum; i++) {
 		section = (Elf64_Shdr*) (TEMP_BASE +
 					 nucleus_elf->e_shoff +
 					 nucleus_elf->e_shentsize * i);
 
 		switch (section->sh_type) {
-			case SHT_PROGBITS:
-				if (!section->sh_addr)
-					break;
-
-				/*
-				 * just copy the data from TEMP_BASE to
-				 * where it wants to be
-				 */
-				memcpy((void*) section->sh_addr,
-					TEMP_BASE + section->sh_offset,
-					section->sh_size);
-				break;
-			case SHT_NOBITS:
-				/*
-				 * No action needed as there's no data to
-				 * copy, and we assume that the ELF sections
-				 * don't overlap
-				 */
-				memset((void*) section->sh_addr,
-				       0, section->sh_size);
-				break;
-			case SHT_SYMTAB:
 			case SHT_STRTAB:
-				/* TODO: relocate */
+				if (i == nucleus_elf->e_shstrndx)
+					elfcpy->e_shstrndx = elfcpy->e_shnum;
+
+			case SHT_NULL:
+			case SHT_SYMTAB:
+				memcpy(symtab, section, nucleus_elf->e_shentsize);
+				elfcpy->e_shnum++;
+				symtab += nucleus_elf->e_shentsize;
 				break;
 			default:
 				/* Ignoring */
@@ -278,9 +309,49 @@ void load_nucleus(void)
 		}
 	}
 
+	for(i=0; i<elfcpy->e_shnum; i++) {
+		section = (Elf64_Shdr*) (SYMTAB_BASE +
+					 elfcpy->e_shoff +
+					 elfcpy->e_shentsize * i);
+
+		if (!section->sh_link)
+			continue;
+
+		tmp_section = (Elf64_Shdr*) (TEMP_BASE +
+					 nucleus_elf->e_shoff +
+					 nucleus_elf->e_shentsize *
+					 section->sh_link);
+
+		for(j=0; j<elfcpy->e_shnum; j++) {
+			link_section = (Elf64_Shdr*) (SYMTAB_BASE +
+						      elfcpy->e_shoff +
+						      elfcpy->e_shentsize * j);
+
+			if (memcmp(tmp_section, link_section, elfcpy->e_shentsize))
+				continue;
+
+			section->sh_link = j;
+			break;
+		}
+	}
+
+	/*
+	 * Now that we know what sections and where, let's copy those over
+	 */
+	for (i=1; i<elfcpy->e_shnum; i++) {
+		section = (Elf64_Shdr*) (SYMTAB_BASE +
+					 elfcpy->e_shoff +
+					 elfcpy->e_shentsize * i);
+
+		memcpy(symtab, TEMP_BASE + section->sh_offset,
+		       section->sh_size);
+		section->sh_offset = symtab - SYMTAB_BASE;
+		symtab += section->sh_size;
+	}
+
 	/*
 	 * Now, jump to the nucleus entry point
 	 */
 	start_sym = (void*) nucleus_elf->e_entry;
-	start_sym(sense_memsize(), iplsch);
+	start_sym(sense_memsize(), iplsch, SYMTAB_BASE);
 }
