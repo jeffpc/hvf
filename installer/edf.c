@@ -129,8 +129,8 @@ static void blk_set_dirty(u8 *fn, u8 *ft, u8 level, u32 blk)
 void writeback_buffers()
 {
 	struct block_map *cur;
-	char buf[100];
 
+	wto("beginning buffer write back\n");
 	list_for_each_entry(cur, &block_map, list) {
 		if (!cur->dirty)
 			continue;
@@ -138,8 +138,6 @@ void writeback_buffers()
 		if (!cur->buf)
 			die();
 
-		snprintf(buf, 100, "wb: %10d %p\n", cur->lba, cur->buf);
-		wto(buf);
 		write_blk(cur->buf, cur->lba);
 	}
 }

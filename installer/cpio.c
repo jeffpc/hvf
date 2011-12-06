@@ -77,12 +77,8 @@ static void save_file(struct table *te, int filesize, u8 *buf)
 		write_blk(buf, te->lba);
 	}
 
-	for(rec=0; rec<(filesize/te->lrecl); rec++) {
-		snprintf(pbuf, 100, "rec %03x at %p\n", rec,
-			 buf + (rec * te->lrecl));
-		wto(pbuf);
+	for(rec=0; rec<(filesize/te->lrecl); rec++)
 		append_record(&fst, buf + (rec * te->lrecl));
-	}
 
 	if (filesize % te->lrecl) {
 		u8 buf2[te->lrecl];
@@ -90,9 +86,6 @@ static void save_file(struct table *te, int filesize, u8 *buf)
 		memset(buf2, 0, te->lrecl);
 		memcpy(buf2, buf + (rec * te->lrecl), filesize % te->lrecl);
 
-		snprintf(pbuf, 100, "rec %03x at %p\n", rec,
-			 buf + (rec * te->lrecl));
-		wto(pbuf);
 		append_record(&fst, buf2);
 	}
 }
