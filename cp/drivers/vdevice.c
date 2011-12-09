@@ -15,24 +15,35 @@ static int __setup_vdev_ded(struct virt_sys *sys,
 			    struct virt_device *vdev)
 {
 	struct device *rdev;
+	int ret;
 
 	rdev = find_device_by_ccuu(dirdev->u.dedicate.rdev);
 	if (IS_ERR(rdev))
 		return PTR_ERR(rdev);
 
 	mutex_lock(&rdev->lock);
+
+	if (rdev->in_use) {
+		ret = -EBUSY;
+		goto out;
+	}
+
 	rdev->in_use = 1;
-	mutex_unlock(&rdev->lock);
 
 	vdev->u.dedicate.rdev = rdev;
 	vdev->type = rdev->type;
 	vdev->model = rdev->model;
 
-	return 0;
+	ret = 0;
+
+out:
+	mutex_unlock(&rdev->lock);
+	return ret;
 }
 
 static LOCK_CLASS(vdev_lc);
 
+/* assumes sys->virt_devs_lock is held */
 int alloc_virt_dev(struct virt_sys *sys, struct directory_vdev *dirdev,
 		   u32 sch)
 {

@@ -71,7 +71,7 @@
  */
 static void __perform_cpu_reset(struct virt_sys *sys, int flags)
 {
-	struct virt_cpu *cpu = sys->task->cpu;
+	struct virt_cpu *cpu = sys->cpu;
 
 	if (flags & RESET_CPU) {
 		if (flags & SET_ESA390) {

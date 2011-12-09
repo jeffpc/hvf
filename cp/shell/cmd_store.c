@@ -69,7 +69,7 @@ static int cmd_store_storage(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_store_gpr(struct virt_sys *sys, char *cmd, int len)
 {
-	u64 *ptr = (u64*) &sys->task->cpu->regs.gpr;
+	u64 *ptr = (u64*) &sys->cpu->regs.gpr;
 	u64 val, gpr;
 
 	SHELL_CMD_AUTH(sys, G);
@@ -104,7 +104,7 @@ static int cmd_store_gpr(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_store_fpr(struct virt_sys *sys, char *cmd, int len)
 {
-	u64 *ptr = (u64*) &sys->task->cpu->regs.fpr;
+	u64 *ptr = (u64*) &sys->cpu->regs.fpr;
 	u64 val, fpr;
 
 	SHELL_CMD_AUTH(sys, G);
@@ -149,7 +149,7 @@ static int cmd_store_fpcr(struct virt_sys *sys, char *cmd, int len)
 	if (val > 0xffffffffULL)
 		return -EINVAL;
 
-	sys->task->cpu->regs.fpcr = (u32) val;
+	sys->cpu->regs.fpcr = (u32) val;
 
 	con_printf(sys->con, "Store complete.\n");
 
@@ -167,7 +167,7 @@ static int cmd_store_fpcr(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_store_cr(struct virt_sys *sys, char *cmd, int len)
 {
-	u64 *ptr = (u64*) &sys->task->cpu->sie_cb.gcr;
+	u64 *ptr = (u64*) &sys->cpu->sie_cb.gcr;
 	u64 val, cr;
 
 	SHELL_CMD_AUTH(sys, G);
@@ -202,7 +202,7 @@ static int cmd_store_cr(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_store_ar(struct virt_sys *sys, char *cmd, int len)
 {
-	u32 *ptr = (u32*) &sys->task->cpu->regs.ar;
+	u32 *ptr = (u32*) &sys->cpu->regs.ar;
 	u64 val, ar;
 
 	SHELL_CMD_AUTH(sys, G);
@@ -279,7 +279,7 @@ static int cmd_store_ar(struct virt_sys *sys, char *cmd, int len)
  */
 static int cmd_store_psw(struct virt_sys *sys, char *cmd, int len)
 {
-	u32 *ptr = (u32*) &sys->task->cpu->sie_cb.gpsw;
+	u32 *ptr = (u32*) &sys->cpu->sie_cb.gpsw;
 
 	u64 new_words[4] = {0, 0, 0, 0};
 	int cnt;
@@ -297,7 +297,7 @@ static int cmd_store_psw(struct virt_sys *sys, char *cmd, int len)
 	if (!cnt)
 		return -EINVAL;
 
-	if (!VCPU_ZARCH(sys->task->cpu)) {
+	if (!VCPU_ZARCH(sys->cpu)) {
 		/* ESA/390 mode */
 		if (cnt > 2) {
 			con_printf(sys->con, "STORE: ERROR ESA/390 PSW USES ONLY TWO WORDS\n");

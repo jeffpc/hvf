@@ -125,7 +125,7 @@ int guest_ipl_nss(struct virt_sys *sys, char *nssname)
 	/* reset the system */
 	guest_load_clear(sys);
 
-	sys->task->cpu->state = GUEST_LOAD;
+	sys->cpu->state = GUEST_LOAD;
 
 	for(i=0; i<hdr->s390.e_phnum; i++) {
 		u32 blk, off;
@@ -161,23 +161,23 @@ int guest_ipl_nss(struct virt_sys *sys, char *nssname)
 			goto corrupt;
 	}
 
-	memset(&sys->task->cpu->sie_cb.gpsw, 0, sizeof(struct psw));
-	sys->task->cpu->sie_cb.gpsw.fmt = 1;
-	sys->task->cpu->sie_cb.gpsw.ptr31  = hdr->s390.e_entry;
+	memset(&sys->cpu->sie_cb.gpsw, 0, sizeof(struct psw));
+	sys->cpu->sie_cb.gpsw.fmt = 1;
+	sys->cpu->sie_cb.gpsw.ptr31  = hdr->s390.e_entry;
 
 out:
-	sys->task->cpu->state = GUEST_STOPPED;
+	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 
 err_load:
-	sys->task->cpu->state = GUEST_CHECKSTOP;
+	sys->cpu->state = GUEST_CHECKSTOP;
 	return -EIO;
 
 corrupt:
-	sys->task->cpu->state = GUEST_CHECKSTOP;
+	sys->cpu->state = GUEST_CHECKSTOP;
 	return -ECORRUPT;
 
 not_found:
-	sys->task->cpu->state = GUEST_CHECKSTOP;
+	sys->cpu->state = GUEST_CHECKSTOP;
 	return -ENOENT;
 }

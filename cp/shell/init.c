@@ -75,7 +75,7 @@ static void process_cmd(struct virt_sys *sys)
 int shell_start(void *data)
 {
 	struct virt_sys *sys = data;
-	struct virt_cpu *cpu = sys->task->cpu;
+	struct virt_cpu *cpu = sys->cpu;
 	struct datetime dt;
 
 	/*

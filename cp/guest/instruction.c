@@ -14,7 +14,7 @@ static const intercept_handler_t instruction_funcs[256] = {
 
 int handle_instruction(struct virt_sys *sys)
 {
-	struct virt_cpu *cpu = sys->task->cpu;
+	struct virt_cpu *cpu = sys->cpu;
 	intercept_handler_t h;
 	int err = -EINVAL;
 

@@ -20,7 +20,7 @@ static void __do_psw_swap(struct virt_cpu *cpu, u8 *gpsa, u64 old, u64 new,
 
 static int __io_int(struct virt_sys *sys)
 {
-	struct virt_cpu *cpu = sys->task->cpu;
+	struct virt_cpu *cpu = sys->cpu;
 	struct vio_int *ioint;
 	u64 cr6;
 	u64 phy;
@@ -90,7 +90,7 @@ static int __io_int(struct virt_sys *sys)
  */
 void run_guest(struct virt_sys *sys)
 {
-	struct psw *psw = &sys->task->cpu->sie_cb.gpsw;
+	struct psw *psw = &sys->cpu->sie_cb.gpsw;
 	u64 save_gpr[16];
 
 	if (__io_int(sys))
@@ -99,7 +99,7 @@ void run_guest(struct virt_sys *sys)
 	if (psw->w) {
 		if (!psw->io && !psw->ex && !psw->m) {
 			con_printf(sys->con, "ENTERED CP DUE TO DISABLED WAIT\n");
-			sys->task->cpu->state = GUEST_STOPPED;
+			sys->cpu->state = GUEST_STOPPED;
 			return;
 		}
 
@@ -141,7 +141,7 @@ go:
 	: /* output */
 	  "+m" (save_gpr)
 	: /* input */
-	  "a" (sys->task->cpu),
+	  "a" (sys->cpu),
 	  "J" (offsetof(struct virt_cpu, regs.gpr)),
 	  "J" (offsetof(struct virt_cpu, sie_cb))
 	: /* clobbered */

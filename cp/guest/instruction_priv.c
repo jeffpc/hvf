@@ -13,7 +13,7 @@
 
 static int handle_msch(struct virt_sys *sys)
 {
-	struct virt_cpu *cpu = sys->task->cpu;
+	struct virt_cpu *cpu = sys->cpu;
 
 	u64 r1 = __guest_gpr(cpu, 1);
 	u64 addr = RAW_S_1(cpu);
@@ -128,7 +128,7 @@ out:
 
 static int handle_ssch(struct virt_sys *sys)
 {
-	struct virt_cpu *cpu = sys->task->cpu;
+	struct virt_cpu *cpu = sys->cpu;
 	u64 len;
 
 	u64 r1   = __guest_gpr(cpu, 1);
@@ -239,7 +239,7 @@ stop:
 
 static int handle_stsch(struct virt_sys *sys)
 {
-	struct virt_cpu *cpu = sys->task->cpu;
+	struct virt_cpu *cpu = sys->cpu;
 
 	u64 r1   = __guest_gpr(cpu, 1);
 	u64 addr = RAW_S_1(cpu);
@@ -322,7 +322,7 @@ static const intercept_handler_t instruction_priv_funcs[256] = {
 
 int handle_instruction_priv(struct virt_sys *sys)
 {
-	struct virt_cpu *cpu = sys->task->cpu;
+	struct virt_cpu *cpu = sys->cpu;
 	intercept_handler_t h;
 	int err = -EINVAL;
 

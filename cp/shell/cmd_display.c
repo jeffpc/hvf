@@ -250,7 +250,7 @@ static int cmd_display_siecb(struct virt_sys *sys, char *cmd, int len)
 
 	SHELL_CMD_AUTH(sys, E);
 
-	val = (u32*) &sys->task->cpu->sie_cb;
+	val = (u32*) &sys->cpu->sie_cb;
 
 	con_printf(sys->con, "SIECB FOR %s AT %p\n",
 		   sys->directory->userid, val);
@@ -276,29 +276,29 @@ static int cmd_display_gpr(struct virt_sys *sys, char *cmd, int len)
 	SHELL_CMD_AUTH(sys, G);
 
 	con_printf(sys->con, "GR  0 = %016llX %016llX\n",
-		   sys->task->cpu->regs.gpr[0],
-		   sys->task->cpu->regs.gpr[1]);
+		   sys->cpu->regs.gpr[0],
+		   sys->cpu->regs.gpr[1]);
 	con_printf(sys->con, "GR  2 = %016llX %016llX\n",
-		   sys->task->cpu->regs.gpr[2],
-		   sys->task->cpu->regs.gpr[3]);
+		   sys->cpu->regs.gpr[2],
+		   sys->cpu->regs.gpr[3]);
 	con_printf(sys->con, "GR  4 = %016llX %016llX\n",
-		   sys->task->cpu->regs.gpr[4],
-		   sys->task->cpu->regs.gpr[5]);
+		   sys->cpu->regs.gpr[4],
+		   sys->cpu->regs.gpr[5]);
 	con_printf(sys->con, "GR  6 = %016llX %016llX\n",
-		   sys->task->cpu->regs.gpr[6],
-		   sys->task->cpu->regs.gpr[7]);
+		   sys->cpu->regs.gpr[6],
+		   sys->cpu->regs.gpr[7]);
 	con_printf(sys->con, "GR  8 = %016llX %016llX\n",
-		   sys->task->cpu->regs.gpr[8],
-		   sys->task->cpu->regs.gpr[9]);
+		   sys->cpu->regs.gpr[8],
+		   sys->cpu->regs.gpr[9]);
 	con_printf(sys->con, "GR 10 = %016llX %016llX\n",
-		   sys->task->cpu->regs.gpr[10],
-		   sys->task->cpu->regs.gpr[11]);
+		   sys->cpu->regs.gpr[10],
+		   sys->cpu->regs.gpr[11]);
 	con_printf(sys->con, "GR 12 = %016llX %016llX\n",
-		   sys->task->cpu->regs.gpr[12],
-		   sys->task->cpu->regs.gpr[13]);
+		   sys->cpu->regs.gpr[12],
+		   sys->cpu->regs.gpr[13]);
 	con_printf(sys->con, "GR 14 = %016llX %016llX\n",
-		   sys->task->cpu->regs.gpr[14],
-		   sys->task->cpu->regs.gpr[15]);
+		   sys->cpu->regs.gpr[14],
+		   sys->cpu->regs.gpr[15]);
 	return 0;
 }
 
@@ -315,7 +315,7 @@ static int cmd_display_fpcr(struct virt_sys *sys, char *cmd, int len)
 {
 	SHELL_CMD_AUTH(sys, G);
 
-	con_printf(sys->con, "FPCR  = %08X\n", sys->task->cpu->regs.fpcr);
+	con_printf(sys->con, "FPCR  = %08X\n", sys->cpu->regs.fpcr);
 	return 0;
 }
 
@@ -333,29 +333,29 @@ static int cmd_display_fpr(struct virt_sys *sys, char *cmd, int len)
 	SHELL_CMD_AUTH(sys, G);
 
 	con_printf(sys->con, "FR  0 = %016llX %016llX\n",
-		   sys->task->cpu->regs.fpr[0],
-		   sys->task->cpu->regs.fpr[1]);
+		   sys->cpu->regs.fpr[0],
+		   sys->cpu->regs.fpr[1]);
 	con_printf(sys->con, "FR  2 = %016llX %016llX\n",
-		   sys->task->cpu->regs.fpr[2],
-		   sys->task->cpu->regs.fpr[3]);
+		   sys->cpu->regs.fpr[2],
+		   sys->cpu->regs.fpr[3]);
 	con_printf(sys->con, "FR  4 = %016llX %016llX\n",
-		   sys->task->cpu->regs.fpr[4],
-		   sys->task->cpu->regs.fpr[5]);
+		   sys->cpu->regs.fpr[4],
+		   sys->cpu->regs.fpr[5]);
 	con_printf(sys->con, "FR  6 = %016llX %016llX\n",
-		   sys->task->cpu->regs.fpr[6],
-		   sys->task->cpu->regs.fpr[7]);
+		   sys->cpu->regs.fpr[6],
+		   sys->cpu->regs.fpr[7]);
 	con_printf(sys->con, "FR  8 = %016llX %016llX\n",
-		   sys->task->cpu->regs.fpr[8],
-		   sys->task->cpu->regs.fpr[9]);
+		   sys->cpu->regs.fpr[8],
+		   sys->cpu->regs.fpr[9]);
 	con_printf(sys->con, "FR 10 = %016llX %016llX\n",
-		   sys->task->cpu->regs.fpr[10],
-		   sys->task->cpu->regs.fpr[11]);
+		   sys->cpu->regs.fpr[10],
+		   sys->cpu->regs.fpr[11]);
 	con_printf(sys->con, "FR 12 = %016llX %016llX\n",
-		   sys->task->cpu->regs.fpr[12],
-		   sys->task->cpu->regs.fpr[13]);
+		   sys->cpu->regs.fpr[12],
+		   sys->cpu->regs.fpr[13]);
 	con_printf(sys->con, "FR 14 = %016llX %016llX\n",
-		   sys->task->cpu->regs.fpr[14],
-		   sys->task->cpu->regs.fpr[15]);
+		   sys->cpu->regs.fpr[14],
+		   sys->cpu->regs.fpr[15]);
 	return 0;
 }
 
@@ -373,29 +373,29 @@ static int cmd_display_cr(struct virt_sys *sys, char *cmd, int len)
 	SHELL_CMD_AUTH(sys, G);
 
 	con_printf(sys->con, "CR  0 = %016llX %016llX\n",
-		   sys->task->cpu->sie_cb.gcr[0],
-		   sys->task->cpu->sie_cb.gcr[1]);
+		   sys->cpu->sie_cb.gcr[0],
+		   sys->cpu->sie_cb.gcr[1]);
 	con_printf(sys->con, "CR  2 = %016llX %016llX\n",
-		   sys->task->cpu->sie_cb.gcr[2],
-		   sys->task->cpu->sie_cb.gcr[3]);
+		   sys->cpu->sie_cb.gcr[2],
+		   sys->cpu->sie_cb.gcr[3]);
 	con_printf(sys->con, "CR  4 = %016llX %016llX\n",
-		   sys->task->cpu->sie_cb.gcr[4],
-		   sys->task->cpu->sie_cb.gcr[5]);
+		   sys->cpu->sie_cb.gcr[4],
+		   sys->cpu->sie_cb.gcr[5]);
 	con_printf(sys->con, "CR  6 = %016llX %016llX\n",
-		   sys->task->cpu->sie_cb.gcr[6],
-		   sys->task->cpu->sie_cb.gcr[7]);
+		   sys->cpu->sie_cb.gcr[6],
+		   sys->cpu->sie_cb.gcr[7]);
 	con_printf(sys->con, "CR  8 = %016llX %016llX\n",
-		   sys->task->cpu->sie_cb.gcr[8],
-		   sys->task->cpu->sie_cb.gcr[9]);
+		   sys->cpu->sie_cb.gcr[8],
+		   sys->cpu->sie_cb.gcr[9]);
 	con_printf(sys->con, "CR 10 = %016llX %016llX\n",
-		   sys->task->cpu->sie_cb.gcr[10],
-		   sys->task->cpu->sie_cb.gcr[11]);
+		   sys->cpu->sie_cb.gcr[10],
+		   sys->cpu->sie_cb.gcr[11]);
 	con_printf(sys->con, "CR 12 = %016llX %016llX\n",
-		   sys->task->cpu->sie_cb.gcr[12],
-		   sys->task->cpu->sie_cb.gcr[13]);
+		   sys->cpu->sie_cb.gcr[12],
+		   sys->cpu->sie_cb.gcr[13]);
 	con_printf(sys->con, "CR 14 = %016llX %016llX\n",
-		   sys->task->cpu->sie_cb.gcr[14],
-		   sys->task->cpu->sie_cb.gcr[15]);
+		   sys->cpu->sie_cb.gcr[14],
+		   sys->cpu->sie_cb.gcr[15]);
 	return 0;
 }
 
@@ -413,29 +413,29 @@ static int cmd_display_ar(struct virt_sys *sys, char *cmd, int len)
 	SHELL_CMD_AUTH(sys, G);
 
 	con_printf(sys->con, "AR  0 = %08X %08X\n",
-		   sys->task->cpu->regs.ar[0],
-		   sys->task->cpu->regs.ar[1]);
+		   sys->cpu->regs.ar[0],
+		   sys->cpu->regs.ar[1]);
 	con_printf(sys->con, "AR  2 = %08X %08X\n",
-		   sys->task->cpu->regs.ar[2],
-		   sys->task->cpu->regs.ar[3]);
+		   sys->cpu->regs.ar[2],
+		   sys->cpu->regs.ar[3]);
 	con_printf(sys->con, "AR  4 = %08X %08X\n",
-		   sys->task->cpu->regs.ar[4],
-		   sys->task->cpu->regs.ar[5]);
+		   sys->cpu->regs.ar[4],
+		   sys->cpu->regs.ar[5]);
 	con_printf(sys->con, "AR  6 = %08X %08X\n",
-		   sys->task->cpu->regs.ar[6],
-		   sys->task->cpu->regs.ar[7]);
+		   sys->cpu->regs.ar[6],
+		   sys->cpu->regs.ar[7]);
 	con_printf(sys->con, "AR  8 = %08X %08X\n",
-		   sys->task->cpu->regs.ar[8],
-		   sys->task->cpu->regs.ar[9]);
+		   sys->cpu->regs.ar[8],
+		   sys->cpu->regs.ar[9]);
 	con_printf(sys->con, "AR 10 = %08X %08X\n",
-		   sys->task->cpu->regs.ar[10],
-		   sys->task->cpu->regs.ar[11]);
+		   sys->cpu->regs.ar[10],
+		   sys->cpu->regs.ar[11]);
 	con_printf(sys->con, "AR 12 = %08X %08X\n",
-		   sys->task->cpu->regs.ar[12],
-		   sys->task->cpu->regs.ar[13]);
+		   sys->cpu->regs.ar[12],
+		   sys->cpu->regs.ar[13]);
 	con_printf(sys->con, "AR 14 = %08X %08X\n",
-		   sys->task->cpu->regs.ar[14],
-		   sys->task->cpu->regs.ar[15]);
+		   sys->cpu->regs.ar[14],
+		   sys->cpu->regs.ar[15]);
 	return 0;
 }
 
@@ -516,10 +516,10 @@ static int cmd_display_psw(struct virt_sys *sys, char *cmd, int len)
 	else
 		disp = D_PSW_CUR;
 
-	zarch = VCPU_ZARCH(sys->task->cpu);
+	zarch = VCPU_ZARCH(sys->cpu);
 
 	if (disp & D_PSW_CUR) {
-		u32 *ptr = (u32*) &sys->task->cpu->sie_cb.gpsw;
+		u32 *ptr = (u32*) &sys->cpu->sie_cb.gpsw;
 		if (zarch)
 			con_printf(sys->con, "PSW = %08X %08X %08X %08X\n",
 				   ptr[0], ptr[1], ptr[2], ptr[3]);

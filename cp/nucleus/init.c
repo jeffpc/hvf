@@ -85,10 +85,24 @@ static void idle_task_body(void)
 	BUG();
 }
 
+static void __add_internal_users()
+{
+	struct list_head vdevs;
+	struct directory_prop prop = {
+		.got_storage = 1,
+		.storage = 1024 * 1024, /* 1MB */
+	};
+
+	INIT_LIST_HEAD(&vdevs);
+
+	directory_alloc_user("*LOGIN", AUTH_G, &prop, &vdevs);
+}
+
 static int __finish_loading(void *data)
 {
 	struct virt_sys *login;
 	u32 iplsch;
+	char *err;
 	int ret;
 
 	iplsch = (u32) (u64) data;
@@ -100,19 +114,38 @@ static int __finish_loading(void *data)
 	if (IS_ERR(sysfs))
 		BUG();
 
+	/* add internal users */
+	__add_internal_users();
+
 	/*
 	 * Alright, we have the config, we now need to set up the *LOGIN
 	 * guest and attach the operator console rdev to it
 	 */
 	login = guest_create("*LOGIN", NULL);
-	if (!login)
+	if (!login) {
+		err = "failed to create guest";
 		goto die;
+	}
 
 	ret = guest_ipl_nss(login, "login");
-	if (ret)
+	if (ret) {
+		err = "failed to IPL NSS";
 		goto die;
+	}
 
-	/* FIXME: attach the operator rdev to login */
+	/* attach the operator rdev to *LOGIN, any available vdev */
+	ret = guest_attach(login, sysconf.oper_con, -1);
+	if (ret) {
+		err = "failed to attach operator console";
+		goto die;
+	}
+
+	/* start *LOGIN */
+	ret = guest_begin(login);
+	if (ret) {
+		err = "failed to begin guest";
+		goto die;
+	}
 
 	/*
 	 * IPL is more or less done
@@ -123,15 +156,10 @@ static int __finish_loading(void *data)
 		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
 		   ipltime.dm, ipltime.dd);
 
-	/* start *LOGIN */
-	ret = guest_begin(login);
-	if (ret)
-		goto die;
-
 	return 0;
 
 die:
-	sclp_msg("Failed to initialize '*LOGIN' guest\n");
+	sclp_msg("Failed to initialize '*LOGIN' guest: %s\n", err);
 	BUG();
 	return 0;
 }

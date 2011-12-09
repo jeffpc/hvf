@@ -102,8 +102,8 @@ static void display_task(struct task *task, void *priv)
 		default:            state = '?'; break;
 	}
 
-	con_printf(con, "%*s %p %c %016llX\n", -TASK_NAME_LEN, task->name,
-		   task, state, task->regs.psw.ptr);
+	con_printf(con, "%*s %p %c\n", -TASK_NAME_LEN, task->name,
+		   task, state);
 }
 
 /*
@@ -165,7 +165,7 @@ static int cmd_query_archmode(struct virt_sys *sys, char *cmd, int len)
 
 	SHELL_CMD_AUTH(sys, G);
 
-	mode = (VCPU_ZARCH(sys->task->cpu)) ? "z/Arch" : "ESA390";
+	mode = (VCPU_ZARCH(sys->cpu)) ? "z/Arch" : "ESA390";
 
 	con_printf(sys->con, "ARCHMODE = %s\n", mode);
 
@@ -188,8 +188,8 @@ static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
 	SHELL_CMD_AUTH(sys, G);
 
 	con_printf(sys->con, "CPU 00  ID  %016llX %s\n",
-		   sys->task->cpu->cpuid,
-		   __guest_state_to_str(sys->task->cpu->state));
+		   sys->cpu->cpuid,
+		   __guest_state_to_str(sys->cpu->state));
 	con_printf(sys->con, "STORAGE = %lluM\n", sys->directory->storage_size >> 20);
 
 	for_each_vdev(sys, vdev)

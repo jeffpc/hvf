@@ -28,13 +28,18 @@ static UNLOCKED_MUTEX(online_users_lock, &online_users_lc);
 
 static LOCK_CLASS(guest_interrupt_queue_lc);
 
+static LOCK_CLASS(virt_devs_lc);
+
 static void alloc_guest_devices(struct virt_sys *sys)
 {
 	struct directory_vdev *cur;
 	int ret;
 	int i;
 
+	mutex_init(&sys->virt_devs_lock, &virt_devs_lc);
 	INIT_LIST_HEAD(&sys->virt_devs);
+
+	mutex_lock(&sys->virt_devs_lock);
 
 	i = 0;
 	list_for_each_entry(cur, &sys->directory->devices, list) {
@@ -45,6 +50,8 @@ static void alloc_guest_devices(struct virt_sys *sys)
 				   errstrings[-ret]);
 		i++;
 	}
+
+	mutex_unlock(&sys->virt_devs_lock);
 }
 
 static int alloc_guest_storage(struct virt_sys *sys)
@@ -70,10 +77,34 @@ static int alloc_guest_storage(struct virt_sys *sys)
 	return 0;
 }
 
+static void free_vcpu(struct virt_sys *sys)
+{
+	struct virt_cpu *cpu = sys->cpu;
+
+	if (sys->task) {
+		/* FIXME: kill the vcpu task */
+	}
+
+	assert(list_empty(&cpu->int_io[0]));
+	assert(list_empty(&cpu->int_io[1]));
+	assert(list_empty(&cpu->int_io[2]));
+	assert(list_empty(&cpu->int_io[3]));
+	assert(list_empty(&cpu->int_io[4]));
+	assert(list_empty(&cpu->int_io[5]));
+	assert(list_empty(&cpu->int_io[6]));
+	assert(list_empty(&cpu->int_io[7]));
+
+	free_pages(cpu, 0);
+
+	sys->cpu = NULL;
+}
+
 static int alloc_vcpu(struct virt_sys *sys)
 {
+	char tname[TASK_NAME_LEN+1];
 	struct virt_cpu *cpu;
 	struct page *page;
+	int ret;
 
 	page = alloc_pages(0, ZONE_NORMAL);
 	if (!page)
@@ -103,26 +134,18 @@ static int alloc_vcpu(struct virt_sys *sys)
 	 * TODO: What about ->scaoh and ->scaol?
 	 */
 
-	sys->task->cpu = cpu;
+	sys->cpu = cpu;
+
+	snprintf(tname, 32, "%s-vcpu0", sysconf.oper_userid);
+	sys->task = create_task(tname, shell_start, sys);
+	if (IS_ERR(sys->task)) {
+		ret = PTR_ERR(sys->task);
+		sys->task = NULL;
+		free_vcpu(sys);
+		return ret;
+	}
+
 	return 0;
-}
-
-static void free_vcpu(struct virt_sys *sys)
-{
-	struct virt_cpu *cpu = sys->task->cpu;
-
-	assert(list_empty(&cpu->int_io[0]));
-	assert(list_empty(&cpu->int_io[1]));
-	assert(list_empty(&cpu->int_io[2]));
-	assert(list_empty(&cpu->int_io[3]));
-	assert(list_empty(&cpu->int_io[4]));
-	assert(list_empty(&cpu->int_io[5]));
-	assert(list_empty(&cpu->int_io[6]));
-	assert(list_empty(&cpu->int_io[7]));
-
-	free_pages(cpu, 0);
-
-	sys->task->cpu = NULL;
 }
 
 static int alloc_console(struct virt_cons *con)
@@ -169,7 +192,6 @@ static void free_console(struct virt_cons *con)
 
 struct virt_sys *guest_create(char *name, struct device *rcon)
 {
-	char tname[TASK_NAME_LEN+1];
 	struct virt_sys *sys;
 	int already_online = 0;
 	int ret;
@@ -210,10 +232,6 @@ struct virt_sys *guest_create(char *name, struct device *rcon)
 	assert(!ret);
 
 	sys->print_ts = 1; /* print timestamps */
-
-	snprintf(tname, 32, "%s-vcpu0", sysconf.oper_userid);
-	sys->task = create_task(tname, shell_start, sys);
-	assert(!IS_ERR(sys->task));
 
 	mutex_lock(&online_users_lock);
 	list_add_tail(&sys->online_users, &online_users);

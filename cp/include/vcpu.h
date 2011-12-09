@@ -68,16 +68,21 @@ struct virt_cons {
 
 struct virt_sys {
 	struct task *task;		/* the virtual CPU task */
+	struct virt_cpu *cpu;		/* the virtual CPU state */
+
 	struct user *directory;		/* the directory information */
 
 	struct virt_cons console;	/* the console */
 	struct virt_cons *con;		/* convenience pointer to the
 					   console struct */
+
 	int print_ts;			/* print timestamps */
 
 	struct list_head guest_pages;	/* list of guest pages */
-	struct list_head virt_devs;	/* list of guest virtual devs */
 	struct list_head online_users;	/* list of online users */
+
+	mutex_t virt_devs_lock;
+	struct list_head virt_devs;	/* list of guest virtual devs */
 
 	struct address_space as;	/* the guest storage */
 };

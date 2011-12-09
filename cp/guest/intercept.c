@@ -18,35 +18,35 @@ static int handle_noop(struct virt_sys *sys)
 static int handle_program(struct virt_sys *sys)
 {
 	con_printf(sys->con, "INTRCPT: PROG\n");
-	sys->task->cpu->state = GUEST_STOPPED;
+	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
 static int handle_instruction_and_program(struct virt_sys *sys)
 {
 	con_printf(sys->con, "INTRCPT: INST+PROG\n");
-	sys->task->cpu->state = GUEST_STOPPED;
+	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
 static int handle_ext_req(struct virt_sys *sys)
 {
 	con_printf(sys->con, "INTRCPT: EXT REQ\n");
-	sys->task->cpu->state = GUEST_STOPPED;
+	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
 static int handle_ext_int(struct virt_sys *sys)
 {
 	con_printf(sys->con, "INTRCPT: EXT INT\n");
-	sys->task->cpu->state = GUEST_STOPPED;
+	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
 static int handle_io_req(struct virt_sys *sys)
 {
 	con_printf(sys->con, "INTRCPT: IO REQ\n");
-	sys->task->cpu->state = GUEST_STOPPED;
+	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
@@ -59,34 +59,34 @@ static int handle_wait(struct virt_sys *sys)
 static int handle_validity(struct virt_sys *sys)
 {
 	con_printf(sys->con, "INTRCPT: VALIDITY\n");
-	sys->task->cpu->state = GUEST_STOPPED;
+	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
 static int handle_stop(struct virt_sys *sys)
 {
-	atomic_clear_mask(CPUSTAT_STOP_INT, &sys->task->cpu->sie_cb.cpuflags);
+	atomic_clear_mask(CPUSTAT_STOP_INT, &sys->cpu->sie_cb.cpuflags);
 	return 0;
 }
 
 static int handle_oper_except(struct virt_sys *sys)
 {
 	con_printf(sys->con, "INTRCPT: OPER EXCEPT\n");
-	sys->task->cpu->state = GUEST_STOPPED;
+	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
 static int handle_exp_run(struct virt_sys *sys)
 {
 	con_printf(sys->con, "INTRCPT: EXP RUN\n");
-	sys->task->cpu->state = GUEST_STOPPED;
+	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
 static int handle_exp_timer(struct virt_sys *sys)
 {
 	con_printf(sys->con, "INTRCPT: EXP TIMER\n");
-	sys->task->cpu->state = GUEST_STOPPED;
+	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 }
 
@@ -108,7 +108,7 @@ static const intercept_handler_t intercept_funcs[0x4c >> 2] = {
 
 void handle_interception(struct virt_sys *sys)
 {
-	struct virt_cpu *cpu = sys->task->cpu;
+	struct virt_cpu *cpu = sys->cpu;
 	intercept_handler_t h;
 	int err = -EINVAL;
 

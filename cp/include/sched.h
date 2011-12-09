@@ -51,8 +51,6 @@ struct task {
 
 	u64 slice_end_time;		/* end of slice time (ticks) */
 
-	struct virt_cpu *cpu;		/* guest cpu */
-
 	int state;			/* state */
 
 	void *stack;			/* the stack */
