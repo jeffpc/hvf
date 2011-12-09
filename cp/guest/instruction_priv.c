@@ -314,10 +314,98 @@ out:
 	return ret;
 }
 
+static int handle_tsch(struct virt_sys *sys)
+{
+	struct virt_cpu *cpu = sys->cpu;
+
+	u64 r1   = __guest_gpr(cpu, 1);
+	u64 addr = RAW_S_1(cpu);
+
+	struct irb irb;
+	struct virt_device *vdev, *vdev_cur;
+	int ret = 0;
+	int cc;
+
+	/* sch number must be: X'0001____' */
+	if ((r1 & 0xffff0000) != 0x00010000) {
+		queue_prog_exception(sys, PROG_OPERAND, r1);
+		goto out;
+	}
+
+	/* schib must be word-aligned */
+	if (addr & 0x3) {
+		queue_prog_exception(sys, PROG_SPEC, addr);
+		goto out;
+	}
+
+	/* find the virtual device */
+	vdev = NULL;
+	for_each_vdev(sys, vdev_cur) {
+		if (vdev_cur->sch == (u32) r1) {
+			vdev = vdev_cur;
+			break;
+		}
+	}
+
+	/* There's no virtual device with this sch number; CC=3 */
+	if (!vdev) {
+		cpu->sie_cb.gpsw.cc = 3;
+		goto out;
+	}
+
+	memset(&irb, 0, sizeof(struct irb));
+
+	mutex_lock(&vdev->lock);
+
+	memcpy(&irb.scsw, &vdev->scsw, sizeof(struct scsw));
+
+	if (vdev->scsw.sc & SC_STATUS) {
+		u32 fc, ac, sc;
+
+		fc = vdev->scsw.fc;
+		ac = vdev->scsw.ac;
+		sc = vdev->scsw.sc;
+
+		if (!(vdev->scsw.sc & SC_INTERMED) ||
+		    ((vdev->scsw.fc & FC_HALT) && (vdev->scsw.ac & AC_SUSP)))
+			fc = 0;
+
+		if (!(vdev->scsw.sc & SC_INTERMED))
+			ac &= ~(AC_RESUME | AC_START | AC_HALT | AC_CLEAR);
+		else if ((vdev->scsw.ac & AC_SUSP) && (vdev->scsw.fc & FC_START)) {
+			if (vdev->scsw.fc & FC_HALT)
+				ac &= ~(AC_RESUME | AC_START | AC_HALT | AC_CLEAR);
+			else
+				ac &= ~AC_RESUME;
+		}
+
+		sc &= ~SC_STATUS;
+
+		// FIXME: N-condition
+
+		vdev->scsw.fc = fc;
+		vdev->scsw.ac = ac;
+		vdev->scsw.sc = sc;
+
+		// FIXME: dequeue I/O INT
+		cc = 0;
+	} else {
+		cc = 1;
+	}
+
+	mutex_unlock(&vdev->lock);
+
+	cpu->sie_cb.gpsw.cc = cc;
+
+out:
+	return ret;
+}
+
 static const intercept_handler_t instruction_priv_funcs[256] = {
 	[0x32] = handle_msch,
 	[0x33] = handle_ssch,
 	[0x34] = handle_stsch,
+	[0x35] = handle_tsch,
 };
 
 int handle_instruction_priv(struct virt_sys *sys)
