@@ -127,16 +127,16 @@ static int __finish_loading(void *data)
 		goto die;
 	}
 
-	ret = guest_ipl_nss(login, "login");
-	if (ret) {
-		err = "failed to IPL NSS";
-		goto die;
-	}
-
 	/* attach the operator rdev to *LOGIN, any available vdev */
 	ret = guest_attach(login, sysconf.oper_con, -1);
 	if (ret) {
 		err = "failed to attach operator console";
+		goto die;
+	}
+
+	ret = guest_ipl_nss(login, "login");
+	if (ret) {
+		err = "failed to IPL NSS";
 		goto die;
 	}
 
