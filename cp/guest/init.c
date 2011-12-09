@@ -191,9 +191,11 @@ struct virt_sys *guest_create(char *name, struct device *rcon)
 	if (!sys)
 		return NULL;
 
-	sys->con = &sys->console;
 	if (alloc_console(&sys->console))
 		goto free;
+
+	sys->con = &sys->console;
+	sys->con->dev = rcon;
 
 	sys->directory = find_user_by_id(name);
 	if (IS_ERR(sys->directory))
@@ -206,8 +208,6 @@ struct virt_sys *guest_create(char *name, struct device *rcon)
 
 	ret = alloc_vcpu(sys);
 	assert(!ret);
-
-	sys->console.dev = rcon;
 
 	sys->print_ts = 1; /* print timestamps */
 
