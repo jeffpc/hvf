@@ -9,6 +9,7 @@
 #include <sched.h>
 #include <dat.h>
 #include <vcpu.h>
+#include <vdevice.h>
 
 #define RESET_CPU			0x000001
 #define SET_ESA390			0x000002
@@ -161,10 +162,45 @@ static void __perform_cpu_reset(struct virt_sys *sys, int flags)
 
 static void __perform_noncpu_reset(struct virt_sys *sys, int flags)
 {
+	struct virt_device *vdev;
+	int i;
+
 	if (flags & RESET_FLOATING_INTERRUPTIONS) {
 	}
 
 	if (flags & RESET_IO) {
+		for_each_vdev(sys, vdev) {
+			/* FIXME: wait for I/O to complete? */
+			mutex_lock(&vdev->lock);
+
+			/* set to zero */
+			vdev->pmcw.interrupt_param = 0;
+			vdev->pmcw.isc = 0;
+			vdev->pmcw.e = 0;
+			vdev->pmcw.lm = 0;
+			vdev->pmcw.mm = 0;
+			vdev->pmcw.d = 0;
+			vdev->pmcw.pnom = 0;
+			vdev->pmcw.lpum = 0;
+			vdev->pmcw.mbi = 0;
+			vdev->pmcw.f = 0;
+			vdev->pmcw.x = 0;
+			vdev->pmcw.s = 0;
+
+			/* set to one */
+			vdev->pmcw.pom = 0xff;
+
+			/* defined by the install - HVF hardcoded */
+			vdev->pmcw.t = 0;
+			vdev->pmcw.lpm = 0x80;
+			vdev->pmcw.pim = 0x80;
+			vdev->pmcw.pam = 0x80;
+			for(i=0; i<8; i++)
+				vdev->pmcw.chpid[i] = 0;
+
+			memset(&vdev->scsw, 0, sizeof(struct scsw));
+			mutex_unlock(&vdev->lock);
+		}
 	}
 }
 
