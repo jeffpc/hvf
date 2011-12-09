@@ -34,7 +34,6 @@ int vprintf(struct virt_cons *con, const char *fmt, va_list args)
 	ret = vsnprintf(buf+off, 128-off, fmt, args);
 	if (ret) {
 		ascii2ebcdic((u8 *) buf, off+ret);
-		BUG();
 		//con_write(con, (u8 *) buf, off+ret);
 	}
 
