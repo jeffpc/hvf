@@ -60,6 +60,49 @@ static int __copy_segment(struct virt_sys *sys, struct file *nss, u64 foff,
 	return 0;
 }
 
+#define __LOAD_LOOP(arch)							\
+	for(i=0; i<hdr->arch.e_phnum; i++) {					\
+		u32 blk, off;							\
+		u64 foff, fslen, gaddr, memlen;					\
+										\
+		foff = hdr->arch.e_phoff +					\
+		       (hdr->arch.e_phentsize * i);				\
+		blk  = foff / sysfs->ADT.DBSIZ;					\
+		off  = foff % sysfs->ADT.DBSIZ;					\
+										\
+		BUG_ON((sysfs->ADT.DBSIZ - off) < hdr->arch.e_phentsize);	\
+										\
+		buf = bcache_read(file, 0, blk);				\
+		if (IS_ERR(file))						\
+			goto corrupt;						\
+										\
+		phdr = (void*) (buf + off);					\
+										\
+		/* skip all program headers that aren't PT_LOAD */		\
+		if (phdr->arch.p_type != PT_LOAD)				\
+			continue;						\
+										\
+		if (phdr->arch.p_align != PAGE_SIZE)				\
+			goto corrupt;						\
+										\
+		foff   = phdr->arch.p_offset;					\
+		fslen  = phdr->arch.p_filesz;					\
+		gaddr  = phdr->arch.p_vaddr;					\
+		memlen = phdr->arch.p_memsz;					\
+										\
+		ret = __copy_segment(sys, file, foff, fslen, gaddr, memlen);	\
+		if (ret)							\
+			goto corrupt;						\
+	}
+
+#define LOAD_LOOP(fmt)								\
+	do {									\
+		if (fmt) {							\
+			__LOAD_LOOP(s390)					\
+		} else {							\
+			__LOAD_LOOP(z)						\
+		}								\
+	} while(0)
 
 int guest_ipl_nss(struct virt_sys *sys, char *nssname)
 {
@@ -67,6 +110,7 @@ int guest_ipl_nss(struct virt_sys *sys, char *nssname)
 	Elf_Ehdr *hdr;
 	Elf_Phdr *phdr;
 	struct file *file;
+	u64 saved_pasce;
 	char *buf;
 	int fmt;
 	int len;
@@ -115,57 +159,31 @@ int guest_ipl_nss(struct virt_sys *sys, char *nssname)
 	if ((fmt != ELFCLASS32) && (fmt != ELFCLASS64))
 		goto corrupt;
 
-	/* convert the fmt into a 'is this 64 bit system' */
-	fmt = (fmt == ELFCLASS64);
-
-	/* FIXME: 31 bits systems aren't supported */
-	if (fmt)
-		goto out;
+	/* convert the fmt into a 'is this 31 bit system' */
+	fmt = (fmt == ELFCLASS32);
 
 	/* reset the system */
 	guest_load_clear(sys);
 
 	sys->cpu->state = GUEST_LOAD;
 
-	for(i=0; i<hdr->s390.e_phnum; i++) {
-		u32 blk, off;
-		u64 foff, fslen, gaddr, memlen;
-
-		foff = hdr->s390.e_phoff +
-		       (hdr->s390.e_phentsize * i);
-		blk  = foff / sysfs->ADT.DBSIZ;
-		off  = foff % sysfs->ADT.DBSIZ;
-
-		BUG_ON((sysfs->ADT.DBSIZ - off) < hdr->s390.e_phentsize);
-
-		buf = bcache_read(file, 0, blk);
-		if (IS_ERR(file))
-			goto corrupt;
-
-		phdr = (void*) (buf + off);
-
-		/* skip all program headers that aren't PT_LOAD */
-		if (phdr->s390.p_type != PT_LOAD)
-			continue;
-
-		if (phdr->s390.p_align != PAGE_SIZE)
-			goto corrupt;
-
-		foff   = phdr->s390.p_offset;
-		fslen  = phdr->s390.p_filesz;
-		gaddr  = phdr->s390.p_vaddr;
-		memlen = phdr->s390.p_memsz;
-
-		ret = __copy_segment(sys, file, foff, fslen, gaddr, memlen);
-		if (ret)
-			goto corrupt;
-	}
+	store_pasce(&saved_pasce);
+	load_as(&sys->as);
+	LOAD_LOOP(fmt);
+	load_pasce(saved_pasce);
 
 	memset(&sys->cpu->sie_cb.gpsw, 0, sizeof(struct psw));
-	sys->cpu->sie_cb.gpsw.fmt = 1;
-	sys->cpu->sie_cb.gpsw.ptr31  = hdr->s390.e_entry;
+	sys->cpu->sie_cb.gpsw.fmt = fmt;
+	sys->cpu->sie_cb.gpsw.ba = 1;
 
-out:
+	if (fmt)
+		sys->cpu->sie_cb.gpsw.ptr31 = hdr->s390.e_entry;
+	else {
+		atomic_set(&sys->cpu->sie_cb.cpuflags, CPUSTAT_ZARCH);
+		sys->cpu->sie_cb.gpsw.ea = 1;
+		sys->cpu->sie_cb.gpsw.ptr = hdr->z.e_entry;
+	}
+
 	sys->cpu->state = GUEST_STOPPED;
 	return 0;
 
