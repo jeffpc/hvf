@@ -127,13 +127,6 @@ static int __finish_loading(void *data)
 		goto die;
 	}
 
-	/* attach the operator rdev to *LOGIN, any available vdev */
-	ret = guest_attach(login, sysconf.oper_con, -1);
-	if (ret) {
-		err = "failed to attach operator console";
-		goto die;
-	}
-
 	ret = guest_ipl_nss(login, "login");
 	if (ret) {
 		err = "failed to IPL NSS";
@@ -144,6 +137,18 @@ static int __finish_loading(void *data)
 	ret = guest_begin(login);
 	if (ret) {
 		err = "failed to begin guest";
+		goto die;
+	}
+
+	/*
+	 * attach the operator rdev to *LOGIN, any available vdev
+	 *
+	 * Since we already IPL'd & began the guest, this will generate a
+	 * Channel Report Word and a Machine Check Interrupt in the guest.
+	 */
+	ret = guest_attach(login, sysconf.oper_con, -1);
+	if (ret) {
+		err = "failed to attach operator console";
 		goto die;
 	}
 
