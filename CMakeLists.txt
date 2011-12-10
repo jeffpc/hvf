@@ -43,8 +43,10 @@ add_custom_command(
 		${CMAKE_CURRENT_BINARY_DIR}/loader/loader.rto bin
 		${CMAKE_CURRENT_SOURCE_DIR}/doc/installed_files.txt text 80
 		${CMAKE_CURRENT_BINARY_DIR}/nss/8ball/8ball bin
+		${CMAKE_CURRENT_BINARY_DIR}/nss/ipldev/ipldev bin
+		${CMAKE_CURRENT_BINARY_DIR}/nss/login/login bin
 		> installer/archive.cpio
-	DEPENDS hvf 8ball loader-rto
+	DEPENDS hvf 8ball login ipldev loader-rto
 )
 add_custom_command(
 	OUTPUT installer.bin

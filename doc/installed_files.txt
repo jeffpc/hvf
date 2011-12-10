@@ -15,3 +15,8 @@ The nucleus:
 The nucleus loader:
   DASDLOAD BIN
   ECKDLOAD BIN
+
+The NSS images:
+  8BALL    NSS
+  LOGIN    NSS
+  IPLDEV   NSS

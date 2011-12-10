@@ -1,0 +1,12 @@
+SECTIONS
+{
+  ENTRY(START)
+
+  . = 0x100000 - 160;
+  .stack : { *entry.s.o(.data) }
+
+  . = 0x2000;
+  .text : { *(.text) }
+  .data : { *(.data) }
+  .bss : { *(.bss) }
+}
