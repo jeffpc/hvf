@@ -350,6 +350,12 @@ void load_nucleus(void)
 	wto("\nInstallation complete.\n");
 	wto("You can now IPL from the DASD.\n");
 
-	for(;;);
+	asm volatile(
+		"lpswe	%0\n"
+	: /* output */
+	: /* input */
+	  "m" (pgm_new_psw_diswait[0])
+	);
+
 	die();
 }
