@@ -8,14 +8,12 @@
 	#
 	# We are guaranteed the following:
 	#
-	# 1) we are located above 16M
-	# 2) we are located below 2G
-	# 3) we are running in ESA/390
-	# 4) we are in 31-bit addressing mode
-	# 5) the guest registers are saved at GUEST_IPL_REGSAVE
-	# 6) R1 contains the subchannel #
-	# 7) R2 contains the device #
-	# 8) R12 contains the base address
+	# 1) we are located at 16M
+	# 2) we are running in ESA/390
+	# 3) we are in 31-bit addressing mode
+	# 4) the guest registers are saved at GUEST_IPL_REGSAVE
+	# 5) R1 contains the subchannel #
+	# 6) R2 contains the device #
 	#
 	# Register usage:
 	#
@@ -39,10 +37,13 @@
 ###############################################################################
 # Code begins here                                                            #
 ###############################################################################
+.text
 
-.globl GUEST_IPL_CODE
-	.type	GUEST_IPL_CODE, @function
-GUEST_IPL_CODE:
+.globl START
+	.type	START, @function
+START:
+	LARL	r12,START
+
 	STSCH	SCHIB(r12)			# get the SCHIB
 	BNZ	ERROR(r12)
 
@@ -69,18 +70,18 @@ GUEST_IPL_CODE:
 
 	LPSW	ENABLEDWAIT(r12)		# wait for IO interruptions
 
-.equ	IO,(.-GUEST_IPL_CODE)
+.equ	IO,(.-START)
 	# this is the IO interrupt handler
 
 	B	DONE(r12)
 
-.equ	ERROR,(.-GUEST_IPL_CODE)
+.equ	ERROR,(.-START)
 	# an error occured, return an error
 
 	LM	r0,r15,REGSAVE(r12)
 	DIAG	r0,r0,1				# return to hypervisor
 
-.equ	DONE,(.-GUEST_IPL_CODE)
+.equ	DONE,(.-START)
 	# we were successful!
 
 	LM	r0,r15,REGSAVE(r12)
@@ -89,33 +90,32 @@ GUEST_IPL_CODE:
 ###############################################################################
 # Data begins here                                                            #
 ###############################################################################
-
-.equ	DISABLEDWAIT,(.-GUEST_IPL_CODE)
+.equ	DISABLEDWAIT,(.-START)
 	.long	0x000c0000
 	.long	0x80000000			# disabled wait PSW; signal
 						# return to hypervisor
-.equ	ENABLEDWAIT,(.-GUEST_IPL_CODE)
+.equ	ENABLEDWAIT,(.-START)
 	.long	0x020c0000
 	.long	0x80000000			# enabled wait PSW; wait for IO
 
-.equ	IOPSW,(.-GUEST_IPL_CODE)
+.equ	IOPSW,(.-START)
 	.long	0x00080000
 	.long	0x80000000			# new IO psw
 
-.equ	INITCCW,(.-GUEST_IPL_CODE)
+.equ	INITCCW,(.-START)
 	.long	0x02000000
 	.long	0x60000018			# fmt0, read 24 bytes to addr 0
 
 	.align 4
-.equ	ORB,(.-GUEST_IPL_CODE)
+.equ	ORB,(.-START)
 	.skip	(8*4),0				# the ORB is BIG
 
 	.align 4
-.equ	SCHIB,(.-GUEST_IPL_CODE)
+.equ	SCHIB,(.-START)
 	.skip	(13*4),0			# the SCHIB is BIG
 
 	.align 4
 .globl GUEST_IPL_REGSAVE
 	.type	GUEST_IPL_REGSAVE, @function
 GUEST_IPL_REGSAVE:
-.equ	REGSAVE,(.-GUEST_IPL_CODE)		# register save area
+.equ	REGSAVE,(.-START)			# register save area
