@@ -7,6 +7,12 @@
 
 #include <vcpu.h>
 #include <guest.h>
+#include <sclp.h>
+
+static void guest_append_crw(struct virt_sys *sys, struct crw *crw)
+{
+	sclp_msg("FIXME: guest CRW was not queued");
+}
 
 int guest_attach(struct virt_sys *sys, u64 rdev, u64 vdev)
 {
@@ -16,6 +22,7 @@ int guest_attach(struct virt_sys *sys, u64 rdev, u64 vdev)
 		.u.dedicate.rdev = rdev,
 	};
 	struct virt_device *cur;
+	struct crw crw;
 	int found;
 	int ret;
 	u64 sch;
@@ -63,8 +70,16 @@ int guest_attach(struct virt_sys *sys, u64 rdev, u64 vdev)
 	if (found)
 		goto out_err;
 
+	memset(&crw, 0, sizeof(struct crw));
+	crw.rsc = 0x3;
+	crw.erc = 0x4;
+	crw.id  = sch & ~0x10000;
+
 	/* add the device */
 	ret = alloc_virt_dev(sys, &dv, sch);
+
+	if (!ret)
+		guest_append_crw(sys, &crw);
 
 	mutex_unlock(&sys->virt_devs_lock);
 	return ret;
