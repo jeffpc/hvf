@@ -26,7 +26,15 @@ typedef u32 size_t;
 
 typedef __builtin_va_list va_list;
 
-typedef int ptrdiff_t;		/* wha? well, vsnprintf wants it */
+typedef int ptrdiff_t;
+
+/*
+ * The MSB is bit 0
+ */
+#define BIT64(x)	(1u << (63-(x)))
+#define BIT32(x)	(1u << (31-(x)))
+#define BIT16(x)	(1u << (15-(x)))
+#define BIT8(x)		(1u << (7-(x)))
 
 /*
  * min/max/clamp/min_t/max_t/clamp_t borrowed from Linux

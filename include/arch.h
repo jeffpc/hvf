@@ -35,4 +35,30 @@ struct psw {
 	u64 ptr;
 };
 
+#define set_cr(cr, val)						\
+	do {							\
+		u64 lval = (val);				\
+		asm volatile(					\
+			"lctlg	%1,%1,%0\n"			\
+		: /* output */					\
+		: /* input */					\
+		  "m" (lval),					\
+		  "i" (cr)					\
+		);						\
+	} while(0)
+
+#define get_cr(cr)						\
+	({							\
+		u64 reg;					\
+								\
+		asm volatile(					\
+			"stctg	%1,%1,%0\n"			\
+		: /* output */					\
+		  "=m" (reg)					\
+		: /* input */					\
+		  "i" (cr)					\
+		);						\
+		reg;						\
+	 })
+
 #endif
