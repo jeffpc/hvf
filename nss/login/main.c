@@ -100,6 +100,25 @@ static struct psw __new_prg = { .ea = 1, .ba = 1, .ptr = ADDR64(&prg_int), };
 static struct psw __new_mch = { .ea = 1, .ba = 1, .ptr = ADDR64(&mch_int), };
 static struct psw __new_io  = { .ea = 1, .ba = 1, .ptr = ADDR64(&io_int), };
 
+static void init_io(void)
+{
+	u64 cr6;
+
+	cr6 = get_cr(6);
+
+	/* enable all I/O interrupt classes */
+	cr6 |= BIT64(32);
+	cr6 |= BIT64(33);
+	cr6 |= BIT64(34);
+	cr6 |= BIT64(35);
+	cr6 |= BIT64(36);
+	cr6 |= BIT64(37);
+	cr6 |= BIT64(38);
+	cr6 |= BIT64(39);
+
+	set_cr(6, cr6);
+}
+
 void start()
 {
 	/* set up interrupt PSWs */
@@ -110,7 +129,11 @@ void start()
 	memcpy(&psw_mch_new, &__new_mch, sizeof(struct psw));
 	memcpy(&psw_io_new,  &__new_io,  sizeof(struct psw));
 
-	// FIXME: enable all 8 I/O classes (cr6?)
+	/* enable all 8 I/O classes */
+	init_io();
+
+	/* enable Channel-Report-Pending Machine Check Interruption subclass */
+	set_cr(14, get_cr(14) | BIT64(35));
 
 	/* this enables I/O & MCH interrupts */
 	asm volatile(

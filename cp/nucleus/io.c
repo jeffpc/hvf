@@ -104,16 +104,19 @@ void init_io(void)
 {
 	u64 cr6;
 
+	cr6 = get_cr(6);
+
 	/* enable all I/O interrupt classes */
-	asm volatile(
-		"stctg	6,6,%0\n"	/* get cr6 */
-		"oi	%1,0xff\n"	/* enable all */
-		"lctlg	6,6,%0\n"	/* reload cr6 */
-	: /* output */
-	: /* input */
-	  "m" (cr6),
-	  "m" (*(u64*) (((u8*)&cr6) + 4))
-	);
+	cr6 |= BIT64(32);
+	cr6 |= BIT64(33);
+	cr6 |= BIT64(34);
+	cr6 |= BIT64(35);
+	cr6 |= BIT64(36);
+	cr6 |= BIT64(37);
+	cr6 |= BIT64(38);
+	cr6 |= BIT64(39);
+
+	set_cr(6, cr6);
 }
 
 static int default_io_handler(struct device *dev, struct io_op *ioop, struct irb *irb)
