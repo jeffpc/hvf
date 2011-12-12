@@ -367,4 +367,40 @@ static inline int test_sch(u32 sch, struct irb *irb)
 	return 0;
 }
 
+struct crw {
+	u16 _pad0:1,
+	    s:1,
+	    r:1,
+	    c:1,
+	    rsc:4,
+	    a:1,
+	    _pad1:1,
+	    erc:6;
+	u16 id;
+} __attribute__((packed));
+
+/**
+ * store_crw - stores the Channel Report Word
+ * @crw:	pointer to CRW
+ * @return:	0 on success, 1 if zeros were stored
+ */
+static inline int store_crw(struct crw *crw)
+{
+	int cc;
+
+	asm volatile(
+		"	stcrw	%1\n"
+		"	ipm	%0\n"
+		"	srl	%0,28\n"
+	: /* output */
+	  "=d" (cc),
+	  "=m" (*crw)
+	: /* input */
+	: /* clobbered */
+	  "cc", "r1"
+	);
+
+	return cc;
+}
+
 #endif
