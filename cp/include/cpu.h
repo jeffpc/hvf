@@ -36,4 +36,33 @@ static inline u16 getcpuaddr()
 	return cpuaddr;
 }
 
+#define BIT64(x)	(1u << (63-(x)))
+#define BIT32(x)	(1u << (31-(x)))
+
+#define set_cr(cr, val)						\
+	do {							\
+		u64 lval = (val);				\
+		asm volatile(					\
+			"lctlg	%1,%1,%0\n"			\
+		: /* output */					\
+		: /* input */					\
+		  "m" (lval),					\
+		  "i" (cr)					\
+		);						\
+	} while(0)
+
+#define get_cr(cr)						\
+	({							\
+		u64 reg;					\
+								\
+		asm volatile(					\
+			"stctg	%1,%1,%0\n"			\
+		: /* output */					\
+		  "=m" (reg)					\
+		: /* input */					\
+		  "i" (cr)					\
+		);						\
+		reg;						\
+	 })
+
 #endif

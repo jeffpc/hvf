@@ -52,6 +52,7 @@ static void __init_task(struct task *task, void *f, void *data, void *stack)
 
 	task->regs.psw.io	= 1;
 	task->regs.psw.ex	= 1;
+	task->regs.psw.m	= 1;
 	task->regs.psw.ea	= 1;
 	task->regs.psw.ba	= 1;
 

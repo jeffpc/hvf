@@ -8,6 +8,7 @@
 #include <binfmt_elf.h>
 #include <symtab.h>
 #include <mm.h>
+#include <cpu.h>
 #include <dat.h>
 #include <slab.h>
 #include <page.h>
@@ -47,6 +48,13 @@ static struct psw new_pgm_psw = {
 	.ba	= 1,
 
 	.ptr	= (u64) &PGM_INT,
+};
+
+static struct psw new_mch_psw = {
+	.ea	= 1,
+	.ba	= 1,
+
+	.ptr	= (u64) &MCH_INT,
 };
 
 u8 *int_stack_ptr;
@@ -153,6 +161,14 @@ static int __finish_loading(void *data)
 	}
 
 	/*
+	 * At this point we know that *LOGIN is running.  From this point
+	 * on, we can handle Machine Check Interrupts (of the
+	 * Channel-Report-Pending subclass) safely and sanely.  Let's enable
+	 * the the subclass.
+	 */
+	set_cr(14, get_cr(14) | BIT64(35));
+
+	/*
 	 * IPL is more or less done
 	 */
 	get_parsed_tod(&ipltime);
@@ -221,6 +237,7 @@ void start(u64 __memsize, u32 __iplsch, Elf64_Ehdr *__elfhdr)
 	memcpy(EXT_INT_NEW_PSW, &new_ext_psw, sizeof(struct psw));
 	memcpy(SVC_INT_NEW_PSW, &new_svc_psw, sizeof(struct psw));
 	memcpy(PGM_INT_NEW_PSW, &new_pgm_psw, sizeof(struct psw));
+	memcpy(MCH_INT_NEW_PSW, &new_mch_psw, sizeof(struct psw));
 
 	/* Turn on Low-address Protection */
 	lap_on();
