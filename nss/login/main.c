@@ -119,6 +119,18 @@ static void init_io(void)
 	set_cr(6, cr6);
 }
 
+static void init_mch(void)
+{
+	u64 cr14;
+
+	cr14 = get_cr(14);
+
+	/* enable Channel-Report-Pending Machine Check Interruption subclass */
+	cr14 |= BIT64(35);
+
+	set_cr(14, cr14);
+}
+
 void start()
 {
 	/* set up interrupt PSWs */
@@ -132,8 +144,7 @@ void start()
 	/* enable all 8 I/O classes */
 	init_io();
 
-	/* enable Channel-Report-Pending Machine Check Interruption subclass */
-	set_cr(14, get_cr(14) | BIT64(35));
+	init_mch();
 
 	/* this enables I/O & MCH interrupts */
 	lpswe(&enabled_wait);
