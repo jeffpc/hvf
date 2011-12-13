@@ -136,12 +136,7 @@ void start()
 	set_cr(14, get_cr(14) | BIT64(35));
 
 	/* this enables I/O & MCH interrupts */
-	asm volatile(
-		"lpswe	%0\n"
-	: /* output */
-	: /* input */
-	  "m" (enabled_wait)
-	);
+	lpswe(&enabled_wait);
 
 	die();
 }

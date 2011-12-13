@@ -29,18 +29,6 @@ extern void start(u64 __memsize, u32 __iplsch, Elf64_Ehdr *__symtab);
 /* borrowed from Linux */
 #define offsetof(type, member) __builtin_offsetof(type,member)
 
-static inline void lpswe(void *psw)
-{
-	asm volatile(
-		"	lpswe	0(%0)\n"
-	: /* output */
-	: /* input */
-	  "a" (psw)
-	: /* clobbered */
-	  "cc"
-	);
-}
-
 #define BUG()		do { \
 				asm volatile(".byte 0x00,0x00,0x00,0x00" : : : "memory"); \
 			} while(0)

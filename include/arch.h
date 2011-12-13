@@ -33,7 +33,17 @@ struct psw {
 	    ptr31:31;
 
 	u64 ptr;
-};
+} __attribute__((packed,aligned(8)));
+
+static inline void lpswe(struct psw *psw)
+{
+	asm volatile(
+		"	lpswe	%0\n"
+	: /* output */
+	: /* input */
+	  "m" (*psw)
+	);
+}
 
 #define set_cr(cr, val)						\
 	do {							\
