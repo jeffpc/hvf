@@ -84,10 +84,6 @@ static int __io_int(struct virt_sys *sys)
 	return 0;
 }
 
-/*
- * FIXME:
- * - issue any pending interruptions
- */
 void run_guest(struct virt_sys *sys)
 {
 	struct psw *psw = &sys->cpu->sie_cb.gpsw;
@@ -109,13 +105,8 @@ void run_guest(struct virt_sys *sys)
 	}
 
 go:
-	/*
-	 * FIXME: need to ->icptcode = 0;
-	 */
-
-	/*
-	 * FIXME: load FPRs & FPCR
-	 */
+	FIXME("need to ->icptcode = 0;");
+	FIXME("load FPRs & FPCR");
 
 	/*
 	 * IMPORTANT: We MUST keep a valid stack address in R15. This way,
@@ -148,9 +139,7 @@ go:
 	  "memory"
 	);
 
-	/*
-	 * FIXME: store FPRs & FPCR
-	 */
+	FIXME("store FPRs & FPCR");
 
 	handle_interception(sys);
 }

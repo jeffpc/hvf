@@ -91,7 +91,7 @@ static int __auth_str(char *in)
 
 static int __auth_int(u64 in)
 {
-	// FIXME
+	FIXME("");
 	return AUTH_G;
 }
 

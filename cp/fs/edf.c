@@ -125,7 +125,7 @@ struct fs *edf_mount(struct device *dev)
 	if (ret)
 		goto out_free;
 
-	/* FIXME: init the ALLOCMAP */
+	FIXME("init the ALLOCMAP");
 
 	free_pages(tmp, 0);
 	return fs;

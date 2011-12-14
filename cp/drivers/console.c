@@ -64,7 +64,7 @@ static int console_flusher(void *data)
 	int i;
 
 	for(;;) {
-		/* FIXME: this should be a sub-unless-zero */
+		FIXME("this should be a sub-unless-zero");
 		if (atomic_read(&con->dev->attention))
 			do_issue_read(con, &ioop, ccws);
 
@@ -121,7 +121,7 @@ static void print_splash(struct console *con)
 		if (con->dev->type != logo->devtype)
 			continue;
 
-		/* FIXME: check the connection type */
+		FIXME("check the connection type");
 
 		list_for_each_entry(rec, &logo->lines, list)
 			con_printf(con, "%*.*s\n", CONFIG_LRECL,

@@ -201,13 +201,11 @@ static void *alloc_slab_obj(struct slab *passed_slab, int type)
 	 */
 
 	slab = __alloc_slab_obj_newpage(passed_slab, type);
-	if (IS_ERR(slab))
-		/*
-		 * FIXME: if we tried to get a ZONE_NORMAL and failed,
-		 * shouldn't we retry with ZONE_LOW?
-		 */
+	if (IS_ERR(slab)) {
+		 FIXME("if we tried to get a ZONE_NORMAL and failed, "
+		       "shouldn't we retry with ZONE_LOW?");
 		goto out;
-
+	}
 
 alloc:
 	/* found a page */
@@ -252,7 +250,7 @@ static void free_slab_obj(void *ptr)
 	*bits &= ~(1 << (7 - (objidx % 8)));
 
 	if (--slab->used) {
-		/* FIXME: free the page? */
+		FIXME("free the page?");
 	}
 
 	spin_unlock_intrestore(&slab->first->lock, int_mask);

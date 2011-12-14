@@ -85,7 +85,7 @@ int alloc_virt_dev(struct virt_sys *sys, struct directory_vdev *dirdev,
 		case VDEV_MDISK:
 			vdev->type = 0x3390;
 			vdev->model = 3;
-			// FIXME: hook it up to mdisk driver
+			FIXME("hook it up to mdisk driver");
 			break;
 		case VDEV_LINK:
 		case VDEV_INVAL:

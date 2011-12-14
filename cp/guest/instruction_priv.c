@@ -114,7 +114,8 @@ static int handle_msch(struct virt_sys *sys)
 	vdev->pmcw.x   = gschib.pmcw.x;
 	vdev->pmcw.s   = gschib.pmcw.s;
 	vdev->pmcw.mbi = gschib.pmcw.mbi;
-	/* FIXME: save measurement-block address */
+
+	FIXME("save measurement-block address");
 
 out_cc0:
 	cpu->sie_cb.gpsw.cc = 0;
@@ -381,13 +382,13 @@ static int handle_tsch(struct virt_sys *sys)
 
 		sc &= ~SC_STATUS;
 
-		// FIXME: N-condition
+		FIXME("N-condition");
 
 		vdev->scsw.fc = fc;
 		vdev->scsw.ac = ac;
 		vdev->scsw.sc = sc;
 
-		// FIXME: dequeue I/O INT
+		FIXME("dequeue I/O INT");
 		cc = 0;
 	} else {
 		cc = 1;

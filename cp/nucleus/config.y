@@ -60,7 +60,7 @@ static void __rdev(u64 devnum, u64 devtype)
 	assert(devtype <= 0xffff);
 	assert(devnum <= 0xffff);
 
-	/* FIXME: save the <devnum,devtype> pair */
+	FIXME("save the <devnum,devtype> pair");
 }
 
 static void __oper_con(u64 devnum)

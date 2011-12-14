@@ -99,6 +99,6 @@ void directory_alloc_user(char *name, int auth, struct directory_prop *prop,
 	user->storage_size = prop->storage;
 	user->auth = auth;
 
-	// FIXME: locking?
+	FIXME("locking?");
 	list_add_tail(&user->list, &directory);
 }

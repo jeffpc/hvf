@@ -20,7 +20,7 @@
  */
 static int __verify_io_op(struct io_op *ioop)
 {
-	// FIXME: check everything that makes sense to check
+	FIXME("check everything that makes sense to check");
 	return 0;
 }
 
@@ -124,8 +124,10 @@ static int default_io_handler(struct device *dev, struct io_op *ioop, struct irb
 	ioop->err = -EAGAIN;
 
 	/* Unit check? */
-	if (irb->scsw.dev_status & 0x02)
-		ioop->err = -EUCHECK; /* FIXME: we should bail */
+	if (irb->scsw.dev_status & 0x02) {
+		FIXME("we should bail");
+		ioop->err = -EUCHECK;
+	}
 
 	/* Device End is set, we're done */
 	if (irb->scsw.dev_status & 0x04)

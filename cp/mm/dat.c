@@ -50,7 +50,10 @@ int dat_insert_page(struct address_space *as, u64 phy, u64 virt)
 		goto walk_segment;
 	}
 
-	BUG_ON(DAT_RX(virt)); // FIXME: we don't support storage >2GB
+	if (DAT_RX(virt)) {
+		FIXME("we don't support storage >2GB");
+		BUG();
+	}
 
 	if (region->origin == 0xfffffffffffffUL) {
 		/*
@@ -62,10 +65,10 @@ int dat_insert_page(struct address_space *as, u64 phy, u64 virt)
 
 		region->origin = ADDR_TO_RTE_ORIGIN((u64) ptr);
 
-		region->tf = 0; /* FIXME: is this right? */
+		region->tf = 0;
 		region->i = 0;
 		region->tt = DAT_RTE_TT_RTT;
-		region->tl = 3; /* FIXME: is this right? */
+		region->tl = 3;
 		region->__reserved0 = 0;
 		region->__reserved1 = 0;
 	}

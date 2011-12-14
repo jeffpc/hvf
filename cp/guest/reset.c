@@ -76,9 +76,10 @@ static void __perform_cpu_reset(struct virt_sys *sys, int flags)
 
 	if (flags & RESET_CPU) {
 		if (flags & SET_ESA390) {
-			/* FIXME: set the arch mode to ESA/390 */
+			FIXME("set the arch mode to ESA/390");
 		}
 
+		FIXME("clear interruptions (PROG, SVC, local EXT, MCHECK)");
 		/*
 		 * FIXME: clear interruptions:
 		 *  - PROG
@@ -97,15 +98,15 @@ static void __perform_cpu_reset(struct virt_sys *sys, int flags)
 		cpu->sie_cb.prefix = 0;
 
 	if (flags & RESET_CPU_TIMER) {
-		/* FIXME */
+		FIXME("");
 	}
 
 	if (flags & RESET_CLK_COMP) {
-		/* FIXME */
+		FIXME("");
 	}
 
 	if (flags & RESET_TOD_PROG_REG) {
-		/* FIXME */
+		FIXME("");
 	}
 
 	if (flags & RESET_CR) {
@@ -115,7 +116,7 @@ static void __perform_cpu_reset(struct virt_sys *sys, int flags)
 	}
 
 	if (flags & RESET_BREAK_EV_ADDR) {
-		/* FIXME: initialize to 0x1 */
+		FIXME("initialize to 0x1");
 	}
 
 	if (flags & RESET_FPCR)
@@ -153,6 +154,7 @@ static void __perform_cpu_reset(struct virt_sys *sys, int flags)
 	}
 
 	if (flags & RESET_PLO_LOCKS) {
+		FIXME("if RESET_PLO_LOCKS_PRESERVE is set, don't reset locks...");
 		/*
 		 * TODO: if RESET_PLO_LOCKS_PRESERVE is set, don't reset
 		 * locks held by powered on CPUS
@@ -170,7 +172,7 @@ static void __perform_noncpu_reset(struct virt_sys *sys, int flags)
 
 	if (flags & RESET_IO) {
 		for_each_vdev(sys, vdev) {
-			/* FIXME: wait for I/O to complete? */
+			FIXME("wait for I/O to complete?");
 			mutex_lock(&vdev->lock);
 
 			/* set to zero */

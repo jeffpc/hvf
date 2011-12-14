@@ -173,7 +173,7 @@ int spool_exec(struct virt_sys *sys, struct virt_device *vdev)
 		if (st.f && (ccw.addr & 0x80000000))
 			goto prog_check;
 
-		/* FIXME */
+		FIXME("");
 		if (ccw.flags & (CCW_FLAG_SKP | CCW_FLAG_PCI | CCW_FLAG_IDA |
 				 CCW_FLAG_S | CCW_FLAG_MIDA | CCW_FLAG_CD)) {
 			con_printf(sys->con, "unsupported ccw flag ");

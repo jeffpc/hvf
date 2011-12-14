@@ -82,7 +82,7 @@ static void free_vcpu(struct virt_sys *sys)
 	struct virt_cpu *cpu = sys->cpu;
 
 	if (sys->task) {
-		/* FIXME: kill the vcpu task */
+		FIXME("kill the vcpu task");
 	}
 
 	assert(list_empty(&cpu->int_io[0]));

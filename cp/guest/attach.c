@@ -11,7 +11,7 @@
 
 static void guest_append_crw(struct virt_sys *sys, struct crw *crw)
 {
-	sclp_msg("FIXME: guest CRW was not queued");
+	FIXME("guest CRW was not queued");
 }
 
 int guest_attach(struct virt_sys *sys, u64 rdev, u64 vdev)

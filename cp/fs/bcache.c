@@ -90,11 +90,10 @@ void *bcache_read(struct file *file, int level, u32 blk)
 		if (IS_ERR(ptrs))
 			return ptrs;
 
-		/* add the pointer to the cache
-		 *
-		 * FIXME: since we read the whole block, we should probably
-		 * add all the pointers to the cache
-		 */
+		/* add the pointer to the cache */
+
+		FIXME("since we read the whole block, we should probably "
+		      "add all the pointers to the cache");
 		cur = __bcache_add(file, level, blk, ptrs[off]);
 		if (IS_ERR(cur))
 			return cur;

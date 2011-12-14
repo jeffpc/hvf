@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <string.h>
 #include <binfmt_elf.h>
+#include <sclp.h>
 #include <arch.h>
 
 extern volatile u64 ticks;
@@ -44,6 +45,8 @@ extern void start(u64 __memsize, u32 __iplsch, Elf64_Ehdr *__symtab);
 				if (unlikely(!(cond))) \
 					BUG(); \
 			} while(0)
+
+#define FIXME(fmt, ...)	sclp_msg("FIXME @ " __FILE__ ":%d: " fmt, __LINE__, ##__VA_ARGS__)
 
 #include <config.h>
 

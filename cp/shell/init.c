@@ -31,7 +31,7 @@ static void process_cmd(struct virt_sys *sys)
 	u8 cmd[128];
 	int ret;
 
-	// FIXME: read a line from the
+	// FIXME: read a line from the console
 	// ret = con_read(sys->con, cmd, 128);
 	ret = -1;
 

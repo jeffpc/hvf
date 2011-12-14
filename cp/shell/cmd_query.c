@@ -47,7 +47,7 @@ static void display_vdev(struct virt_cons *con, struct virt_device *vdev)
 		case VDEV_CONS:
 			con_printf(con, "CONS %04X 3215 ON %s %04X %s SCH = %05X\n",
 				   vdev->pmcw.dev_num,
-				   type2name(con->dev->type), // FIXME?
+				   type2name(con->dev->type),
 				   con->dev->ccuu,
 				   sys->print_ts ? "TS" : "NOTS",
 				   vdev->sch);
@@ -67,6 +67,7 @@ static void display_vdev(struct virt_cons *con, struct virt_device *vdev)
 				   vdev->sch);
 			break;
 		case VDEV_MDISK:
+			FIXME("cyl count & rdev");
 			con_printf(con, "DASD %04X 3390 %6d CYL ON DASD %04X SCH = %05X\n",
 				   vdev->pmcw.dev_num,
 				   0, /* FIXME: cyl count */
@@ -74,6 +75,7 @@ static void display_vdev(struct virt_cons *con, struct virt_device *vdev)
 				   vdev->sch);
 			break;
 		case VDEV_LINK:
+			FIXME("userid & vdev #");
 			con_printf(con, "LINK %04X TO %s %04X SCH = %05X\n",
 				   vdev->pmcw.dev_num,
 				   "????", /* FIXME: userid */
