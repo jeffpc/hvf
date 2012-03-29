@@ -22,7 +22,7 @@ CMAKE_FORCE_C_COMPILER(s390x-linux-gcc GNU)
 set(CMAKE_ASM-ATT_COMPILE_OBJECT
 	"${CMAKE_ASM} ${ASM_SYS_FLAGS} <FLAGS> -o <OBJECT> <SOURCE>")
 
-set(CMAKE_C_FLAGS "-g -fno-strict-aliasing -fno-builtin -nostdlib -nostdinc -Wall -m64 -I ${PROJECT_SOURCE_DIR}/include/ -include ${PROJECT_SOURCE_DIR}/include/types.h -O2")
+set(CMAKE_C_FLAGS "-g -fno-strict-aliasing -fno-builtin -nostdlib -nostdinc -Wall -m64 -I ${PROJECT_SOURCE_DIR}/include/ -include ${PROJECT_SOURCE_DIR}/include/types.h -O2 -mbackchain")
 
 set(HVF_VERSION "0.16-rc3")
 
