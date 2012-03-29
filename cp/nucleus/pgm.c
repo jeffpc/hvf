@@ -1,14 +1,40 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * Copyright (c) 2007-2012 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * All rights reserved.
  *
- * This file is released under the GPLv2.  See the COPYING file for more
- * details.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
  */
 
 #include <interrupt.h>
 #include <symtab.h>
 #include <sclp.h>
 #include <mm.h>
+
+struct stack_frame {
+	u64 back_chain;
+	u64 reserved;
+	u64 gpr[14];  /* GPR 2..GPR 15 */
+	u64 fpr[4];   /* FPR 0, 2, 4, 6 */
+};
 
 /*
  * NOTE: Be *very* careful not to deref something we're not supposed to, we
@@ -17,25 +43,32 @@
 static void dump_stack(u64 addr)
 {
 	char buf[64];
-	u64 *end = (u64*) ((addr & ~PAGE_MASK) + PAGE_SIZE);
-	u64 text_start, text_end;
-	u64 *ptr;
+	struct stack_frame *cur;
+	u64 start, end;
+	u64 ra;
 
 	sclp_msg("Stack trace:\n");
 
 	if (addr > memsize)
 		return;
 
-	symtab_find_text_range(&text_start, &text_end);
-
 	addr &= ~0x7ull;
 
-	for(ptr=(u64*)addr; ptr<end; ptr++) {
-		if ((*ptr < text_start) || (*ptr > text_end))
-			continue;
+	start = addr;
+	end = (addr & ~PAGE_MASK) + PAGE_SIZE - sizeof(struct stack_frame);
 
-		sclp_msg("   %016llx   %-s\n", *ptr,
-			 symtab_lookup(*ptr, buf, sizeof(buf)));
+	cur = (struct stack_frame*) addr;
+
+	while(((u64)cur) >= start && ((u64)cur) < end) {
+		ra = cur->gpr[12];
+
+		sclp_msg("   %016llx   %-s\n", ra,
+			 symtab_lookup(ra, buf, sizeof(buf)));
+
+		if (!cur->back_chain)
+			break;
+
+		cur = (struct stack_frame*) cur->back_chain;
 	}
 }
 
