@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2012  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -9,6 +9,7 @@
 #define __VCPU_H
 
 #include <list.h>
+#include <circbuf.h>
 #include <console.h>
 #include <mutex.h>
 
@@ -66,6 +67,7 @@ struct virt_cons {
 	u8 *bigbuf;
 };
 
+#define NUM_CRWS	32
 struct virt_sys {
 	struct task *task;		/* the virtual CPU task */
 	struct virt_cpu *cpu;		/* the virtual CPU state */
@@ -83,6 +85,7 @@ struct virt_sys {
 
 	mutex_t virt_devs_lock;
 	struct list_head virt_devs;	/* list of guest virtual devs */
+	CIRCBUF(crws, NUM_CRWS, struct crw);
 
 	struct address_space as;	/* the guest storage */
 };

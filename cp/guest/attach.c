@@ -1,17 +1,18 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2012  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
  */
 
+#include <circbuf.h>
 #include <vcpu.h>
 #include <guest.h>
 #include <sclp.h>
 
 static void guest_append_crw(struct virt_sys *sys, struct crw *crw)
 {
-	FIXME("guest CRW was not queued");
+	insert_circbuf(&sys->crws, crw);
 }
 
 int guest_attach(struct virt_sys *sys, u64 rdev, u64 vdev)

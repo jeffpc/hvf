@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2012  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -212,6 +212,8 @@ struct virt_sys *guest_create(char *name, struct device *rcon)
 	sys = malloc(sizeof(struct virt_sys), ZONE_NORMAL);
 	if (!sys)
 		return NULL;
+
+	init_circbuf(&sys->crws, struct crw, NUM_CRWS);
 
 	if (alloc_console(&sys->console))
 		goto free;
