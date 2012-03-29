@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2012  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -16,6 +16,71 @@ static void __do_psw_swap(struct virt_cpu *cpu, u8 *gpsa, u64 old, u64 new,
 {
 	memcpy(gpsa + old, &cpu->sie_cb.gpsw, len);
 	memcpy(&cpu->sie_cb.gpsw, gpsa + new, len);
+}
+
+static int __mch_int(struct virt_sys *sys)
+{
+	struct virt_cpu *cpu = sys->cpu;
+	struct mch_int_code *mch;
+	u64 cr14;
+	u64 phy;
+	int ret;
+
+	if (!cpu->sie_cb.gpsw.m)
+		return 0;
+
+	/* Channel-Report Pending? */
+	if (pending_circbuf(&sys->crws)) {
+		cr14 = cpu->sie_cb.gcr[14];
+
+		if (cr14 & BIT64(35)) {
+			con_printf(sys->con, "Time for MCH int...\n");
+
+			/* get the guest's first page (PSA) */
+			ret = virt2phy_current(0, &phy);
+			if (ret) {
+				con_printf(sys->con, "Failed to queue up MCH "
+					   "interruption: %d (%s)\n", ret,
+					   errstrings[-ret]);
+				cpu->state = GUEST_STOPPED;
+
+				return 0;
+			}
+
+			/* do the PSW swap */
+			if (VCPU_ZARCH(cpu))
+				__do_psw_swap(cpu, (void*) phy, 0x160, 0x1e0, 16);
+			else
+				__do_psw_swap(cpu, (void*) phy, 48, 112, 8);
+
+			mch = (struct mch_int_code*) (phy + 0xe8);
+
+			/*
+			 * The following bits seem to work for Hercules
+			 * (00400F1D 403B0000)
+			 */
+			memset(mch, 0, sizeof(struct mch_int_code));
+			mch->cp = 1; /* channel report pending */
+			mch->wp = 1;
+			mch->ms = 1;
+			mch->pm = 1;
+			mch->ia = 1;
+			mch->fp = 1;
+			mch->gr = 1;
+			mch->cr = 1;
+			mch->st = 1;
+			mch->ar = 1;
+			mch->pr = 1;
+			mch->fc = 1;
+			mch->ap = 1;
+			mch->ct = 1;
+			mch->cc = 1;
+
+			return 1;
+		}
+	}
+
+	return 0;
 }
 
 static int __io_int(struct virt_sys *sys)
@@ -90,6 +155,9 @@ void run_guest(struct virt_sys *sys)
 	u64 save_gpr[16];
 
 	if (__io_int(sys))
+		goto go;
+
+	if (__mch_int(sys))
 		goto go;
 
 	if (psw->w) {
