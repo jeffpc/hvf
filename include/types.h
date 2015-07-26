@@ -22,11 +22,11 @@ typedef signed short s16;
 typedef unsigned char u8;
 typedef signed char s8;
 
-typedef u32 size_t;
+typedef u64 size_t;
 
 typedef __builtin_va_list va_list;
 
-typedef int ptrdiff_t;
+typedef s64 ptrdiff_t;
 
 /*
  * The MSB is bit 0
