@@ -1,6 +1,3 @@
-set(CMAKE_EXE_LINKER_FLAGS "-melf64_s390")
-set(CMAKE_ASM-ATT_FLAGS "-m64")
-
 add_executable(loader setmode.s loader_c.c loader_asm.s)
 set_target_properties(loader PROPERTIES LINK_FLAGS "-T ${CMAKE_CURRENT_SOURCE_DIR}/linker.script")
 
