@@ -1,3 +1,5 @@
+syntax: glob
+
 libnucleus.a
 
 config.tab.c

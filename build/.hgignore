@@ -1,3 +1,5 @@
+syntax: glob
+
 ccw_gen
 padcat
 mkarchive

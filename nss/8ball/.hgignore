@@ -1,3 +1,5 @@
+syntax: glob
+
 8ball
 8ball.o
 8ball.raw

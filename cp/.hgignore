@@ -1,3 +1,5 @@
+syntax: glob
+
 *.rto
 ipl/ipl_rdr_ccws.s
 ipl/ipl_tape.s
