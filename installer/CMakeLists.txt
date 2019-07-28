@@ -14,7 +14,7 @@ add_custom_command(
 
 add_custom_command(
 	OUTPUT rdr.s
-	COMMAND ../build/ccw_gen 00080000 80100000 `stat -c %s installer.rto` 100000 080000 > rdr.s
+	COMMAND ../build/ccw_gen 00080000 80100000 installer.rto 100000 080000 > rdr.s
 	DEPENDS installer.rto
 )
 

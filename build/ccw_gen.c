@@ -1,6 +1,29 @@
+/*
+ * Copyright (c) 2011-2019 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 static char *deck_head =
 "#\n"
@@ -138,9 +161,19 @@ static char *nop_ccw =
 static void die(char *pgm, char *s)
 {
 	fprintf(stderr, "Error: %s\n", s);
-	fprintf(stderr, "Usage: %s <psw word 1> <psw word 2> <file size> "
+	fprintf(stderr, "Usage: %s <psw word 1> <psw word 2> <loaded file> "
 		"<address> <channel pgm addr>\n", pgm);
 	exit(1);
+}
+
+static unsigned int get_file_size(const char *fname)
+{
+	struct stat buf;
+	int ret;
+
+	ret = stat(fname, &buf);
+
+	return ret ? 0 : buf.st_size;
 }
 
 static unsigned int unhex(char *pgm, char c)
@@ -184,9 +217,9 @@ int main(int argc, char **argv)
 	    (strlen(argv[2]) != 8))
 		die(argv[0], "Invalid PSW argument length");
 
-	size = atol(argv[3]);
+	size = get_file_size(argv[3]);
 	if (!size)
-		die(argv[0], "Invalid file size");
+		die(argv[0], "cannot get file size");
 
 	if ((strlen(argv[4]) != 6) ||
 	    (strlen(argv[5]) != 6))
