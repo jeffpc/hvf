@@ -1,5 +1,0 @@
-add_library(clock clock.c)
-add_library(digest digest.c)
-add_library(string string.c vsprintf.c)
-add_library(ebcdic ebcdic.c ascii.c)
-add_library(errno errno.c)

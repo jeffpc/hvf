@@ -1,81 +1,69 @@
 #
-# Copyright (c) 2007 Josef 'Jeff' Sipek
+# Copyright (c) 2007-2019 Josef 'Jeff' Sipek
 #
 
-#include "loader.h"
-
 .text
+	.align	4
+.globl __wait_for_attn
+	.type	__wait_for_attn, @function
+__wait_for_attn:
+	LARL	%r4,WAITPSW		# wait for the interrupt
+	LPSWE	0(%r4)
+
+# int __do_io(u32 sch);
 	.align	4
 .globl __do_io
 	.type	__do_io, @function
 __do_io:
-	#
-	# r4 = 0x80000000
-	#
-	XGR	%r4, %r4
-	LHI	%r4, 0x8
-	SLL	%r4, 20
-	#
-	# r14 = r14 & 0x7fffffff don't ask, it's strangely retarded
-	#
-	L	%r1,ADDRMASK(%r4)
-	NR	%r14, %r1  # mask out the bit
+	LGR	%r1,%r2			# load subsystem ID
 
-	# set up the interrupt handler
-	MVC	0x1f0(16),IOPSW(%r4)	# SET NEW IO PSW
-	LA	%r1,IOHANDLER(%r4)	# GET HANDLER ADDRESS
-	STG	%r1,0x1f0+8		# SAVE IN NEW PSW
+	LA	%r2,0xfff		# error return code
 
-	L	%r1, 0xb8		# load subsystem ID
-	
-	SSCH	ORB(%r4)		# issue IO
+	LARL	%r4,ORB
+	SSCH	0(%r4)			# issue IO
+	BCR	7, %r14			# return on error
 
-	# Load Control Register 6 with I/O interrupt subclass mask
-	STCTG	6,6,TMPVAR(%r4)		# GET CR6
-	OI	TMPVAR+4(%r4),0xFF	# enable all
-	LCTLG	6,6,TMPVAR(%r4)		# RELOAD MODIFIED CR6
-
-/*
-7) Enable the PSW for I/O interrupts and go into wait state (you need bits 6, 12 & 14 set to 1 in the PSW : X'020A000000000000' is a good example)
-*/
-	LPSWE	WAITPSW(%r4)
+	LARL	%r4,WAITPSW		# wait for the interrupt
+	LPSWE	0(%r4)
 
 #
-# The IO interrupt handler
+# The IO interrupt handler; it's very much like a continuation of __do_io
 #
 .globl IOHANDLER
 IOHANDLER:
 	# is this for us?
-	L	%r1, MAGICVAL(%r4)
-	C	%r1, 0xbc
-	BNE	IONOTDONE(%r4)
+	LARL	%r1,MAGICVAL
+	L	%r1,0(%r1)
+	C	%r1,0xbc
+	BRC	7,IONOTDONE
 
 	# it is!
 
-	L	%r1, 0xb8		# load subsystem ID
+	LLGF	%r1,0xb8		# load subsystem ID
 
-	TSCH	IRB(%r4)
+	LARL	%r4,IRB
+	TSCH	0(%r4)
 
-/*
-FIXME: we should do more checking!
+	# check the Channel Status for != 0
+	XGR	%r2,%r2
+	IC	%r2,9(%r4)
+	NILL	%r2,0xbf		# get rid of SLI
+	LTR	%r2,%r2
+	BCR	7,%r14			# error, let's bail
 
-11) If Unit check or Channel Status|=0 : An I/O error occurred and act accordingly
-12) If unit exception : End of media (for tape & cards) and act accordingly
-13) If device end : I/O Completed.. Perform post I/O stuff (like advancing your pointers) and back to step 3
-*/
+	# check the Device Status
+	XGR	%r1,%r1
+	IC	%r1,8(%r4)
 
-	# unit check? (end of media?)
-	L	%r1,IRB+5(%r4)
-	LA	%r0,0x02
-	NR	%r0,%r1
-	LA	%r2,1			# return 1 - end of medium
-	BCR	4,%r14			# unit chk => return
+	# unit check, unit except?
+	LR	%r2,%r1
+	NILL	%r2,0x03
+	BCR	4,%r14			# error return
 
-	# check the SCSW.. If CE Only : LPSW Old I/O PSW
-	LA	%r0,0x04
-	NR	%r0,%r1
-	LA	%r2,0			# means IO done
-	BCR	4,%r14			# device end => return
+	# attention, DE?
+	XGR	%r2,%r2
+	NILL	%r1,0x84
+	BCR	4,%r14			# ok return
 
 IONOTDONE:
 	LPSWE	0x170
@@ -95,7 +83,7 @@ PGMHANDLER:
 	# is ILC == 3?
 	LGH	%r2,0x8C
 	CGHI	%r2,0x0006
-	BNE	ERR
+	BNE	ERR(%r3)
 
 	# grab the old PSW address, subtract length of TPROT, and compare it
 	# with the TPROT opcode (0xe501)
@@ -144,7 +132,7 @@ IOPSW:
 		#     13      0   Machine-Check Mask (M)      disabled
 		#     14      0   Wait State (W)              executing
 		#     15      0   Problem State (P)           supervisor state
-		
+
 	.byte	0x00
 		#   bits  value   name                        desc
 		#  16-17      0   Address-Space Control (AS)  disabled
@@ -156,18 +144,8 @@ IOPSW:
 		#  24-30      0   <zero>
 		#     31      1   Extended Addressing (EA)    EA + BA = 64 mode
 
-	.byte	0x80
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
+	.byte	0x80, 0x00, 0x00, 0x00
+	.byte	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 		#   bits  value   name                        desc
 		#     32      1   Basic Addressing (BA)       BA = 31, !BA = 24
 		#  33-63      0   <zero>
@@ -191,7 +169,7 @@ WAITPSW:
 		#     13      0   Machine-Check Mask (M)      disabled
 		#     14      1   Wait State (W)              not executing
 		#     15      0   Problem State (P)           supervisor state
-		
+
 	.byte	0x00
 		#   bits  value   name                        desc
 		#  16-17      0   Address-Space Control (AS)  disabled
@@ -203,34 +181,12 @@ WAITPSW:
 		#  24-30      0   <zero>
 		#     31      1   Extended Addressing (EA)    EA + BA = 64 mode
 
-	.byte	0x80
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
+	.byte	0x80, 0x00, 0x00, 0x00
+	.byte	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 		#   bits  value   name                        desc
 		#     32      1   Basic Addressing (BA)       BA = 31, !BA = 24
 		#  33-63      0   <zero>
 		# 64-127   addr   Instruction Address         Address to exec
-
-.globl TMPVAR
-TMPVAR:
-	.8byte 0x0
-
-.globl ADDRMASK
-ADDRMASK:
-	.4byte 0x7fffffff
-
-.globl MAGICVAL
-MAGICVAL:
-	.4byte 0x12345678
 
 .globl IRB
 IRB:
@@ -247,3 +203,14 @@ IRB:
 	.8byte 0x00
 	.8byte 0x00
 
+	.align 4
+.globl ORB
+ORB:
+	.8byte 0x00
+	.8byte 0x00
+	.8byte 0x00
+	.8byte 0x00
+
+.globl MAGICVAL
+MAGICVAL:
+	.4byte 0x12345678

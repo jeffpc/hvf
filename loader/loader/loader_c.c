@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2009 Josef 'Jeff' Sipek
+ * Copyright (c) 2007-2019 Josef 'Jeff' Sipek
  */
 
 #include "loader.h"
@@ -39,22 +39,20 @@ static inline void die(void)
 	for(;;);
 }
 
-static u64 pgm_new_psw[2] = {
-	0x0000000180000000ULL, (u64) &PGMHANDLER,
-};
-
 /*
  * determine amount of storage
  */
 static u64 sense_memsize(void)
 {
+	volatile u64 *pgm_psw = (void *) 0x1d0;
 	u64 size;
 	int cc;
 
 #define SKIP_SIZE	(1024*1024ULL)
 
 	/* set new PGM psw */
-	memcpy((void*)0x1d0, pgm_new_psw, 16);
+	pgm_psw[0] = 0x0000000180000000ULL;
+	pgm_psw[1] = (u64) &PGMHANDLER;
 
 	for(size = 0; size < ((u64)~SKIP_SIZE)-1; size += SKIP_SIZE) {
 		asm volatile(
@@ -81,7 +79,7 @@ static u64 sense_memsize(void)
 	}
 
 	/* invalidate new PGM psw */
-	memset((void*)0x1d0, 0, 16);
+	memset((void *) pgm_psw, 0, 16);
 
 	return size;
 }

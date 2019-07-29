@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -7,6 +7,8 @@
 
 #ifndef __INTERRUPT_H
 #define __INTERRUPT_H
+
+#ifndef _ASM
 
 /*
  * I/O interruptions specific constants & structures
@@ -101,5 +103,7 @@ extern void __io_int_handler(void);
 
 /* Interrupt handler stack pointer */
 extern u8 *int_stack_ptr;
+
+#endif
 
 #endif

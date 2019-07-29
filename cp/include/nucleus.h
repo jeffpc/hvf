@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -7,6 +7,8 @@
 
 #ifndef __NUCLEUS_H
 #define __NUCLEUS_H
+
+#ifndef _ASM
 
 #include <compiler.h>
 #include <errno.h>
@@ -59,5 +61,7 @@ extern int vprintf(struct virt_cons *con, const char *fmt, va_list args)
         __attribute__ ((format (printf, 2, 0)));
 extern int con_printf(struct virt_cons *con, const char *fmt, ...)
         __attribute__ ((format (printf, 2, 3)));
+
+#endif
 
 #endif

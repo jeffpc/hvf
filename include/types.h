@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -7,6 +7,8 @@
 
 #ifndef __TYPES_H
 #define __TYPES_H
+
+#ifndef _ASM
 
 #define NULL	((void*) 0)
 
@@ -107,5 +109,7 @@ typedef s64 ptrdiff_t;
 	type __max = (max);			\
 	__val = __val < __min ? __min: __val;	\
 	__val > __max ? __max: __val; })
+
+#endif
 
 #endif

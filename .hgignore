@@ -4,14 +4,11 @@ syntax: glob
 *.orig
 *.rej
 
+*.o
+*.raw
+
 installer.bin
-
-CMakeCache.txt
-CMakeFiles
-Makefile
-cmake_install.cmake
-
-build-prefix
+installer.cpio
 
 subinclude:build/.hgignore
 subinclude:build/byacc/.hgignore
@@ -26,8 +23,12 @@ subinclude:cp/nucleus/.hgignore
 subinclude:cp/shell/.hgignore
 subinclude:doc/manual/.hgignore
 subinclude:installer/.hgignore
+subinclude:installer/installer/.hgignore
+subinclude:installer/rdr-ipl-rec/.hgignore
 subinclude:lib/.hgignore
 subinclude:loader/.hgignore
+subinclude:loader/eckd-ipl-rec/.hgignore
+subinclude:loader/loader/.hgignore
 subinclude:nss/8ball/.hgignore
 subinclude:nss/debuggers/.hgignore
 subinclude:nss/debuggers/src/.hgignore

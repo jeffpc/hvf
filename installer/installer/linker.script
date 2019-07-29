@@ -2,7 +2,11 @@ SECTIONS
 {
   ENTRY(MAIN)
   . = 0x100000;
-  .text : { *(.text) }
+
+  .text : {
+	  *setmode.o(.text)
+	  *(.text)
+  }
   .data : { *(.data) }
   .rodata : { *(.rodata) }
   .rodata.str1.2 : { *(.rodata.str1.2) }

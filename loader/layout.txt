@@ -1,8 +1,6 @@
 dasd layout:
 
-0,0,1		eckd.s
-0,0,2		setmode.s
-		loader.c
-		loader_asm.s
+0,0,1		eckd-ipl-rec/eckd.raw
+0,0,2		loader/loader.raw
 
 <on fs>		hvf.elf

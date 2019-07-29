@@ -1,11 +1,9 @@
 syntax: glob
 
-libnucleus.a
+config_grammar.c
+config_grammar.h
+config_lexer.c
 
-config.tab.c
-config.tab.h
-config.lex.c
-
-direct.tab.c
-direct.tab.h
-direct.lex.c
+direct_grammar.c
+direct_grammar.h
+direct_lexer.c

@@ -1,5 +1,10 @@
 syntax: glob
 
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+
 ccw_gen
 padcat
 mkarchive

@@ -3,10 +3,10 @@ SECTIONS
   ENTRY(START)
 
   . = 0;
-  .psa : { *psa.s.o(.data) }
+  .psa : { *psa.o(.data) }
 
   . = 0x100000 - 160;
-  .stack : { *entry.s.o(.data) }
+  .stack : { *entry.o(.data) }
 
   . = 0x2000;
   .text : { *(.text) }

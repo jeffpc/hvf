@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -10,7 +10,7 @@
 #include <lexer.h>
 #include <sclp.h>
 
-#include "config.tab.h"
+#include "config_grammar.h"
 
 static int __fill(struct lexer *lexer, int n)
 {
