@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -193,6 +193,8 @@ void start(u64 __memsize, u32 __iplsch, Elf64_Ehdr *__elfhdr)
 	u64 first_free_page;
 	u64 struct_page_bytes;
 	struct psw psw;
+
+	sclp_msg("HVF %s", VERSION);
 
 	/*
 	 * ticks starts at 0
