@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2011 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * Copyright (c) 2007-2019 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,11 +20,9 @@
  * SOFTWARE.
  */
 
-.text
+#include <asmlinkage.h>
 
-	.align	4
-.globl die
-	.type	die, @function
-die:
+ENTRY(die)
 	larl	%r1,disabled_wait
 	lpswe	0(%r1)
+SET_SIZE(die)

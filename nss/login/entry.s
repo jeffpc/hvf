@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2011 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * Copyright (c) 2007-2019 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,17 +20,17 @@
  * SOFTWARE.
  */
 
-.globl START
-	.type	START, @function
-START:
+#include <asmlinkage.h>
+
+ENTRY(START)
 	# set up the stack
 	larl	%r15,STACK
 
 	# jump to C
 	larl	%r14,start
 	basr	%r14,%r14
+SET_SIZE(START)
 
-.data
-.globl STACK
-STACK:
+GDATA(STACK, 8)
 	.byte 0
+SET_SIZE(STACK)
