@@ -25,7 +25,7 @@ SECTIONS
   ENTRY(START)
 
   . = 0;
-  .psa : { *psa.o(.data) }
+  .psa : { *psa.o(.bss) }
 
   . = 0x100000 - 160;
   .stack : { *entry.o(.data) }
