@@ -173,7 +173,7 @@ static int __finish_loading(void *data)
 	 */
 	get_parsed_tod(&ipltime);
 
-	sclp_msg("IPL AT %02d:%02d:%02d UTC %04d-%02d-%02d\n\n",
+	sclp_msg("IPL complete at %02d:%02d:%02d UTC %04d-%02d-%02d\n\n",
 		   ipltime.th, ipltime.tm, ipltime.ts, ipltime.dy,
 		   ipltime.dm, ipltime.dd);
 
