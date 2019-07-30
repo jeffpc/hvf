@@ -12,23 +12,38 @@
 
 #define NULL	((void*) 0)
 
-typedef unsigned long long u64;
-typedef signed long long s64;
+typedef unsigned char		uint8_t;
+typedef signed char		int8_t;
 
-typedef unsigned int u32;
-typedef signed int s32;
+typedef unsigned short		uint16_t;
+typedef signed short		int16_t;
 
-typedef unsigned short u16;
-typedef signed short s16;
+typedef unsigned int		uint32_t;
+typedef signed int		int32_t;
 
-typedef unsigned char u8;
-typedef signed char s8;
+typedef unsigned long long	uint64_t;
+typedef signed long long	int64_t;
 
-typedef u64 size_t;
+typedef uint64_t		uintptr_t;
+typedef int64_t			intptr_t;
+
+typedef uintptr_t	size_t;
+typedef intptr_t	ptrdiff_t;
 
 typedef __builtin_va_list va_list;
 
-typedef s64 ptrdiff_t;
+/*
+ * Legacy typedefs
+ */
+typedef uint8_t		u8;
+typedef uint16_t	u16;
+typedef uint32_t	u32;
+typedef uint64_t	u64;
+
+typedef int8_t		s8;
+typedef int16_t		s16;
+typedef int32_t		s32;
+typedef int64_t		s64;
 
 /*
  * The MSB is bit 0
