@@ -21,11 +21,20 @@ typedef signed short		int16_t;
 typedef unsigned int		uint32_t;
 typedef signed int		int32_t;
 
-typedef unsigned long long	uint64_t;
-typedef signed long long	int64_t;
+#if defined(_LP64)
+typedef unsigned long		uint64_t;
+typedef signed long		int64_t;
 
 typedef uint64_t		uintptr_t;
 typedef int64_t			intptr_t;
+#else
+typedef unsigned long long	uint64_t;
+typedef signed long long	int64_t;
+
+typedef uint32_t		uintptr_t;
+typedef int32_t			intptr_t;
+typedef int32_t			ptrdiff_t;
+#endif
 
 typedef uintptr_t	size_t;
 typedef intptr_t	ssize_t;

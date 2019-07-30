@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -32,7 +32,7 @@ static void get_crw()
 void __mch_int_handler(void)
 {
 	sclp_msg("MCH INTERRUPT!");
-	sclp_msg("%016llx: ", *(u64*)MCH_INT_CODE);
+	sclp_msg("%016lx: ", *(u64*)MCH_INT_CODE);
 	if (MCH_INT_CODE->sd)
 		sclp_msg("-> system damage");
 	if (MCH_INT_CODE->pd)

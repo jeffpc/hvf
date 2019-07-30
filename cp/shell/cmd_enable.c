@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -38,14 +38,14 @@ static int cmd_enable(struct virt_sys *sys, char *cmd, int len)
 
 	dev = find_device_by_ccuu(devnum);
 	if (IS_ERR(dev)) {
-		con_printf(sys->con, "Device %04llX not found in configuration\n", devnum);
+		con_printf(sys->con, "Device %04lX not found in configuration\n", devnum);
 		return 0;
 	}
 
 	mutex_lock(&dev->lock);
 
 	if (dev->in_use) {
-		con_printf(sys->con, "Device %04llX is already in use\n", devnum);
+		con_printf(sys->con, "Device %04lX is already in use\n", devnum);
 		goto out_err;
 	}
 
@@ -57,7 +57,7 @@ static int cmd_enable(struct virt_sys *sys, char *cmd, int len)
 
 	con = dev->dev->enable(dev);
 	if (IS_ERR(con)) {
-		con_printf(sys->con, "Failed to enable %04llX: %s\n",
+		con_printf(sys->con, "Failed to enable %04lX: %s\n",
 			   devnum, errstrings[-PTR_ERR(con)]);
 		goto out_err;
 	}

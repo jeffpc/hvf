@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -87,7 +87,7 @@ static void __display_storage_instruct(struct virt_sys *sys, u64 guest_addr,
 		/* load the dword at the address, and shift it to the LSB part */
 		val = *((u64*)host_addr) >> 8*(sizeof(u64) - ilen);
 
-		con_printf(sys->con, "R%016llX  %0*llX%*s  %s\n", guest_addr,
+		con_printf(sys->con, "R%016lX  %0*lX%*s  %s\n", guest_addr,
 			   2*ilen, val,			/* inst hex dump */
 			   12-2*ilen, "",		/* spacer */
 			   buf);
@@ -127,7 +127,7 @@ static void __display_storage_numeric(struct virt_sys *sys, u64 guest_addr,
 		mlen -= this_len;
 
 		bp = buf;
-		bp += snprintf(bp, 80, "R%016llX  ", guest_addr);
+		bp += snprintf(bp, 80, "R%016lX  ", guest_addr);
 
 		while(this_len) {
 			bp += snprintf(bp, 80 - (bp - buf), "%08X ",
@@ -156,7 +156,7 @@ static void __display_storage_numeric(struct virt_sys *sys, u64 guest_addr,
 
 fault:
 	if (ret)
-		con_printf(sys->con, "DISPLAY: The address %016llX is not part of "
+		con_printf(sys->con, "DISPLAY: The address %016lX is not part of "
 			   "guest configuration (RC=%d,%d)\n", guest_addr, -EFAULT, ret);
 }
 
@@ -275,28 +275,28 @@ static int cmd_display_gpr(struct virt_sys *sys, char *cmd, int len)
 {
 	SHELL_CMD_AUTH(sys, G);
 
-	con_printf(sys->con, "GR  0 = %016llX %016llX\n",
+	con_printf(sys->con, "GR  0 = %016lX %016lX\n",
 		   sys->cpu->regs.gpr[0],
 		   sys->cpu->regs.gpr[1]);
-	con_printf(sys->con, "GR  2 = %016llX %016llX\n",
+	con_printf(sys->con, "GR  2 = %016lX %016lX\n",
 		   sys->cpu->regs.gpr[2],
 		   sys->cpu->regs.gpr[3]);
-	con_printf(sys->con, "GR  4 = %016llX %016llX\n",
+	con_printf(sys->con, "GR  4 = %016lX %016lX\n",
 		   sys->cpu->regs.gpr[4],
 		   sys->cpu->regs.gpr[5]);
-	con_printf(sys->con, "GR  6 = %016llX %016llX\n",
+	con_printf(sys->con, "GR  6 = %016lX %016lX\n",
 		   sys->cpu->regs.gpr[6],
 		   sys->cpu->regs.gpr[7]);
-	con_printf(sys->con, "GR  8 = %016llX %016llX\n",
+	con_printf(sys->con, "GR  8 = %016lX %016lX\n",
 		   sys->cpu->regs.gpr[8],
 		   sys->cpu->regs.gpr[9]);
-	con_printf(sys->con, "GR 10 = %016llX %016llX\n",
+	con_printf(sys->con, "GR 10 = %016lX %016lX\n",
 		   sys->cpu->regs.gpr[10],
 		   sys->cpu->regs.gpr[11]);
-	con_printf(sys->con, "GR 12 = %016llX %016llX\n",
+	con_printf(sys->con, "GR 12 = %016lX %016lX\n",
 		   sys->cpu->regs.gpr[12],
 		   sys->cpu->regs.gpr[13]);
-	con_printf(sys->con, "GR 14 = %016llX %016llX\n",
+	con_printf(sys->con, "GR 14 = %016lX %016lX\n",
 		   sys->cpu->regs.gpr[14],
 		   sys->cpu->regs.gpr[15]);
 	return 0;
@@ -332,28 +332,28 @@ static int cmd_display_fpr(struct virt_sys *sys, char *cmd, int len)
 {
 	SHELL_CMD_AUTH(sys, G);
 
-	con_printf(sys->con, "FR  0 = %016llX %016llX\n",
+	con_printf(sys->con, "FR  0 = %016lX %016lX\n",
 		   sys->cpu->regs.fpr[0],
 		   sys->cpu->regs.fpr[1]);
-	con_printf(sys->con, "FR  2 = %016llX %016llX\n",
+	con_printf(sys->con, "FR  2 = %016lX %016lX\n",
 		   sys->cpu->regs.fpr[2],
 		   sys->cpu->regs.fpr[3]);
-	con_printf(sys->con, "FR  4 = %016llX %016llX\n",
+	con_printf(sys->con, "FR  4 = %016lX %016lX\n",
 		   sys->cpu->regs.fpr[4],
 		   sys->cpu->regs.fpr[5]);
-	con_printf(sys->con, "FR  6 = %016llX %016llX\n",
+	con_printf(sys->con, "FR  6 = %016lX %016lX\n",
 		   sys->cpu->regs.fpr[6],
 		   sys->cpu->regs.fpr[7]);
-	con_printf(sys->con, "FR  8 = %016llX %016llX\n",
+	con_printf(sys->con, "FR  8 = %016lX %016lX\n",
 		   sys->cpu->regs.fpr[8],
 		   sys->cpu->regs.fpr[9]);
-	con_printf(sys->con, "FR 10 = %016llX %016llX\n",
+	con_printf(sys->con, "FR 10 = %016lX %016lX\n",
 		   sys->cpu->regs.fpr[10],
 		   sys->cpu->regs.fpr[11]);
-	con_printf(sys->con, "FR 12 = %016llX %016llX\n",
+	con_printf(sys->con, "FR 12 = %016lX %016lX\n",
 		   sys->cpu->regs.fpr[12],
 		   sys->cpu->regs.fpr[13]);
-	con_printf(sys->con, "FR 14 = %016llX %016llX\n",
+	con_printf(sys->con, "FR 14 = %016lX %016lX\n",
 		   sys->cpu->regs.fpr[14],
 		   sys->cpu->regs.fpr[15]);
 	return 0;
@@ -372,28 +372,28 @@ static int cmd_display_cr(struct virt_sys *sys, char *cmd, int len)
 {
 	SHELL_CMD_AUTH(sys, G);
 
-	con_printf(sys->con, "CR  0 = %016llX %016llX\n",
+	con_printf(sys->con, "CR  0 = %016lX %016lX\n",
 		   sys->cpu->sie_cb.gcr[0],
 		   sys->cpu->sie_cb.gcr[1]);
-	con_printf(sys->con, "CR  2 = %016llX %016llX\n",
+	con_printf(sys->con, "CR  2 = %016lX %016lX\n",
 		   sys->cpu->sie_cb.gcr[2],
 		   sys->cpu->sie_cb.gcr[3]);
-	con_printf(sys->con, "CR  4 = %016llX %016llX\n",
+	con_printf(sys->con, "CR  4 = %016lX %016lX\n",
 		   sys->cpu->sie_cb.gcr[4],
 		   sys->cpu->sie_cb.gcr[5]);
-	con_printf(sys->con, "CR  6 = %016llX %016llX\n",
+	con_printf(sys->con, "CR  6 = %016lX %016lX\n",
 		   sys->cpu->sie_cb.gcr[6],
 		   sys->cpu->sie_cb.gcr[7]);
-	con_printf(sys->con, "CR  8 = %016llX %016llX\n",
+	con_printf(sys->con, "CR  8 = %016lX %016lX\n",
 		   sys->cpu->sie_cb.gcr[8],
 		   sys->cpu->sie_cb.gcr[9]);
-	con_printf(sys->con, "CR 10 = %016llX %016llX\n",
+	con_printf(sys->con, "CR 10 = %016lX %016lX\n",
 		   sys->cpu->sie_cb.gcr[10],
 		   sys->cpu->sie_cb.gcr[11]);
-	con_printf(sys->con, "CR 12 = %016llX %016llX\n",
+	con_printf(sys->con, "CR 12 = %016lX %016lX\n",
 		   sys->cpu->sie_cb.gcr[12],
 		   sys->cpu->sie_cb.gcr[13]);
-	con_printf(sys->con, "CR 14 = %016llX %016llX\n",
+	con_printf(sys->con, "CR 14 = %016lX %016lX\n",
 		   sys->cpu->sie_cb.gcr[14],
 		   sys->cpu->sie_cb.gcr[15]);
 	return 0;
@@ -443,19 +443,19 @@ static void __d_psw(struct virt_sys *sys, int zarch, char *name,
 		    u64 obase, u64 nbase, u32 *odata, u32 *ndata, int idx)
 {
 	if (zarch) {
-		con_printf(sys->con, "%s %04X  %3llX OLD %08X %08X %08X %08X\n",
+		con_printf(sys->con, "%s %04X  %3lX OLD %08X %08X %08X %08X\n",
 			   name, 0xffff, obase+(idx*16),
 			   odata[0+(idx*4)], odata[1+(idx*4)],
 			   odata[2+(idx*4)], odata[3+(idx*4)]);
-		con_printf(sys->con, "          %3llX NEW %08X %08X %08X %08X\n",
+		con_printf(sys->con, "          %3lX NEW %08X %08X %08X %08X\n",
 			   nbase+(idx*16),
 			   ndata[0+(idx*4)], ndata[1+(idx*4)],
 			   ndata[2+(idx*4)], ndata[3+(idx*4)]);
 	} else {
-		con_printf(sys->con, "%s %04X  %3llX OLD %08X %08X\n",
+		con_printf(sys->con, "%s %04X  %3lX OLD %08X %08X\n",
 			   name, 0xffff, obase+(idx*8),
 			   odata[0+(idx*2)], odata[1+(idx*2)]);
-		con_printf(sys->con, "          %3llX NEW %08X %08X\n",
+		con_printf(sys->con, "          %3lX NEW %08X %08X\n",
 			   nbase+(idx*8),
 			   ndata[0+(idx*2)], ndata[1+(idx*2)]);
 	}

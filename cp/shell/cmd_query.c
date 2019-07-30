@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -189,10 +189,10 @@ static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
 
 	SHELL_CMD_AUTH(sys, G);
 
-	con_printf(sys->con, "CPU 00  ID  %016llX %s\n",
+	con_printf(sys->con, "CPU 00  ID  %016lX %s\n",
 		   sys->cpu->cpuid,
 		   __guest_state_to_str(sys->cpu->state));
-	con_printf(sys->con, "STORAGE = %lluM\n", sys->directory->storage_size >> 20);
+	con_printf(sys->con, "STORAGE = %luM\n", sys->directory->storage_size >> 20);
 
 	for_each_vdev(sys, vdev)
 		display_vdev(sys->con, vdev);
@@ -202,14 +202,14 @@ static int cmd_query_virtual(struct virt_sys *sys, char *cmd, int len)
 
 static void __cmd_query_real_cpus(struct virt_sys *sys)
 {
-	con_printf(sys->con, "CPU %02d  ID  %016llX RUNNING\n",
+	con_printf(sys->con, "CPU %02d  ID  %016lX RUNNING\n",
 		   getcpuaddr(),
 		   getcpuid());
 }
 
 static void __cmd_query_real_stor(struct virt_sys *sys)
 {
-	con_printf(sys->con, "STORAGE = %lluM\n", memsize >> 20);
+	con_printf(sys->con, "STORAGE = %luM\n", memsize >> 20);
 }
 
 enum {

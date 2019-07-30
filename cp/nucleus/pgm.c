@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2012 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * Copyright (c) 2007-2019 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ static void dump_stack(u64 addr)
 	while(((u64)cur) >= start && ((u64)cur) < end) {
 		ra = cur->gpr[12];
 
-		sclp_msg("   %016llx   %-s\n", ra,
+		sclp_msg("   %016lx   %-s\n", ra,
 			 symtab_lookup(ra, buf, sizeof(buf)));
 
 		if (!cur->back_chain)
@@ -86,10 +86,10 @@ static void abend(void)
 	sclp_msg("PROG %04x, ILC %d\n", *PGM_INT_CODE, (*PGM_INT_ILC) >> 1);
 	sclp_msg("\n");
 	for(i=0; i<8; i++)
-		sclp_msg("R%-2d = %016llx        R%-2d = %016llx\n",
+		sclp_msg("R%-2d = %016lx        R%-2d = %016lx\n",
 			 i, PSA_INT_GPR[i], i+8, PSA_INT_GPR[i+8]);
 	sclp_msg("\n");
-	sclp_msg("PSW = %016llx %016llx\n",
+	sclp_msg("PSW = %016lx %016lx\n",
 		*((u64*) PGM_INT_OLD_PSW), *(((u64*) PGM_INT_OLD_PSW)+1));
 	sclp_msg("\n");
 	dump_stack(PSA_INT_GPR[15]);
