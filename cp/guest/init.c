@@ -191,17 +191,17 @@ static void free_console(struct virt_cons *con)
 }
 
 struct virt_sys *guest_create(char *name, struct device *rcon,
-			      int internal_guest)
+			      bool internal_guest)
 {
 	struct virt_sys *sys;
-	int already_online = 0;
+	bool already_online = false;
 	int ret;
 
 	/* first, check that we're not already online */
 	mutex_lock(&online_users_lock);
 	list_for_each_entry(sys, &online_users, online_users) {
 		if (!strcmp(sys->directory->userid, name)) {
-			already_online = 1;
+			already_online = true;
 			break;
 		}
 	}
@@ -235,7 +235,7 @@ struct virt_sys *guest_create(char *name, struct device *rcon,
 	assert(!ret);
 
 	sys->internal = internal_guest;
-	sys->print_ts = 1; /* print timestamps */
+	sys->print_ts = true; /* print timestamps */
 	sys->print_name = internal_guest; /* print names */
 
 	mutex_lock(&online_users_lock);

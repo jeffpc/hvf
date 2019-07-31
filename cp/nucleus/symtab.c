@@ -17,12 +17,12 @@ static Elf64_Shdr *__get_section(int i)
 static void *get_section(int type, int *entsize, int *size)
 {
 	Elf64_Shdr *cur;
-	int getstr = 0;
+	bool getstr = false;
 	int i;
 
 	/* we want the string table associated with the symbol table */
 	if (type == SHT_STRTAB) {
-		getstr = 1;
+		getstr = true;
 		type = SHT_SYMTAB;
 	}
 

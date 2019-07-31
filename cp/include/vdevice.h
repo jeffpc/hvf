@@ -43,7 +43,7 @@ struct spdev_state {
 	int cd;		/* chain data bool */
 	u8  cmd;	/* chain data command */
 
-	int tic2tic;
+	bool tic2tic;
 
 	struct spool_ops *ops;
 };

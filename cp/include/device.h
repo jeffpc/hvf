@@ -27,7 +27,7 @@ struct device_type {
 
 	u16 type;
 	u8 model;
-	u8 all_models;
+	bool all_models;
 };
 
 struct device {

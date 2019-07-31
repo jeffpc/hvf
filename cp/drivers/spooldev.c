@@ -101,7 +101,7 @@ int spool_exec(struct virt_sys *sys, struct virt_device *vdev)
 	st.cd         = 0;
 	st.rem        = 0;
 	st.pos        = 0;
-	st.tic2tic    = 0;
+	st.tic2tic    = false;
 
 	mutex_lock(&vdev->lock);
 	vdev->scsw.ac &= ~AC_START;
@@ -140,12 +140,12 @@ int spool_exec(struct virt_sys *sys, struct virt_device *vdev)
 
 			/* Note: we'll end up checking the address next interation */
 			st.addr = ccw.addr;
-			st.tic2tic = 1;
+			st.tic2tic = true;
 			continue;
 		}
 
 		/* reset the tic-to-tic flag */
-		st.tic2tic = 0;
+		st.tic2tic = false;
 
 		//////////////////////////////////////////////////////
 

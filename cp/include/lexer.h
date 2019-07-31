@@ -6,7 +6,7 @@
 /* lexer state */
 struct lexer {
 	struct fs *fs;
-	int init;
+	bool init;
 
 	struct file *file;
 	int recno;

@@ -33,7 +33,7 @@ static int __fill(struct lexer *lexer, int n)
 		lexer->buflen = sizeof(lexer->buf);
 		lexer->filllen = 0;
 
-		lexer->init = 1;
+		lexer->init = true;
 	}
 
 	if (lexer->recoff) {

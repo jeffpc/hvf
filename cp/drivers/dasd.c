@@ -194,7 +194,7 @@ static struct device_type d3390 = {
 	.read		= d3390_read,
 
 	.type		= 0x3390,
-	.all_models	= 1,
+	.all_models	= true,
 };
 
 /******************************************************************************/
@@ -267,7 +267,7 @@ static struct device_type d9336 = {
 	.enable		= NULL,
 	.snprintf	= d9336_snprintf,
 	.type		= 0x9336,
-	.all_models	= 1,
+	.all_models	= true,
 };
 
 int register_driver_dasd(void)

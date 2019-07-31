@@ -78,9 +78,9 @@ struct virt_sys {
 	struct virt_cons *con;		/* convenience pointer to the
 					   console struct */
 
-	int internal;			/* internal guest */
-	int print_ts;			/* print timestamps */
-	int print_name;			/* print guest name */
+	bool internal;			/* internal guest */
+	bool print_ts;			/* print timestamps */
+	bool print_name;		/* print guest name */
 
 	struct list_head guest_pages;	/* list of guest pages */
 	struct list_head online_users;	/* list of online users */

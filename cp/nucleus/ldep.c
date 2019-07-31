@@ -12,14 +12,14 @@
 #include <ldep.h>
 
 static spinlock_t __lock = SPIN_LOCK_UNLOCKED;
-static int ldep_enabled;
+static bool ldep_enabled;
 
 void ldep_on()
 {
 	unsigned long mask;
 
 	spin_lock_intsave(&__lock, &mask);
-	ldep_enabled = 1;
+	ldep_enabled = true;
 	spin_unlock_intrestore(&__lock, mask);
 }
 
@@ -87,7 +87,7 @@ void ldep_lock(void *lock, struct lock_class *c, char *lockname)
 				continue;
 
 			ldep_warn_recursive(lockname, ra, cur);
-			ldep_enabled = 0;
+			ldep_enabled = false;
 			goto out;
 		}
 	}
@@ -131,7 +131,7 @@ void ldep_unlock(void *lock, char *lockname)
 	sclp_msg(" (%s), at %p\n", lockname, ra);
 	print_held_locks();
 
-	ldep_enabled = 0;
+	ldep_enabled = false;
 
 	goto out;
 
@@ -167,7 +167,7 @@ void ldep_no_locks()
 	sclp_msg(" at %p\n", ra);
 	print_held_locks();
 
-	ldep_enabled = 0;
+	ldep_enabled = false;
 
 out:
 	// UNLOCK

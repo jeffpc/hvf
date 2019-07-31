@@ -18,7 +18,7 @@ static int cmd_set_nots(struct virt_sys *sys, char *cmd, int len)
 {
 	SHELL_CMD_AUTH(sys, G);
 
-	sys->print_ts = 0;
+	sys->print_ts = false;
 	return 0;
 }
 
@@ -35,7 +35,7 @@ static int cmd_set_ts(struct virt_sys *sys, char *cmd, int len)
 {
 	SHELL_CMD_AUTH(sys, G);
 
-	sys->print_ts = 1;
+	sys->print_ts = true;
 	return 0;
 }
 

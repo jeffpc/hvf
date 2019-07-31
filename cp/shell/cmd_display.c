@@ -8,7 +8,7 @@
 static char* parse_addrspec(u64 *val, u64 *len, char *s)
 {
 	u64 tmp;
-	int parsed = 0;
+	bool parsed = false;
 
 	tmp = 0;
 	while(!(*s == '\0' ||
@@ -25,7 +25,7 @@ static char* parse_addrspec(u64 *val, u64 *len, char *s)
 			return ERR_PTR(-EINVAL);
 
 		s++;
-		parsed = 1;
+		parsed = true;
 	}
 
 	if (len) {
@@ -33,13 +33,13 @@ static char* parse_addrspec(u64 *val, u64 *len, char *s)
 		if (*s == '.') {
 			s = __extract_hex(s+1, len);
 			if (IS_ERR(s))
-				parsed = 0;
+				parsed = false;
 		}
 	}
 
 	*val = tmp;
 
-	return (parsed == 1 ? s : ERR_PTR(-EINVAL));
+	return (parsed ? s : ERR_PTR(-EINVAL));
 }
 
 enum display_fmt {
