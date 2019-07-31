@@ -10,6 +10,10 @@
 
 #ifndef _ASM
 
+typedef _Bool bool;
+#define true	((_Bool) 1)
+#define false	((_Bool) 0)
+
 #define NULL	((void*) 0)
 
 typedef unsigned char		uint8_t;
