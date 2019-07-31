@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2012  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -78,6 +78,7 @@ struct virt_sys {
 	struct virt_cons *con;		/* convenience pointer to the
 					   console struct */
 
+	int internal;			/* internal guest */
 	int print_ts;			/* print timestamps */
 
 	struct list_head guest_pages;	/* list of guest pages */

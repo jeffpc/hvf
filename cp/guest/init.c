@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2012  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -190,7 +190,8 @@ static void free_console(struct virt_cons *con)
 	free_pages(con->bigbuf, 0);
 }
 
-struct virt_sys *guest_create(char *name, struct device *rcon)
+struct virt_sys *guest_create(char *name, struct device *rcon,
+			      int internal_guest)
 {
 	struct virt_sys *sys;
 	int already_online = 0;
@@ -233,6 +234,7 @@ struct virt_sys *guest_create(char *name, struct device *rcon)
 	ret = alloc_vcpu(sys);
 	assert(!ret);
 
+	sys->internal = internal_guest;
 	sys->print_ts = 1; /* print timestamps */
 
 	mutex_lock(&online_users_lock);

@@ -4,7 +4,8 @@
 #include <vcpu.h>
 #include <vdevice.h>
 
-extern struct virt_sys *guest_create(char *name, struct device *rcon);
+extern struct virt_sys *guest_create(char *name, struct device *rcon,
+				     int internal_guest);
 extern int guest_ipl_nss(struct virt_sys *sys, char *nssname);
 extern int guest_begin(struct virt_sys *sys);
 extern int guest_stop(struct virt_sys *sys);

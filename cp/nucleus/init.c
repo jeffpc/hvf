@@ -129,7 +129,7 @@ static int __finish_loading(void *data)
 	 * Alright, we have the config, we now need to set up the *LOGIN
 	 * guest and attach the operator console rdev to it
 	 */
-	login = guest_create("*LOGIN", NULL);
+	login = guest_create("*LOGIN", NULL, 1);
 	if (!login) {
 		err = "failed to create guest";
 		goto die;
