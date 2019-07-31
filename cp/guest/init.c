@@ -236,6 +236,7 @@ struct virt_sys *guest_create(char *name, struct device *rcon,
 
 	sys->internal = internal_guest;
 	sys->print_ts = 1; /* print timestamps */
+	sys->print_name = internal_guest; /* print names */
 
 	mutex_lock(&online_users_lock);
 	list_add_tail(&sys->online_users, &online_users);

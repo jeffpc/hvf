@@ -80,6 +80,7 @@ struct virt_sys {
 
 	int internal;			/* internal guest */
 	int print_ts;			/* print timestamps */
+	int print_name;			/* print guest name */
 
 	struct list_head guest_pages;	/* list of guest pages */
 	struct list_head online_users;	/* list of online users */

@@ -27,11 +27,18 @@ int con_vprintf(struct virt_cons *con, const char *fmt, va_list args)
 	if (sys->print_ts) {
 		memset(&dt, 0, sizeof(dt));
 		ret = get_parsed_tod(&dt);
-		off = snprintf(buf, 128, "%02d:%02d:%02d ", dt.th, dt.tm,
+		ret = snprintf(buf, sizeof(buf), "%02d:%02d:%02d ", dt.th, dt.tm,
 			       dt.ts);
+		off += ret;
 	}
 
-	ret = vsnprintf(buf+off, 128-off, fmt, args);
+	if (sys->print_name) {
+		ret = snprintf(buf + off, sizeof(buf) - off, "%s ",
+			       sys->directory->userid);
+		off += ret;
+	}
+
+	ret = vsnprintf(buf + off, sizeof(buf) - off, fmt, args);
 	if (ret) {
 		if (sys->internal) {
 			/* internal guests direct all console traffic to sclp */
