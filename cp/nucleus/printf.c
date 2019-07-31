@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -16,7 +16,7 @@
 #include <stdarg.h>
 #include <vcpu.h>
 
-int vprintf(struct virt_cons *con, const char *fmt, va_list args)
+int con_vprintf(struct virt_cons *con, const char *fmt, va_list args)
 {
 	struct virt_sys *sys = container_of(con, struct virt_sys, console);
 	struct datetime dt;
@@ -46,7 +46,7 @@ int con_printf(struct virt_cons *con, const char *fmt, ...)
 	int r;
 
 	va_start(args, fmt);
-	r = vprintf(con, fmt, args);
+	r = con_vprintf(con, fmt, args);
 	va_end(args);
 
 	return r;

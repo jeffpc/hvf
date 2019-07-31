@@ -57,10 +57,10 @@ extern void start(u64 __memsize, u32 __iplsch, Elf64_Ehdr *__symtab);
  */
 struct virt_cons;
 
-extern int vprintf(struct virt_cons *con, const char *fmt, va_list args)
-        __attribute__ ((format (printf, 2, 0)));
 extern int con_printf(struct virt_cons *con, const char *fmt, ...)
         __attribute__ ((format (printf, 2, 3)));
+extern int con_vprintf(struct virt_cons *con, const char *fmt, va_list args)
+        __attribute__ ((format (printf, 2, 0)));
 
 #endif
 
