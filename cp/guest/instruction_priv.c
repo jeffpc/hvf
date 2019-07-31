@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -402,11 +402,57 @@ out:
 	return ret;
 }
 
+static int handle_stcrw(struct virt_sys *sys)
+{
+	struct virt_cpu *cpu = sys->cpu;
+
+	u64 addr = RAW_S_1(cpu);
+	struct crw crw;
+	u64 len;
+
+	int ret = 0;
+
+	/* crw must be word-aligned */
+	if (addr & 0x3) {
+		queue_prog_exception(sys, PROG_SPEC, addr);
+		goto out;
+	}
+
+	mutex_lock(&sys->virt_devs_lock);
+
+	if (!remove_circbuf(&sys->crws, &crw)) {
+		memset(&crw, 0, sizeof(struct crw));
+		cpu->sie_cb.gpsw.cc = 1;
+	} else {
+		cpu->sie_cb.gpsw.cc = 0;
+	}
+
+	len = sizeof(struct crw);
+	ret = memcpy_to_guest(addr, &crw, &len);
+	if (ret) {
+		FIXME("should we re-queue the crw?");
+
+		if (ret == -EFAULT) {
+			ret = 0;
+			queue_prog_exception(sys, PROG_ADDR, addr);
+		}
+
+		mutex_unlock(&sys->virt_devs_lock);
+		goto out;
+	}
+
+	mutex_unlock(&sys->virt_devs_lock);
+
+out:
+	return ret;
+}
+
 static const intercept_handler_t instruction_priv_funcs[256] = {
 	[0x32] = handle_msch,
 	[0x33] = handle_ssch,
 	[0x34] = handle_stsch,
 	[0x35] = handle_tsch,
+	[0x39] = handle_stcrw,
 };
 
 int handle_instruction_priv(struct virt_sys *sys)
