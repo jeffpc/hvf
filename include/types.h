@@ -58,7 +58,7 @@ typedef int64_t		s64;
 /*
  * The MSB is bit 0
  */
-#define BIT64(x)	(1u << (63-(x)))
+#define BIT64(x)	((uint64_t) (1ull << (63-(x))))
 #define BIT32(x)	(1u << (31-(x)))
 #define BIT16(x)	(1u << (15-(x)))
 #define BIT8(x)		(1u << (7-(x)))
