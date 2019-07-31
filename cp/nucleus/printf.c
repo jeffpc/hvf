@@ -33,8 +33,14 @@ int con_vprintf(struct virt_cons *con, const char *fmt, va_list args)
 
 	ret = vsnprintf(buf+off, 128-off, fmt, args);
 	if (ret) {
-		ascii2ebcdic((u8 *) buf, off+ret);
-		//con_write(con, (u8 *) buf, off+ret);
+		if (sys->internal) {
+			/* internal guests direct all console traffic to sclp */
+			sclp_msg("%s", buf);
+		} else {
+			/* normal guests direct it to their console device */
+			ascii2ebcdic((u8 *) buf, off+ret);
+			//con_write(con, (u8 *) buf, off+ret);
+		}
 	}
 
 	return ret;
