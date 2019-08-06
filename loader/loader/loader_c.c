@@ -35,6 +35,8 @@ struct orb ORB = {
 	.addr		= 0xffffffff,
 };
 
+struct irb irb;
+
 static struct psw io_psw_template = {
 	.ea = 1,
 	.ba = 1,

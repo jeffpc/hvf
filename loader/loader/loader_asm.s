@@ -60,7 +60,7 @@ IOHANDLER:
 
 	L	%r1, 0xb8		# load subsystem ID
 
-	TSCH	IRB(%r4)
+	TSCH	irb(%r4)
 
 /*
 FIXME: we should do more checking!
@@ -71,7 +71,7 @@ FIXME: we should do more checking!
 */
 
 	# unit check? (end of media?)
-	L	%r1,IRB+5(%r4)
+	L	%r1,irb+5(%r4)
 	LA	%r0,0x02
 	NR	%r0,%r1
 	LA	%r2,1			# return 1 - end of medium
@@ -186,19 +186,3 @@ ADDRMASK:
 .globl MAGICVAL
 MAGICVAL:
 	.4byte 0x12345678
-
-.globl IRB
-IRB:
-	.8byte 0x00
-	.8byte 0x00
-	.8byte 0x00
-	.8byte 0x00
-	.8byte 0x00
-	.8byte 0x00
-	.8byte 0x00
-	.8byte 0x00
-	.8byte 0x00
-	.8byte 0x00
-	.8byte 0x00
-	.8byte 0x00
-

@@ -53,6 +53,7 @@ extern void PGMHANDLER();
 extern void load_nucleus(void);
 
 extern struct orb ORB;
+extern struct irb irb;
 
 /*
  * EDF related structs & macros
