@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2011 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * Copyright (c) 2007-2019 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 #ifndef __CHANNEL_H
 #define __CHANNEL_H
 
+#include <arch.h>
 #include <errno.h>
 
 /*
@@ -416,6 +417,24 @@ static inline int store_crw(struct crw *crw)
 	);
 
 	return cc;
+}
+
+static inline void enable_io_int_classes(uint8_t classes)
+{
+	uint64_t cr6;
+
+	cr6 = get_cr(6);
+	cr6 |= ((uint64_t) classes) << BIT64_SHIFT(39);
+	set_cr(6, cr6);
+}
+
+static inline void disable_io_int_classes(uint8_t classes)
+{
+	uint64_t cr6;
+
+	cr6 = get_cr(6);
+	cr6 &= ~(((uint64_t) classes) << BIT64_SHIFT(39));
+	set_cr(6, cr6);
 }
 
 #endif
