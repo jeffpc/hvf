@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2011 Josef 'Jeff' Sipek
+ * Copyright (c) 2007-2019 Josef 'Jeff' Sipek
  */
 
 #include "loader.h"
@@ -12,19 +12,12 @@ static unsigned char search_data[5];
 
 extern struct orb ORB;
 
-static u8 *buf = (u8*) (16 * 1024);
-static u32 *ptrbuf = (u32*) (20 * 1024);
-
 static u64 pgm_new_psw_diswait[2] = {
 	0x0002000180000000ULL, 0,
 };
 
 static u64 io_new_psw[2] = {
 	0x0000000180000000ULL, (u64) &IOHANDLER,
-};
-
-static u64 pgm_new_psw[2] = {
-	0x0000000180000000ULL, (u64) &PGMHANDLER,
 };
 
 u64 ipl_sch;
