@@ -103,6 +103,11 @@ static u64 sense_memsize(void)
 	return size;
 }
 
+static void enable_io(void)
+{
+	enable_io_int_classes(0xff);
+}
+
 static void read_blk(void *ptr, u32 lba)
 {
 	u16 cc, hh, r;
@@ -234,6 +239,11 @@ void load_nucleus(void)
 
 	/* Save the IPL device subchannel id */
 	iplsch = *((u32*) 0xb8);
+
+	/*
+	 * Enable I/O
+	 */
+	enable_io();
 
 	/*
 	 * Read entire ELF to temporary location

@@ -46,11 +46,6 @@ __do_io:
 	
 	SSCH	ORB(%r4)		# issue IO
 
-	# Load Control Register 6 with I/O interrupt subclass mask
-	STCTG	6,6,TMPVAR(%r4)		# GET CR6
-	OI	TMPVAR+4(%r4),0xFF	# enable all
-	LCTLG	6,6,TMPVAR(%r4)		# RELOAD MODIFIED CR6
-
 /*
 7) Enable the PSW for I/O interrupts and go into wait state (you need bits 6, 12 & 14 set to 1 in the PSW : X'020A000000000000' is a good example)
 */
@@ -235,10 +230,6 @@ WAITPSW:
 		#     32      1   Basic Addressing (BA)       BA = 31, !BA = 24
 		#  33-63      0   <zero>
 		# 64-127   addr   Instruction Address         Address to exec
-
-.globl TMPVAR
-TMPVAR:
-	.8byte 0x0
 
 .globl ADDRMASK
 ADDRMASK:
