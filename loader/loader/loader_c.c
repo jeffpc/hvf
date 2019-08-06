@@ -51,26 +51,6 @@ static u8 *buf = (u8*) (16 * 1024);
 static u32 *ptrbuf = (u32*) (20 * 1024);
 
 /*
- * halt the cpu
- *
- * NOTE: we don't care about not clobbering registers as when this
- * code executes, the CPU will be stopped.
- */
-static inline void die(void)
-{
-	asm volatile(
-		"SR	%r1, %r1	# not used, but should be zero\n"
-		"SR	%r3, %r3 	# CPU Address\n"
-		"SIGP	%r1, %r3, 0x05	# Signal, order 0x05\n"
-	);
-
-	/*
-	 * Just in case SIGP fails
-	 */
-	for(;;);
-}
-
-/*
  * determine amount of storage
  */
 static u64 sense_memsize(void)
@@ -128,7 +108,7 @@ static void read_blk(void *ptr, u32 lba)
 	u16 cc, hh, r;
 
 	if (lba < 1)
-		die();
+		sigp_stop();
 
 	memset(ccw, 0, sizeof(ccw));
 
@@ -200,14 +180,14 @@ static inline void readnucleus(void)
 	    (ADT->DBSIZ != EDF_SUPPORTED_BLOCK_SIZE) ||
 	    (ADT->OFFST != 0) ||
 	    (ADT->FSTSZ != sizeof(struct FST)))
-		die();
+		sigp_stop();
 
 	nfst = ADT->NFST;
 
 	read_blk(buf, ADT->DOP);
 
 	if (FST->NLVL != 0)
-	       die(); // FIXME
+	       sigp_stop(); // FIXME
 
 	for(i=0,found=0; i<nfst; i++) {
 		if ((!memcmp(FST[i].FNAME, CP_FN, 8)) &&
@@ -219,16 +199,16 @@ static inline void readnucleus(void)
 	}
 
 	if (!found)
-		die();
+		sigp_stop();
 
 	if (fst.PTRSZ != 4 ||
 	    fst.LRECL != 4096 ||
 	    fst.RECFM != FSTDFIX)
-		die();
+		sigp_stop();
 
 	/* Don't allow more than 3MB to be read */
 	if ((FST->AIC * FST->LRECL) > (3ULL * 1024 * 1024))
-		die();
+		sigp_stop();
 
 	/* Since we're assuming that NLVL==1, there's only 1 pointer block */
 	read_blk(ptrbuf, fst.FOP);
@@ -280,7 +260,7 @@ void load_nucleus(void)
 	    nucleus_elf->e_type != ET_EXEC ||
 	    nucleus_elf->e_machine != 0x16 || // FIXME: find the name for the #define
 	    nucleus_elf->e_version != EV_CURRENT)
-		die();
+		sigp_stop();
 
 	/* Iterate through each program header, and copy all PT_LOAD
 	 * segments to the final destinations.
