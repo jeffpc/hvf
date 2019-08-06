@@ -94,22 +94,9 @@ static void abend(void)
 	sclp_msg("\n");
 	dump_stack(PSA_INT_GPR[15]);
 
-	/*
-	 * halt the cpu
-	 *
-	 * NOTE: we don't care about not clobbering registers as when this
-	 * code executes, the CPU will be stopped.
-	 */
-	asm volatile(
-		"SR	%r1, %r1	# not used, but should be zero\n"
-		"SR	%r3, %r3 	# CPU Address\n"
-		"SIGP	%r1, %r3, 0x05	# Signal, order 0x05\n"
-	);
 
-	/*
-	 * If SIGP failed, loop forever
-	 */
-	for(;;);
+	/* halt the cpu */
+	sigp_stop();
 }
 
 void __pgm_int_handler(void)
