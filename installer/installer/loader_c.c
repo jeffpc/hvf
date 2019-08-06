@@ -87,15 +87,6 @@ void __readwrite_blk(void *ptr, u32 lba, int rwccw)
 		die();
 }
 
-struct senseid_struct {
-	u8 __reserved;
-	u16 cu_type;
-	u8 cu_model;
-	u16 dev_type;
-	u8 dev_model;
-} __attribute__((packed));
-
-
 static int dev_dasd(void)
 {
 	int ret;
