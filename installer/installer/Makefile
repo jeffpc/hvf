@@ -29,6 +29,8 @@ SRCS=	setmode.s \
 	edf.c
 BITS=	64
 
+CFLAGS.OPT= -Os
+
 LD_ADD=	$(SRCTOP)/lib/lib.a
 
 .include <${.CURDIR:H:H}/build.mk>
