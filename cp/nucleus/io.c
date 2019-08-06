@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2010  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * (C) Copyright 2007-2019  Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * This file is released under the GPLv2.  See the COPYING file for more
  * details.
@@ -102,21 +102,8 @@ int submit_io(struct device *dev, struct io_op *ioop, int flags)
  */
 void init_io(void)
 {
-	u64 cr6;
-
-	cr6 = get_cr(6);
-
 	/* enable all I/O interrupt classes */
-	cr6 |= BIT64(32);
-	cr6 |= BIT64(33);
-	cr6 |= BIT64(34);
-	cr6 |= BIT64(35);
-	cr6 |= BIT64(36);
-	cr6 |= BIT64(37);
-	cr6 |= BIT64(38);
-	cr6 |= BIT64(39);
-
-	set_cr(6, cr6);
+	enable_io_int_classes(0xff);
 }
 
 static int default_io_handler(struct device *dev, struct io_op *ioop, struct irb *irb)
