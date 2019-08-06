@@ -61,11 +61,22 @@ typedef int64_t		s64;
 
 /*
  * The MSB is bit 0
+ *
+ * BIT*_SHIFT(x) calculates the amount of shift necessary for a shifted
+ * value's LSB to bit at bit position x.
+ *
+ * BIT*(x) produces a value with the bit at position x set and all other
+ * bits cleared.
  */
-#define BIT64(x)	((uint64_t) (1ull << (63-(x))))
-#define BIT32(x)	(1u << (31-(x)))
-#define BIT16(x)	(1u << (15-(x)))
-#define BIT8(x)		(1u << (7-(x)))
+#define BIT64_SHIFT(x)	(63-(x))
+#define BIT32_SHIFT(x)	(31-(x))
+#define BIT16_SHIFT(x)	(15-(x))
+#define BIT8_SHIFT(x)	(7-(x))
+
+#define BIT64(x)	((uint64_t) (1ull << BIT64_SHIFT(x)))
+#define BIT32(x)	(1u << BIT32_SHIFT(x))
+#define BIT16(x)	(1u << BIT16_SHIFT(x))
+#define BIT8(x)		(1u << BIT8_SHIFT(x))
 
 /*
  * min/max/clamp/min_t/max_t/clamp_t borrowed from Linux
