@@ -41,6 +41,12 @@ static struct psw io_psw_template = {
 	.ptr = (uintptr_t) &IOHANDLER,
 };
 
+static struct psw pgm_psw_template = {
+	.ea = 1,
+	.ba = 1,
+	.ptr = (uintptr_t) &PGMHANDLER,
+};
+
 static u8 *buf = (u8*) (16 * 1024);
 static u32 *ptrbuf = (u32*) (20 * 1024);
 
@@ -69,15 +75,14 @@ static inline void die(void)
  */
 static u64 sense_memsize(void)
 {
-	volatile u64 *pgm_psw = (void *) 0x1d0;
+	volatile struct psw *pgm_psw = (void *) 0x1d0;
 	u64 size;
 	int cc;
 
 #define SKIP_SIZE	(1024*1024ULL)
 
 	/* set new PGM psw */
-	pgm_psw[0] = 0x0000000180000000ULL;
-	pgm_psw[1] = (u64) &PGMHANDLER;
+	*pgm_psw = pgm_psw_template;
 
 	for(size = 0; size < ((u64)~SKIP_SIZE)-1; size += SKIP_SIZE) {
 		asm volatile(
