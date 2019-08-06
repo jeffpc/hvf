@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2011 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * Copyright (c) 2007-2019 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -61,6 +61,29 @@ static inline void lpswe(struct psw *psw)
 	: /* input */
 	  "m" (*psw)
 	);
+}
+
+/*
+ * Stop the cpu
+ *
+ * NOTE: We don't care about not clobbering registers as when this
+ * code executes, the CPU will be stopped.
+ *
+ * TODO: mark this with a no-return attribute
+ */
+static inline void sigp_stop(void)
+{
+	asm volatile(
+		"SR	%r1, %r1	# not used, but should be zero\n"
+		"SR	%r3, %r3 	# CPU Address\n"
+		"SIGP	%r1, %r3, 0x05	# order 0x05 = stop\n"
+	);
+
+	/*
+	 * Just in case SIGP fails
+	 */
+	for (;;)
+		;
 }
 
 /*
