@@ -26,6 +26,8 @@ SRCS=	setmode.s \
 	loader_asm.s
 BITS=	64
 
+CFLAGS.OPT=	-Os
+
 .include <${.CURDIR:H:H}/build.mk>
 
 all: loader.raw
