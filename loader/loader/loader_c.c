@@ -28,7 +28,7 @@ static unsigned char seek_data[6];
 static unsigned char search_data[5];
 static struct ccw ccw[4];
 
-struct orb ORB = {
+struct orb orb = {
 	.param		= 0x12345678,
 	.f		= 1,
 	.lpm		= 0xff,
@@ -120,7 +120,7 @@ static void read_blk(void *ptr, u32 lba)
 	r = (lba % RECORDS_PER_CYL) % RECORDS_PER_TRACK;
 	r++;
 
-	ORB.addr = ADDR31(ccw);
+	orb.addr = ADDR31(ccw);
 
 	/* SEEK */
 	ccw[0].cmd = 0x07;

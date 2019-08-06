@@ -52,7 +52,7 @@ extern void PGMHANDLER();
 
 extern void load_nucleus(void);
 
-extern struct orb ORB;
+extern struct orb orb;
 extern struct irb irb;
 
 /*

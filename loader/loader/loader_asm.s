@@ -39,7 +39,7 @@ __do_io:
 
 	L	%r1, 0xb8		# load subsystem ID
 	
-	SSCH	ORB(%r4)		# issue IO
+	SSCH	orb(%r4)		# issue IO
 
 /*
 7) Enable the PSW for I/O interrupts and go into wait state (you need bits 6, 12 & 14 set to 1 in the PSW : X'020A000000000000' is a good example)
