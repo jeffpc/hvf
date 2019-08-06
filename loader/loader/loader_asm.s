@@ -185,6 +185,7 @@ IOPSW:
 		# 64-127   addr   Instruction Address         Address to exec
 
 .globl WAITPSW
+	.align 8
 WAITPSW:
 	.byte	0x02
 		#   bits  value   name                        desc
