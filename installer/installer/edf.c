@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
+ * Copyright (c) 2011-2019 Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,6 +21,7 @@
  */
 
 #include "loader.h"
+#include <arch.h>
 #include <string.h>
 #include <ebcdic.h>
 #include <list.h>
@@ -88,14 +89,14 @@ static void block_map_add(u8 *fn, u8 *ft, u8 level, u32 blk_no, u32 lba)
 	map = block_map_find(fn, ft, level, blk_no);
 	if (map) {
 		if (map->lba != lba)
-			die();
+			sigp_stop();
 
 		return;
 	}
 
 	map = malloc(sizeof(struct block_map));
 	if (!map)
-		die();
+		sigp_stop();
 
 	memcpy(map->fn, fn, 8);
 	memcpy(map->ft, ft, 8);
@@ -119,7 +120,7 @@ static void *read_file_blk(u8 *fn, u8 *ft, u8 level, u32 blk)
 		snprintf(buf,128,"%s could not find block %d at level %d\n",
 			 __func__, blk, level);
 		wto(buf);
-		die();
+		sigp_stop();
 	}
 
 	if (map->buf)
@@ -127,7 +128,7 @@ static void *read_file_blk(u8 *fn, u8 *ft, u8 level, u32 blk)
 
 	map->buf = malloc(adt->adt.DBSIZ);
 	if (!map->buf)
-		die();
+		sigp_stop();
 
 	read_blk(map->buf, map->lba);
 
@@ -140,7 +141,7 @@ static void blk_set_dirty(u8 *fn, u8 *ft, u8 level, u32 blk)
 
 	map = block_map_find(fn, ft, level, blk);
 	if (!map || !map->buf)
-		die();
+		sigp_stop();
 
 	map->dirty = 1;
 }
@@ -155,7 +156,7 @@ void writeback_buffers()
 			continue;
 
 		if (!cur->buf)
-			die();
+			sigp_stop();
 
 		write_blk(cur->buf, cur->lba);
 	}
@@ -212,7 +213,7 @@ static void update_directory(struct FST *fst)
 		}
 	}
 
-	die();
+	sigp_stop();
 }
 
 static int file_blocks_at_level(u32 ADBC, int level)
@@ -254,7 +255,7 @@ static void __read_file(struct FST *fst)
 		blocks = file_blocks_at_level(fst->ADBC, level);
 
 		if (level == fst->NLVL && blocks != 1)
-			die();
+			sigp_stop();
 
 		/* read in each block */
 		for(i=0; i<blocks; i++) {
@@ -334,7 +335,7 @@ found:
 		}
 	}
 
-	die();
+	sigp_stop();
 	return 0;
 }
 
@@ -365,7 +366,7 @@ static void __append_block(struct FST *fst)
 			int x;
 
 			if (!lvl)
-				die();
+				sigp_stop();
 
 			buf = read_file_blk(fst->FNAME, fst->FTYPE, lvl,
 					    blk-1);
@@ -417,7 +418,7 @@ void append_record(struct FST *fst, u8 *buf)
 	u8 *dbuf;
 
 	if (fst->RECFM != FSTDFIX)
-		die();
+		sigp_stop();
 
 	foff = fst->AIC * fst->LRECL;
 
@@ -460,7 +461,7 @@ void mount_fs()
 	    (adt->adt.DBSIZ != EDF_SUPPORTED_BLOCK_SIZE) ||
 	    (adt->adt.OFFST != 0) ||
 	    (adt->adt.FSTSZ != sizeof(struct FST)))
-		die();
+		sigp_stop();
 
 	block_map_add(DIRECTOR_FN, DIRECTOR_FT, 0, 0, adt->adt.DOP);
 
@@ -472,7 +473,7 @@ void mount_fs()
 	    memcmp(fst[1].FNAME, ALLOCMAP_FN, 8) ||
 	    memcmp(fst[1].FTYPE, ALLOCMAP_FT, 8) ||
 	    (fst[1].RECFM != FSTDFIX))
-		die();
+		sigp_stop();
 
 	directory = fst;
 	allocmap  = fst+1;

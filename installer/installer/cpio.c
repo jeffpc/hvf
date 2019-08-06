@@ -21,6 +21,7 @@
  */
 
 #include "loader.h"
+#include <arch.h>
 #include <string.h>
 #include <ebcdic.h>
 
@@ -75,7 +76,7 @@ static void save_file(struct table *te, int filesize, u8 *buf)
 		wto(te->fn);
 		wto("' already exists on the device.\n");
 		wto("The device has been left unmodified.\n");
-		die();
+		sigp_stop();
 	}
 
 	ret = create_file(te->fn, te->ft, te->lrecl, &fst);
@@ -83,7 +84,7 @@ static void save_file(struct table *te, int filesize, u8 *buf)
 		wto("Could not create file '");
 		wto(te->fn);
 		wto("'.\n");
-		die();
+		sigp_stop();
 	}
 
 	if (te->text)
@@ -91,7 +92,7 @@ static void save_file(struct table *te, int filesize, u8 *buf)
 
 	if (te->lba) {
 		if (filesize > te->lrecl)
-			die();
+			sigp_stop();
 		snprintf(pbuf, 100, "special file, writing copy of data to LBA %d\n",
 			 te->lba);
 		wto(pbuf);
@@ -147,7 +148,7 @@ static void readcard(u8 *buf)
 	}
 
 	if (ret)
-		die();
+		sigp_stop();
 }
 
 void unload_archive(void)
