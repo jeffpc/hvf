@@ -34,8 +34,9 @@ CPPFLAGS.ALL=	-DVERSION="\"$(HVF_VERSION)\"" \
 		$(DEFS)
 CPPFLAGS.31=	$(CPPFLAGS.ALL)
 CPPFLAGS.64=	$(CPPFLAGS.ALL)
+CFLAGS.OPT?=	-O2
 CFLAGS.ALL=	-Wall \
-		-O2 \
+		$(CFLAGS.OPT) \
 		-g \
 		-m$(BITS) \
 		-mbackchain \
