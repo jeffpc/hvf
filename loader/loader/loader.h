@@ -47,6 +47,7 @@
 #define ADDR31(x)	((u32) (u64) (x))
 
 extern void __do_io();
+extern void IOHANDLER();
 extern void PGMHANDLER();
 
 extern void load_nucleus(void);

@@ -35,6 +35,12 @@ struct orb ORB = {
 	.addr		= 0xffffffff,
 };
 
+static struct psw io_psw_template = {
+	.ea = 1,
+	.ba = 1,
+	.ptr = (uintptr_t) &IOHANDLER,
+};
+
 static u8 *buf = (u8*) (16 * 1024);
 static u32 *ptrbuf = (u32*) (20 * 1024);
 
@@ -105,6 +111,10 @@ static u64 sense_memsize(void)
 
 static void enable_io(void)
 {
+	volatile struct psw *io_psw = (void *) 0x1f0;
+
+	*io_psw = io_psw_template;
+
 	enable_io_int_classes(0xff);
 }
 

@@ -37,11 +37,6 @@ __do_io:
 	L	%r1,ADDRMASK(%r4)
 	NR	%r14, %r1  # mask out the bit
 
-	# set up the interrupt handler
-	MVC	0x1f0(16),IOPSW(%r4)	# SET NEW IO PSW
-	LA	%r1,IOHANDLER(%r4)	# GET HANDLER ADDRESS
-	STG	%r1,0x1f0+8		# SAVE IN NEW PSW
-
 	L	%r1, 0xb8		# load subsystem ID
 	
 	SSCH	ORB(%r4)		# issue IO
@@ -135,54 +130,6 @@ ERR:
 .globl TPROTOP
 TPROTOP:
 .byte	0xe5, 0x01
-
-	.align 8
-.globl IOPSW
-IOPSW:
-	.byte	0x00
-		#   bits  value   name                        desc
-		#      0      0   <zero>
-		#      1      0   PER Mask (R)                disabled
-		#    2-4      0   <zero>
-		#      5      0   DAT Mode (T)                disabled
-		#      6      0   I/O Mask (IO)               enabled
-		#      7      0   External Mask (EX)          disabled
-
-	.byte	0x00
-		#   bits  value   name                        desc
-		#   8-11      0   Key
-		#     12      0   <one>
-		#     13      0   Machine-Check Mask (M)      disabled
-		#     14      0   Wait State (W)              executing
-		#     15      0   Problem State (P)           supervisor state
-		
-	.byte	0x00
-		#   bits  value   name                        desc
-		#  16-17      0   Address-Space Control (AS)  disabled
-		#  18-19      0   Condition Code (CC)
-		#  20-23      0   Program Mask                exceptions disabled
-
-	.byte	0x01
-		#   bits  value   name                        desc
-		#  24-30      0   <zero>
-		#     31      1   Extended Addressing (EA)    EA + BA = 64 mode
-
-	.byte	0x80
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-	.byte	0x00
-		#   bits  value   name                        desc
-		#     32      1   Basic Addressing (BA)       BA = 31, !BA = 24
-		#  33-63      0   <zero>
-		# 64-127   addr   Instruction Address         Address to exec
 
 .globl WAITPSW
 	.align 8
