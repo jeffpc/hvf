@@ -22,65 +22,6 @@
 #define memcmp(d,s,l)	__builtin_memcmp((d), (s), (l))
 #define memset(s,c,n)	__builtin_memset((s),(c),(n))
 
-/*
- * I/O related structs, macros & variables
- */
-struct ccw {
-	u8 cmd;			/* Command code */
-	u8 flags;		/* Flags */
-	u16 count;		/* Count */
-	u32 addr;		/* Data Address */
-} __attribute__((packed,aligned(8)));
-
-#define CCW_FLAG_CD		0x80	/* Chain-Data */
-#define CCW_FLAG_CC		0x40	/* Chain-Command */
-#define CCW_FLAG_SLI		0x20	/* Suppress-Length-Indication */
-#define CCW_FLAG_SKP		0x10	/* Skip */
-#define CCW_FLAG_PCI		0x08	/* Program-Controlled-Interruption */
-#define CCW_FLAG_IDA		0x04	/* Indirect-Data-Address */
-#define CCW_FLAG_S		0x02	/* Suspend */
-#define CCW_FLAG_MIDA		0x01	/* Modified-Indirect-Data-Address */
-
-struct orb {
-	/* word 0 */
-	u32 param;		/* Interruption Parameter */
-
-	/* word 1 */
-	u8 key:4,		/* Subchannel Key */
-	   s:1,			/* Suspend */
-	   c:1,			/* Streaming-Mode Control */
-	   m:1,			/* Modification Control */
-	   y:1;			/* Synchronization Control */
-	u8 f:1,			/* Format Control */
-	   p:1,			/* Prefetch Control */
-	   i:1,			/* Initial-Status-Interruption Control */
-	   a:1,			/* Address-Limit-Checking control */
-	   u:1,			/* Suppress-Suspend-Interruption Control */
-	   __zero1:1,
-	   h:1,			/* Format-2-IDAW Control */
-	   t:1;			/* 2K-IDAW Control */
-	u8 lpm;			/* Logical-Path Mask */
-	u8 l:1,			/* Incorrect-Length-Suppression Mode */
-	   d:1,			/* Modified-CCW-Indirect-Data-Addressing Control */
-	   __zero2:5,
-	   x:1;			/* ORB-Extension Control */
-
-	/* word 2 */
-	u32 addr;		/* Channel-Program Address */
-
-	/* word 3 */
-	u8 css_prio;		/* Channel-Subsystem Priority */
-	u8 __reserved1;
-	u8 cu_prio;		/* Control-Unit Priority */
-	u8 __reserved2;
-
-	/* word 4 - 7 */
-	u32 __reserved3;
-	u32 __reserved4;
-	u32 __reserved5;
-	u32 __reserved6;
-} __attribute__((packed,aligned(4)));
-
 #define ADDR31(x)	((u32) (u64) (x))
 
 extern void __do_io();

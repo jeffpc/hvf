@@ -3,6 +3,7 @@
  */
 
 #include "loader.h"
+#include <channel.h>
 #include <binfmt_elf.h>
 
 static unsigned char seek_data[6];
